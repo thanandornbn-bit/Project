@@ -23,9 +23,6 @@
         คำอธิบาย:
         <input type="text" name="description" value="${room.description}" required/><br><br>
 
-        รูปใหม่ (ถ้าต้องการเปลี่ยน):
-        <input type="file" name="images" accept="image/*" multiple/><br><br>
-
         ราคาห้อง:
         <input type="text" name="roomPrice" value="${room.roomPrice}" required/><br><br>
 

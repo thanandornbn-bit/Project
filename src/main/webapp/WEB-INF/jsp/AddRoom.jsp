@@ -24,9 +24,6 @@
     <label>คำอธิบาย:</label>
     <input type="text" name="description" required><br><br>
 
-    <label>เลือกรูปภาพ (สูงสุด 4 รูป):</label>
-    <input type="file" name="images" accept="image/*" multiple required><br><br>
-
     <label>ราคาห้อง:</label>
     <input type="text" name="roomPrice" required><br><br>
 
@@ -41,7 +38,6 @@
 
 
 </form>
-
     <c:if test="${not empty message}">
         <p style="color: green">${message}</p>
     </c:if>

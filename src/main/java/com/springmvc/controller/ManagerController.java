@@ -63,36 +63,7 @@ public class ManagerController {
 	public String saveRoom(@RequestParam("roomNumber") String roomNumber,
 			@RequestParam("description") String description, @RequestParam("roomPrice") String roomPrice,
 			@RequestParam("roomStatus") String roomStatus, @RequestParam("roomtype") String roomtype,
-			@RequestParam("images") MultipartFile[] images, Model model ,
-			HttpServletRequest request ) {
-
-		String uploadPath = request.getServletContext().getRealPath("/images");
-		File dir = new File(uploadPath);
-		if (!dir.exists()) {
-			dir.mkdirs();
-		}
-
-		List<String> imagePaths = new ArrayList<>();
-
-		for (MultipartFile file : images) {
-			if (!file.isEmpty()) {
-				String filename = UUID.randomUUID().toString() + "_" + file.getOriginalFilename();
-				try {
-					if (file.getContentType() != null && file.getContentType().startsWith("images/")) {
-						Path filePath = Paths.get(uploadPath, filename);
-						file.transferTo(filePath.toFile());
-						imagePaths.add("images/" + filename);
-					} else {
-						model.addAttribute("message", "ไฟล์ไม่ถูกต้อง, กรุณาอัปโหลดเฉพาะไฟล์ภาพ");
-						return "AddRoom";
-					}
-				} catch (IOException e) {
-					e.printStackTrace();
-					model.addAttribute("message", "เกิดข้อผิดพลาดในการอัปโหลดไฟล์");
-					return "AddRoom";
-				}
-			}
-		}
+			 Model model ) {
 
 		Room room = new Room();
 		room.setRoomNumber(roomNumber);
@@ -100,17 +71,6 @@ public class ManagerController {
 		room.setRoomPrice(roomPrice);
 		room.setRoomStatus(roomStatus);
 		room.setRoomtype(roomtype);
-
-		for (int i = 0; i < imagePaths.size(); i++) {
-			if (i == 0)
-				room.setImage1(imagePaths.get(i));
-			if (i == 1)
-				room.setImage2(imagePaths.get(i));
-			if (i == 2)
-				room.setImage3(imagePaths.get(i));
-			if (i == 3)
-				room.setImage4(imagePaths.get(i));
-		}
 
 		ThanachokManager manager = new ThanachokManager();
 		boolean success = manager.insertRoom(room);
@@ -198,41 +158,6 @@ public class ManagerController {
 		room.setRoomPrice(roomPrice);
 
 		room.setRoomtype(roomtype);
-
-		//ถ้ามีการอัปโหลดภาพใหม่
-		String uploadPath = "C:\\Project\\Thanachok\\src\\main\\webapp\\images";
-		List<String> imagePaths = new ArrayList<>();
-
-		for (MultipartFile file : images) {
-			if (file != null && !file.isEmpty()) {
-				String filename = UUID.randomUUID() + "_" + file.getOriginalFilename();
-				try {
-					if (file.getContentType().startsWith("image/")) {
-						file.transferTo(new File(uploadPath + filename));
-						imagePaths.add("images/" + filename);
-					} else {
-						redirect.addFlashAttribute("message", "ไฟล์ไม่ถูกต้อง (อัปโหลดเฉพาะรูป)");
-						return "redirect:/editRoom?id=" + roomID;
-					}
-				} catch (IOException e) {
-					e.printStackTrace();
-					redirect.addFlashAttribute("message", "อัปโหลดรูปไม่สำเร็จ");
-					return "redirect:/editRoom?id=" + roomID;
-				}
-			}
-		}
-
-		// ถ้ามีรูปใหม่ก็อัปเดต (จะทับช่องเก่า)
-		for (int i = 0; i < imagePaths.size(); i++) {
-			if (i == 0)
-				room.setImage1(imagePaths.get(i));
-			if (i == 1)
-				room.setImage2(imagePaths.get(i));
-			if (i == 2)
-				room.setImage3(imagePaths.get(i));
-			if (i == 3)
-				room.setImage4(imagePaths.get(i));
-		}
 
 		tm.updateRoom(room); // บันทึกลง DB
 		redirect.addFlashAttribute("message", "แก้ไขห้องเรียบร้อย");

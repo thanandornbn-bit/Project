@@ -2,10 +2,14 @@
 	pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="jakarta.tags.core"%>
 <%@ page import="com.springmvc.model.*"%>
+<%@ page import="src.main.webapp.image.*"%>
+
 <%
-Member loginMember = (Member) session.getAttribute("loginMember");
-boolean isLoggedIn = (loginMember != null);
+    Member loginMember = (Member) session.getAttribute("loginMember");
+    boolean isLoggedIn = (loginMember != null);
 %>
+
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -85,38 +89,26 @@ body {
 
 
 
-<script>
-	function handleReserve() {
-		var isLoggedIn =
-<%=isLoggedIn%>
-	;
-		var roomStatus = document.getElementById("roomStatus").value;
-
-		if (!isLoggedIn) {
-			alert("กรุณาเข้าสู่ระบบก่อนทำการจองห้องพัก");
-			window.location.href = "Login";
-		} else if (roomStatus !== "ว่าง") {
-			alert("ห้องนี้มีคนจองแล้ว");
-		} else {
-			window.location.href = "Payment?id=${room.roomID}";
-		}
-	}
-</script>
-
 
 <script>
-	function handleReserve() {
-		var isLoggedIn =
-<%=isLoggedIn%>
-	;
-		if (!isLoggedIn) {
-			alert("กรุณาเข้าสู่ระบบก่อนทำการจองห้องพัก");
-			window.location.href = "Login";
-		} else {
-			window.location.href = "Payment?id=${room.roomID}";
-		}
-	}
+        function handleReserve() {
+            var isLoggedIn = <c:out value="${isLoggedIn}" />;
+            var roomStatus = document.getElementById("roomStatus").value;
 
+            if (!isLoggedIn) {
+                alert("กรุณาเข้าสู่ระบบก่อนทำการจองห้องพัก");
+                window.location.href = "Login";
+            } else if (roomStatus !== "ว่าง") {
+                alert("ห้องนี้มีคนจองแล้ว");
+            } else {
+                window.location.href = "Payment?id=${room.roomID}";
+            }
+        }
+    </script>
+
+
+
+<script>
 	function updateWifiPrice() {
 		var select = document.getElementById("Routerwifi");
 		var priceDisplay = document.getElementById("wifiPrice");
@@ -137,9 +129,11 @@ body {
 		<div class="header">Room Detail</div>
 
 		<div class="images">
-			<img src="${room.image1}" alt="Image 1"> <img
-				src="${room.image2}" alt="Image 2"> <img src="${room.image3}"
-				alt="Image 3"> <img src="${room.image4}" alt="Image 4">
+			
+			<img src="${pageContext.request.contextPath}/image/tc1.jpg" alt="รูปภาพ">
+			<img src="${pageContext.request.contextPath}/image/tc2.jpg" alt="รูปภาพ">
+			<img src="${pageContext.request.contextPath}/image/tc3.jpg" alt="รูปภาพ">
+			<img src="${pageContext.request.contextPath}/image/tc4.jpg" alt="รูปภาพ">
 		</div>
 
 		<div class="info">
