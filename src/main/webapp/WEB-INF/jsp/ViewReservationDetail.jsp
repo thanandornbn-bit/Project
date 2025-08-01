@@ -40,7 +40,15 @@
 				
 				<tr>
 					<th>สลิปต์</th>
-					<img src="${rent.rentalDeposit.paymentSlipImage}" width="300"/>
+					
+
+				
+<c:if test="${not empty rent.rentalDeposit}">
+    <img src="${pageContext.request.contextPath}/SlipImage?rentalDepositId=${rent.rentalDeposit.depositID}" width="300"/>
+</c:if>
+
+
+
 				</tr>
 			<c:if test="${param.success == '1'}">
     <p style="color: green;">✔ อนุมัติเรียบร้อยแล้ว</p>

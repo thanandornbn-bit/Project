@@ -25,11 +25,13 @@ public class ThanachokManager {
             transaction.commit();
             return true;
         } catch (Exception ex) {
-            if (transaction != null) transaction.rollback();
+            if (transaction != null)
+                transaction.rollback();
             ex.printStackTrace();
             return false;
         } finally {
-            if (session != null) session.close();
+            if (session != null)
+                session.close();
         }
     }
 
@@ -48,7 +50,8 @@ public class ThanachokManager {
             e.printStackTrace();
             return null;
         } finally {
-            if (session != null) session.close();
+            if (session != null)
+                session.close();
         }
     }
 
@@ -67,7 +70,8 @@ public class ThanachokManager {
             e.printStackTrace();
             return null;
         } finally {
-            if (session != null) session.close();
+            if (session != null)
+                session.close();
         }
     }
 
@@ -83,11 +87,13 @@ public class ThanachokManager {
             tx.commit();
             return true;
         } catch (Exception e) {
-            if (tx != null) tx.rollback();
+            if (tx != null)
+                tx.rollback();
             e.printStackTrace();
             return false;
         } finally {
-            if (session != null) session.close();
+            if (session != null)
+                session.close();
         }
     }
 
@@ -103,11 +109,13 @@ public class ThanachokManager {
             tx.commit();
             return true;
         } catch (Exception e) {
-            if (tx != null) tx.rollback();
+            if (tx != null)
+                tx.rollback();
             e.printStackTrace();
             return false;
         } finally {
-            if (session != null) session.close();
+            if (session != null)
+                session.close();
         }
     }
 
@@ -122,7 +130,8 @@ public class ThanachokManager {
             e.printStackTrace();
             return Collections.emptyList();
         } finally {
-            if (session != null) session.close();
+            if (session != null)
+                session.close();
         }
     }
 
@@ -137,7 +146,8 @@ public class ThanachokManager {
             e.printStackTrace();
             return null;
         } finally {
-            if (session != null) session.close();
+            if (session != null)
+                session.close();
         }
     }
 
@@ -174,7 +184,8 @@ public class ThanachokManager {
             e.printStackTrace();
             return Collections.emptyList();
         } finally {
-            if (session != null) session.close();
+            if (session != null)
+                session.close();
         }
     }
 
@@ -190,11 +201,13 @@ public class ThanachokManager {
             tx.commit();
             return true;
         } catch (Exception e) {
-            if (tx != null && tx.isActive()) tx.rollback();
+            if (tx != null && tx.isActive())
+                tx.rollback();
             e.printStackTrace();
             return false;
         } finally {
-            if (session != null) session.close();
+            if (session != null)
+                session.close();
         }
     }
 
@@ -210,16 +223,17 @@ public class ThanachokManager {
             tx.commit();
             return true;
         } catch (Exception e) {
-            if (tx != null) tx.rollback();
+            if (tx != null)
+                tx.rollback();
             e.printStackTrace();
             return false;
         } finally {
-            if (session != null) session.close();
+            if (session != null)
+                session.close();
         }
     }
 
-    
- // ดึง RentalDeposit ทั้งหมดของสมาชิก
+    // ดึง RentalDeposit ทั้งหมดของสมาชิก
     public List<RentalDeposit> findDepositsByMember(Member member) {
         Session session = null;
         try {
@@ -227,18 +241,17 @@ public class ThanachokManager {
             session = sessionFactory.openSession();
             String hql = "FROM RentalDeposit rd WHERE rd.rent.member = :member";
             return session.createQuery(hql, RentalDeposit.class)
-                         .setParameter("member", member)
-                         .list();
+                    .setParameter("member", member)
+                    .list();
         } catch (Exception e) {
             e.printStackTrace();
             return Collections.emptyList();
         } finally {
-            if (session != null) session.close();
+            if (session != null)
+                session.close();
         }
     }
-    
-    
-    
+
     public List<Rent> findAllRentsWithDeposits() {
         Session session = null;
         try {
@@ -247,9 +260,9 @@ public class ThanachokManager {
 
             // ใช้ LEFT JOIN FETCH เพื่อดึงข้อมูลที่เกี่ยวข้องมาพร้อมกัน
             String hql = "SELECT DISTINCT r FROM Rent r "
-                       + "LEFT JOIN FETCH r.member "
-                       + "LEFT JOIN FETCH r.room "
-                       + "LEFT JOIN FETCH r.rentalDeposit";
+                    + "LEFT JOIN FETCH r.member "
+                    + "LEFT JOIN FETCH r.room "
+                    + "LEFT JOIN FETCH r.rentalDeposit";
 
             return session.createQuery(hql, Rent.class).list();
 
@@ -257,11 +270,11 @@ public class ThanachokManager {
             e.printStackTrace();
             return Collections.emptyList();
         } finally {
-            if (session != null) session.close();
+            if (session != null)
+                session.close();
         }
     }
 
-    
     public Rent findRentById(int id) {
         Session session = null;
         try {
@@ -272,10 +285,11 @@ public class ThanachokManager {
             e.printStackTrace();
             return null;
         } finally {
-            if (session != null) session.close();
+            if (session != null)
+                session.close();
         }
     }
-    
+
     public boolean confirmRentalDeposit(int rentalDepositId) {
         Session session = null;
         Transaction tx = null;
@@ -294,15 +308,16 @@ public class ThanachokManager {
             return false;
 
         } catch (Exception e) {
-            if (tx != null) tx.rollback();
+            if (tx != null)
+                tx.rollback();
             e.printStackTrace();
             return false;
         } finally {
-            if (session != null) session.close();
+            if (session != null)
+                session.close();
         }
     }
 
-    
     public RentalDeposit getRentalDepositById(int id) {
         Session session = HibernateUtil.getSessionFactory().openSession();
         try {
@@ -311,16 +326,17 @@ public class ThanachokManager {
             session.close();
         }
     }
-    
+
     public void updateRentalDeposit(RentalDeposit deposit) {
         Session session = HibernateUtil.getSessionFactory().openSession();
         Transaction tx = null;
         try {
             tx = session.beginTransaction();
-            session.update(deposit);  // อัพเดต entity
+            session.update(deposit); // อัพเดต entity
             tx.commit();
         } catch (Exception e) {
-            if (tx != null) tx.rollback();
+            if (tx != null)
+                tx.rollback();
             e.printStackTrace();
         } finally {
             session.close();
@@ -350,23 +366,24 @@ public class ThanachokManager {
             return false;
 
         } catch (Exception e) {
-            if (tx != null) tx.rollback();
+            if (tx != null)
+                tx.rollback();
             e.printStackTrace();
             return false;
         } finally {
-            if (session != null) session.close();
+            if (session != null)
+                session.close();
         }
     }
 
-    
     /* ---------- helper สร้าง detail ---------- */
     private InvoiceDetail buildDetail(Session s, Invoice inv, String billName,
-                                      double amt, String unit) {
+            double amt, String unit) {
 
         String hql = "FROM InvoiceType WHERE billname = :name";
         InvoiceType type = s.createQuery(hql, InvoiceType.class)
-                            .setParameter("name", billName)
-                            .uniqueResult();
+                .setParameter("name", billName)
+                .uniqueResult();
 
         InvoiceDetail d = new InvoiceDetail();
         d.setInvoice(inv);
@@ -378,11 +395,12 @@ public class ThanachokManager {
 
     /* ---------- สร้างบิลให้ 1 ห้อง ---------- */
     public Invoice createMonthlyInvoice(Rent rent,
-                                        double waterUnit,  double waterRate,
-                                        double elecUnit,   double elecRate,
-                                        double internetFee, double fine) {
+            double waterUnit, double waterRate,
+            double elecUnit, double elecRate,
+            double internetFee, double fine) {
 
-        Session s = null; Transaction tx = null;
+        Session s = null;
+        Transaction tx = null;
         try {
             s = HibernateConnection.doHibernateConnection().openSession();
             tx = s.beginTransaction();
@@ -396,7 +414,7 @@ public class ThanachokManager {
             c.add(Calendar.DAY_OF_MONTH, 7);
             inv.setDueDate(c.getTime());
             inv.setStatus("pending");
-            s.save(inv);   // save ก่อนเพื่อให้มี billID
+            s.save(inv); // save ก่อนเพื่อให้มี billID
 
             List<InvoiceDetail> dets = new ArrayList<>();
 
@@ -407,12 +425,12 @@ public class ThanachokManager {
             // ---------- ค่าน้ำ ----------
             double water = waterUnit * waterRate;
             dets.add(buildDetail(s, inv, "Water", water,
-                     String.format("%.0f หน่วย", waterUnit)));
+                    String.format("%.0f หน่วย", waterUnit)));
 
             // ---------- ค่าไฟ ----------
             double elec = elecUnit * elecRate;
             dets.add(buildDetail(s, inv, "Electricity", elec,
-                     String.format("%.0f หน่วย", elecUnit)));
+                    String.format("%.0f หน่วย", elecUnit)));
 
             // ---------- ค่าเน็ต ----------
             dets.add(buildDetail(s, inv, "Internet", internetFee, null));
@@ -424,26 +442,27 @@ public class ThanachokManager {
 
             double total = dets.stream().mapToDouble(InvoiceDetail::getAmount).sum();
             inv.setTotalAmount(total);
-            s.update(inv);     // อัปเดตราคารวม
+            s.update(inv); // อัปเดตราคารวม
 
             // save รายการย่อย
-            for (InvoiceDetail d : dets) s.save(d);
+            for (InvoiceDetail d : dets)
+                s.save(d);
 
             tx.commit();
             return inv;
 
         } catch (Exception e) {
-            if (tx != null) tx.rollback();
+            if (tx != null)
+                tx.rollback();
             e.printStackTrace();
             return null;
         } finally {
-            if (s != null) s.close();
+            if (s != null)
+                s.close();
         }
     }
 
-    
-
- // ดึงรายการ Invoice ทั้งหมดของผู้เช่า
+    // ดึงรายการ Invoice ทั้งหมดของผู้เช่า
     public List<Invoice> findInvoicesByMember(int memberID) {
         try (Session session = HibernateConnection.doHibernateConnection().openSession()) {
             String hql = "FROM Invoice i WHERE i.rent.member.memberID = :memberID ORDER BY i.billingDate DESC";
@@ -479,7 +498,8 @@ public class ThanachokManager {
             tx.commit();
             return id;
         } catch (Exception e) {
-            if (tx != null) tx.rollback();
+            if (tx != null)
+                tx.rollback();
             e.printStackTrace();
             return -1;
         }
@@ -500,7 +520,8 @@ public class ThanachokManager {
             session.save(detail);
             tx.commit();
         } catch (Exception e) {
-            if (tx != null) tx.rollback();
+            if (tx != null)
+                tx.rollback();
             e.printStackTrace();
         }
     }
@@ -522,9 +543,8 @@ public class ThanachokManager {
             return query.list();
         }
     }
-    
 
- // อัปเดต Invoice (ยอดรวม)
+    // อัปเดต Invoice (ยอดรวม)
     public void updateInvoice(Invoice invoice) {
         Transaction tx = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
@@ -532,14 +552,25 @@ public class ThanachokManager {
             session.update(invoice);
             tx.commit();
         } catch (Exception e) {
-            if (tx != null) tx.rollback();
+            if (tx != null)
+                tx.rollback();
             e.printStackTrace();
         }
     }
 
-
-    
-    
-
+    public RentalDeposit findRentalDepositByRentId(int rentId) {
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        try {
+            String hql = "FROM RentalDeposit WHERE rent.rentID = :rentId";
+            return session.createQuery(hql, RentalDeposit.class)
+                    .setParameter("rentId", rentId)
+                    .uniqueResult();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            session.close();
+        }
+    }
 
 }

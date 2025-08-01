@@ -22,7 +22,13 @@
         <p><strong>วันสิ้นสุด:</strong> ${rent.rentalDeposit.deadlineDate}</p>
 
         <p><strong>สลิปโอนเงิน:</strong><br/>
-            <img src="${pageContext.request.contextPath}/SlipImage?rentalDepositId=${rent.rentalDeposit.rentalDepositID}" width="300"/>
+            
+    
+<c:if test="${not empty rent.rentalDeposit}">
+    <img src="${pageContext.request.contextPath}/SlipImage?rentalDepositId=${rent.rentalDeposit.depositID}" width="300"/>
+</c:if>
+
+
         </p>
 
         <c:if test="${rent.rentalDeposit.status != 'เสร็จสมบูรณ์'}">

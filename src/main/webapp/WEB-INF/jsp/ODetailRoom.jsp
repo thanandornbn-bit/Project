@@ -91,24 +91,22 @@ body {
 
 
 <script>
-        function handleReserve() {
-            var isLoggedIn = <c:out value="${isLoggedIn}" />;
-            var roomStatus = document.getElementById("roomStatus").value;
+	function handleReserve() {
+		var isLoggedIn =
+		<%=isLoggedIn%>;
+		var roomStatus = document.getElementById("roomStatus").value;
 
-            if (!isLoggedIn) {
-                alert("กรุณาเข้าสู่ระบบก่อนทำการจองห้องพัก");
-                window.location.href = "Login";
-            } else if (roomStatus !== "ว่าง") {
-                alert("ห้องนี้มีคนจองแล้ว");
-            } else {
-                window.location.href = "Payment?id=${room.roomID}";
-            }
-        }
-    </script>
+		if (!isLoggedIn) {
+			alert("กรุณาเข้าสู่ระบบก่อนทำการจองห้องพัก");
+			window.location.href = "Login";
+		} else if (roomStatus !== "ว่าง") {
+			alert("ห้องนี้มีคนจองแล้ว");
+		} else {
+			window.location.href = "Payment?id=${room.roomID}";
+		}
+	}
 
 
-
-<script>
 	function updateWifiPrice() {
 		var select = document.getElementById("Routerwifi");
 		var priceDisplay = document.getElementById("wifiPrice");
@@ -122,6 +120,10 @@ body {
 	// เรียกตอนโหลดหน้า เพื่อกำหนดค่าครั้งแรก
 	window.onload = updateWifiPrice;
 </script>
+
+
+
+
 
 </head>
 <body>

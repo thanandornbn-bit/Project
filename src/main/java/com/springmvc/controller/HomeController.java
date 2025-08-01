@@ -2,6 +2,7 @@ package com.springmvc.controller;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -29,6 +30,7 @@ import com.springmvc.model.Room;
 import com.springmvc.model.ThanachokManager;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 
 @Controller
@@ -37,8 +39,8 @@ public class HomeController {
     // แสดงรายการห้อง (หน้า Homesucess.jsp)
     @RequestMapping(value = "/Homesucess", method = RequestMethod.GET)
     public ModelAndView showAvailableRooms(HttpSession session,
-                                           @RequestParam(value = "floor", required = false) String floor,
-                                           @RequestParam(value = "status", required = false) String status) {
+            @RequestParam(value = "floor", required = false) String floor,
+            @RequestParam(value = "status", required = false) String status) {
 
         Member member = (Member) session.getAttribute("loginMember");
         if (member == null) {
@@ -74,14 +76,14 @@ public class HomeController {
     @SuppressWarnings("deprecation")
     @RequestMapping(value = "/confirmPayment", method = RequestMethod.POST)
     public String confirmPayment(@RequestParam("roomID") int roomID,
-                                 @RequestParam("depositAmount") double depositAmount,
-                                 @RequestParam("price") double price,
-                                 @RequestParam("transferAccountName") String transferAccountName,
-                                 @RequestParam("paymentDate") String paymentDateStr,
-                                 @RequestParam("deadline") String deadlineStr,
-                                 @RequestParam("paymentSlip") MultipartFile paymentSlip,
-                                 HttpSession session,
-                                 RedirectAttributes redirectAttributes) {
+            @RequestParam("depositAmount") double depositAmount,
+            @RequestParam("price") double price,
+            @RequestParam("transferAccountName") String transferAccountName,
+            @RequestParam("paymentDate") String paymentDateStr,
+            @RequestParam("deadline") String deadlineStr,
+            @RequestParam("paymentSlip") MultipartFile paymentSlip,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
         Member loginMember = (Member) session.getAttribute("loginMember");
 
         try {
@@ -98,10 +100,13 @@ public class HomeController {
             }
             String newFileName = UUID.randomUUID().toString() + extension;
 
-            String uploadDir = "Slipet"; 
-            String realPath = session.getServletContext().getRealPath(uploadDir);
+            String uploadDir = "Slipet";
+
+            String realPath = "C:\\WebProject\\Project\\src\\main\\webapp\\slipet";
+
             File uploadPath = new File(realPath);
-            if (!uploadPath.exists()) uploadPath.mkdirs();
+            if (!uploadPath.exists())
+                uploadPath.mkdirs();
 
             File dest = new File(uploadPath, newFileName);
             paymentSlip.transferTo(dest);
@@ -139,6 +144,47 @@ public class HomeController {
         }
     }
 
+    
+
+
+
+@RequestMapping(value = "/SlipImage", method = RequestMethod.GET)
+public void getSlipImage(@RequestParam("rentalDepositId") int rentalDepositId, HttpServletResponse response) {
+    try {
+        ThanachokManager thanachokManager = new ThanachokManager();
+        RentalDeposit deposit = thanachokManager.findRentalDepositByRentId(rentalDepositId);
+
+        if (deposit != null && deposit.getPaymentSlipImage() != null) {
+            // Path ที่ใช้หลังจาก deploy แล้ว
+            String basePath = "C:\\WebProject\\Project\\target\\Thanachok03-0.0.1-SNAPSHOT\\";
+            String imagePath = basePath + deposit.getPaymentSlipImage(); // เช่น slipet/xxxx.png
+
+            File imageFile = new File(imagePath);
+
+            if (imageFile.exists()) {
+                String contentType = Files.probeContentType(imageFile.toPath());
+                response.setContentType(contentType != null ? contentType : "image/jpeg");
+
+                Files.copy(imageFile.toPath(), response.getOutputStream());
+                response.getOutputStream().flush();
+            } else {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "ไม่พบไฟล์ภาพ");
+            }
+        } else {
+            response.sendError(HttpServletResponse.SC_NOT_FOUND, "ไม่พบข้อมูลการชำระเงิน");
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+        try {
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "เกิดข้อผิดพลาดในการโหลดภาพ");
+        } catch (Exception ignored) {}
+    }
+}
+
+
+
+
+
     // ประวัติการจองของสมาชิก
     @RequestMapping(value = "/Record", method = RequestMethod.GET)
     public ModelAndView showMemberRecord(HttpSession session) {
@@ -161,11 +207,5 @@ public class HomeController {
         session.invalidate();
         return "redirect:/";
     }
- 
-     
-
-
-
 
 }
-
