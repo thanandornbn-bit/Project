@@ -141,6 +141,7 @@ document.addEventListener("DOMContentLoaded", function() {
             <input type="file" name="paymentSlip" accept="image/*" required />
 
             <button type="submit">ยืนยันการชำระเงิน</button>
+            <button type="submit">ยกเลิก</button>
         </div>
     </div>
 </form>

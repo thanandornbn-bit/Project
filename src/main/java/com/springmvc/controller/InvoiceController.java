@@ -53,7 +53,7 @@ public class InvoiceController {
             // ดึง Rent
             Rent rent = manager.findRentById(rentID);
 
-            // ✅ บันทึก Invoice
+            // บันทึก Invoice
             Invoice invoice = new Invoice();
             invoice.setBillingDate(billingDate);
             invoice.setDueDate(dueDate);
@@ -92,7 +92,7 @@ public class InvoiceController {
                 total += amount;
             }
 
-            // ✅ อัปเดตยอดรวมใน Invoice
+            // อัปเดตยอดรวมใน Invoice
             invoice.setTotalAmount(total);
             manager.updateInvoice(invoice);
 

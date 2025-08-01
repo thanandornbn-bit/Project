@@ -18,6 +18,7 @@ import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class HomeOtherController {
+	
 	@RequestMapping(value = "/", method = RequestMethod.GET)
 	public ModelAndView Home() {
 	    ThanachokManager manager = new ThanachokManager();
