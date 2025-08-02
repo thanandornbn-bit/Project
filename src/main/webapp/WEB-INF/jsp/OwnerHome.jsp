@@ -109,7 +109,8 @@ th, td {
 					<td>${room.roomPrice}</td>
 					<td>${room.roomStatus}</td>
 					<td>
-						<a href="addRoom?id=${room.roomID}"><button>เพิ่มบิล</button></a>
+						
+					<a href="AddInvoice?id=${rent.rentID}"><button>เพิ่มบิล</button></a>
 						<a href="editRoom?id=${room.roomID}"><button>แก้ไข</button></a>
 						<c:if test="${room.roomStatus == 'ว่าง'}">
 							<a href="deleteRoom?id=${room.roomID}"

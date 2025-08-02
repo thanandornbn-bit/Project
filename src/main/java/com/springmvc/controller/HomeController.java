@@ -73,117 +73,116 @@ public class HomeController {
         return mav;
     }
 
-    @SuppressWarnings("deprecation")
-    @RequestMapping(value = "/confirmPayment", method = RequestMethod.POST)
-    public String confirmPayment(@RequestParam("roomID") int roomID,
-            @RequestParam("depositAmount") double depositAmount,
-            @RequestParam("price") double price,
-            @RequestParam("transferAccountName") String transferAccountName,
-            @RequestParam("paymentDate") String paymentDateStr,
-            @RequestParam("deadline") String deadlineStr,
-            @RequestParam("paymentSlip") MultipartFile paymentSlip,
-            HttpSession session,
-            RedirectAttributes redirectAttributes) {
-        Member loginMember = (Member) session.getAttribute("loginMember");
-
-        try {
-            ThanachokManager thanachokManager = new ThanachokManager();
-
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", new Locale("th", "TH"));
-            Date paymentDate = sdf.parse(paymentDateStr);
-            Date deadline = sdf.parse(deadlineStr);
-
-            String originalFileName = paymentSlip.getOriginalFilename();
-            String extension = "";
-            if (originalFileName != null && originalFileName.contains(".")) {
-                extension = originalFileName.substring(originalFileName.lastIndexOf("."));
-            }
-            String newFileName = UUID.randomUUID().toString() + extension;
-
-            String uploadDir = "Slipet";
-
-            String realPath = "C:\\WebProject\\Project\\src\\main\\webapp\\slipet";
-
-            File uploadPath = new File(realPath);
-            if (!uploadPath.exists())
-                uploadPath.mkdirs();
-
-            File dest = new File(uploadPath, newFileName);
-            paymentSlip.transferTo(dest);
-
-            Room room = thanachokManager.findRoomById(roomID);
-
-            // สร้างการจองห้อง (Rent)
-            Rent rent = new Rent();
-            rent.setMember(loginMember);
-            rent.setRoom(room);
-            rent.setRentDate(paymentDate);
-            thanachokManager.saveRent(rent);
-
-            // สร้างการชำระเงิน (RentalDeposit)
-            RentalDeposit deposit = new RentalDeposit();
-            deposit.setRent(rent);
-            deposit.setTransferAccountName(transferAccountName);
-            deposit.setPaymentDate(paymentDate);
-            deposit.setPaymentSlipImage(uploadDir + "/" + newFileName); // Store relative file path
-            deposit.setDeadlineDate(deadline);
-            deposit.setStatus("รอดำเนินการ");
-            deposit.setTotalPrice("500");
-            thanachokManager.saveRentalDeposit(deposit);
-
-            // อัปเดตสถานะของห้องเป็น "ไม่ว่าง"
-            room.setRoomStatus("ไม่ว่าง");
-            thanachokManager.updateRoom(room);
-
-            redirectAttributes.addFlashAttribute("message", "บันทึกการชำระเงินสำเร็จและห้องถูกจองแล้ว");
-            return "redirect:/Homesucess";
-        } catch (Exception e) {
-            e.printStackTrace();
-            redirectAttributes.addFlashAttribute("errorMessage", "เกิดข้อผิดพลาดในการบันทึกการชำระเงิน");
-            return "redirect:/Homesucess";
-        }
-    }
-
     
+@SuppressWarnings("deprecation")
+@RequestMapping(value = "/confirmPayment", method = RequestMethod.POST)
+public String confirmPayment(@RequestParam("roomID") int roomID,
+        @RequestParam("depositAmount") double depositAmount,
+        @RequestParam("price") double price,
+        @RequestParam("transferAccountName") String transferAccountName,
+        @RequestParam("paymentDate") String paymentDateStr,
+        @RequestParam("deadline") String deadlineStr,
+        @RequestParam("paymentSlip") MultipartFile paymentSlip,
+        HttpSession session,
+        RedirectAttributes redirectAttributes) {
 
+    Member loginMember = (Member) session.getAttribute("loginMember");
 
-
-@RequestMapping(value = "/SlipImage", method = RequestMethod.GET)
-public void getSlipImage(@RequestParam("rentalDepositId") int rentalDepositId, HttpServletResponse response) {
     try {
         ThanachokManager thanachokManager = new ThanachokManager();
-        RentalDeposit deposit = thanachokManager.findRentalDepositByRentId(rentalDepositId);
 
-        if (deposit != null && deposit.getPaymentSlipImage() != null) {
-            // Path ที่ใช้หลังจาก deploy แล้ว
-            String basePath = "C:\\WebProject\\Project\\target\\Thanachok03-0.0.1-SNAPSHOT\\";
-            String imagePath = basePath + deposit.getPaymentSlipImage(); // เช่น slipet/xxxx.png
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", new Locale("th", "TH"));
+        Date paymentDate = sdf.parse(paymentDateStr);
+        Date deadline = sdf.parse(deadlineStr);
 
-            File imageFile = new File(imagePath);
-
-            if (imageFile.exists()) {
-                String contentType = Files.probeContentType(imageFile.toPath());
-                response.setContentType(contentType != null ? contentType : "image/jpeg");
-
-                Files.copy(imageFile.toPath(), response.getOutputStream());
-                response.getOutputStream().flush();
-            } else {
-                response.sendError(HttpServletResponse.SC_NOT_FOUND, "ไม่พบไฟล์ภาพ");
-            }
-        } else {
-            response.sendError(HttpServletResponse.SC_NOT_FOUND, "ไม่พบข้อมูลการชำระเงิน");
+        String originalFileName = paymentSlip.getOriginalFilename();
+        String extension = "";
+        if (originalFileName != null && originalFileName.contains(".")) {
+            extension = originalFileName.substring(originalFileName.lastIndexOf("."));
         }
+
+        String uploadDir = "slipet";
+        String realPath = "C:\\WebProject\\Project\\src\\main\\webapp\\slipet";
+
+        File uploadPath = new File(realPath);
+        if (!uploadPath.exists()) uploadPath.mkdirs();
+
+        // สร้างชื่อไฟล์ใหม่แบบเรียงลำดับ
+        String[] existingFiles = uploadPath.list((dir, name) -> name.matches("slipet\\d+\\.\\w+"));
+        int nextNumber = existingFiles != null ? existingFiles.length + 1 : 1;
+        String newFileName = String.format("slipet%02d%s", nextNumber, extension);
+
+        File dest = new File(uploadPath, newFileName);
+        paymentSlip.transferTo(dest);
+
+        Room room = thanachokManager.findRoomById(roomID);
+
+        // สร้างการจองห้อง
+        Rent rent = new Rent();
+        rent.setMember(loginMember);
+        rent.setRoom(room);
+        rent.setRentDate(paymentDate);
+        thanachokManager.saveRent(rent);
+
+        // สร้างการชำระเงิน
+        RentalDeposit deposit = new RentalDeposit();
+        deposit.setRent(rent);
+        deposit.setTransferAccountName(transferAccountName);
+        deposit.setPaymentDate(paymentDate);
+        deposit.setPaymentSlipImage(uploadDir + "/" + newFileName); // เก็บ path แบบ relative
+        deposit.setDeadlineDate(deadline);
+        deposit.setStatus("รอดำเนินการ");
+        deposit.setTotalPrice("500");
+        thanachokManager.saveRentalDeposit(deposit);
+
+        // อัปเดตสถานะห้อง
+        room.setRoomStatus("ไม่ว่าง");
+        thanachokManager.updateRoom(room);
+
+        redirectAttributes.addFlashAttribute("message", "บันทึกการชำระเงินสำเร็จและห้องถูกจองแล้ว");
+        return "redirect:/Homesucess";
+
     } catch (Exception e) {
         e.printStackTrace();
-        try {
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "เกิดข้อผิดพลาดในการโหลดภาพ");
-        } catch (Exception ignored) {}
+        redirectAttributes.addFlashAttribute("errorMessage", "เกิดข้อผิดพลาดในการบันทึกการชำระเงิน");
+        return "redirect:/Homesucess";
     }
 }
 
 
+    @RequestMapping(value = "/SlipImage", method = RequestMethod.GET)
+    public void getSlipImage(@RequestParam("rentalDepositId") int rentalDepositId, HttpServletResponse response) {
+        try {
+            ThanachokManager thanachokManager = new ThanachokManager();
+            RentalDeposit deposit = thanachokManager.findRentalDepositByRentId(rentalDepositId);
 
+            if (deposit != null && deposit.getPaymentSlipImage() != null) {
+                // Path ที่ใช้หลังจาก deploy แล้ว
+                String basePath = "C:\\WebProject\\Project\\target\\Thanachok03-0.0.1-SNAPSHOT\\";
+                String imagePath = basePath + deposit.getPaymentSlipImage(); // เช่น slipet/xxxx.png
 
+                File imageFile = new File(imagePath);
+
+                if (imageFile.exists()) {
+                    String contentType = Files.probeContentType(imageFile.toPath());
+                    response.setContentType(contentType != null ? contentType : "image/jpeg");
+
+                    Files.copy(imageFile.toPath(), response.getOutputStream());
+                    response.getOutputStream().flush();
+                } else {
+                    response.sendError(HttpServletResponse.SC_NOT_FOUND, "ไม่พบไฟล์ภาพ");
+                }
+            } else {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "ไม่พบข้อมูลการชำระเงิน");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            try {
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "เกิดข้อผิดพลาดในการโหลดภาพ");
+            } catch (Exception ignored) {
+            }
+        }
+    }
 
     // ประวัติการจองของสมาชิก
     @RequestMapping(value = "/Record", method = RequestMethod.GET)

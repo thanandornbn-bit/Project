@@ -38,18 +38,23 @@
 					<td>${rent.rentalDeposit.totalPrice}บาท</td>
 				</tr>
 				
-				<tr>
-					<th>สลิปต์</th>
-					
-
 				
-<c:if test="${not empty rent.rentalDeposit}">
-    <img src="${pageContext.request.contextPath}/SlipImage?rentalDepositId=${rent.rentalDeposit.depositID}" width="300"/>
-</c:if>
+<tr>
+    <th>สลิปต์</th>
+    <td>
+        <c:if test="${not empty rent.rentalDeposit.paymentSlipImage}">
+            
+
+<img src="${pageContext.request.contextPath}/${rent.rentalDeposit.paymentSlipImage}" width="300px" height="300px" alt="สลิปการโอนเงิน"/>
 
 
+        </c:if>
+        <c:if test="${empty rent.rentalDeposit.paymentSlipImage}">
+            <p>ไม่มีภาพสลิปการโอนเงิน</p>
+        </c:if>
+    </td>
+</tr>
 
-				</tr>
 			<c:if test="${param.success == '1'}">
     <p style="color: green;">✔ อนุมัติเรียบร้อยแล้ว</p>
 </c:if>

@@ -290,6 +290,7 @@ public class ThanachokManager {
         }
     }
 
+
     public boolean confirmRentalDeposit(int rentalDepositId) {
         Session session = null;
         Transaction tx = null;
@@ -572,5 +573,31 @@ public class ThanachokManager {
             session.close();
         }
     }
+  
 
+    public void saveInvoiceWithDetails(Invoice invoice, List<InvoiceDetail> details) {
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        Transaction tx = null;
+        try {
+            tx = session.beginTransaction();
+
+            session.save(invoice); // save invoice first
+
+            for (InvoiceDetail detail : details) {
+                detail.setInvoice(invoice); // link detail to invoice
+                session.save(detail);
+            }
+
+            tx.commit();
+        } catch (Exception e) {
+            if (tx != null) tx.rollback();
+            e.printStackTrace();
+        } finally {
+            session.close();
+        }
+    }
+
+
+    
+    
 }
