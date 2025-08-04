@@ -73,82 +73,81 @@ public class HomeController {
         return mav;
     }
 
-    
-@SuppressWarnings("deprecation")
-@RequestMapping(value = "/confirmPayment", method = RequestMethod.POST)
-public String confirmPayment(@RequestParam("roomID") int roomID,
-        @RequestParam("depositAmount") double depositAmount,
-        @RequestParam("price") double price,
-        @RequestParam("transferAccountName") String transferAccountName,
-        @RequestParam("paymentDate") String paymentDateStr,
-        @RequestParam("deadline") String deadlineStr,
-        @RequestParam("paymentSlip") MultipartFile paymentSlip,
-        HttpSession session,
-        RedirectAttributes redirectAttributes) {
+    @SuppressWarnings("deprecation")
+    @RequestMapping(value = "/confirmPayment", method = RequestMethod.POST)
+    public String confirmPayment(@RequestParam("roomID") int roomID,
+            @RequestParam("depositAmount") double depositAmount,
+            @RequestParam("price") double price,
+            @RequestParam("transferAccountName") String transferAccountName,
+            @RequestParam("paymentDate") String paymentDateStr,
+            @RequestParam("deadline") String deadlineStr,
+            @RequestParam("paymentSlip") MultipartFile paymentSlip,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
 
-    Member loginMember = (Member) session.getAttribute("loginMember");
+        Member loginMember = (Member) session.getAttribute("loginMember");
 
-    try {
-        ThanachokManager thanachokManager = new ThanachokManager();
+        try {
+            ThanachokManager thanachokManager = new ThanachokManager();
 
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", new Locale("th", "TH"));
-        Date paymentDate = sdf.parse(paymentDateStr);
-        Date deadline = sdf.parse(deadlineStr);
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy", new Locale("th", "TH"));
+            Date paymentDate = sdf.parse(paymentDateStr);
+            Date deadline = sdf.parse(deadlineStr);
 
-        String originalFileName = paymentSlip.getOriginalFilename();
-        String extension = "";
-        if (originalFileName != null && originalFileName.contains(".")) {
-            extension = originalFileName.substring(originalFileName.lastIndexOf("."));
+            String originalFileName = paymentSlip.getOriginalFilename();
+            String extension = "";
+            if (originalFileName != null && originalFileName.contains(".")) {
+                extension = originalFileName.substring(originalFileName.lastIndexOf("."));
+            }
+
+            String uploadDir = "slipet";
+            String realPath = "C:\\WebProject\\Project\\src\\main\\webapp\\slipet";
+
+            File uploadPath = new File(realPath);
+            if (!uploadPath.exists())
+                uploadPath.mkdirs();
+
+            // สร้างชื่อไฟล์ใหม่แบบเรียงลำดับ
+            String[] existingFiles = uploadPath.list((dir, name) -> name.matches("slipet\\d+\\.\\w+"));
+            int nextNumber = existingFiles != null ? existingFiles.length + 1 : 1;
+            String newFileName = String.format("slipet%02d%s", nextNumber, extension);
+
+            File dest = new File(uploadPath, newFileName);
+            paymentSlip.transferTo(dest);
+
+            Room room = thanachokManager.findRoomById(roomID);
+
+            // สร้างการจองห้อง
+            Rent rent = new Rent();
+            rent.setMember(loginMember);
+            rent.setRoom(room);
+            rent.setRentDate(paymentDate);
+            thanachokManager.saveRent(rent);
+
+            // สร้างการชำระเงิน
+            RentalDeposit deposit = new RentalDeposit();
+            deposit.setRent(rent);
+            deposit.setTransferAccountName(transferAccountName);
+            deposit.setPaymentDate(paymentDate);
+            deposit.setPaymentSlipImage(uploadDir + "/" + newFileName); // เก็บ path แบบ relative
+            deposit.setDeadlineDate(deadline);
+            deposit.setStatus("รอดำเนินการ");
+            deposit.setTotalPrice("500");
+            thanachokManager.saveRentalDeposit(deposit);
+
+            // อัปเดตสถานะห้อง
+            room.setRoomStatus("ไม่ว่าง");
+            thanachokManager.updateRoom(room);
+
+            redirectAttributes.addFlashAttribute("message", "บันทึกการชำระเงินสำเร็จและห้องถูกจองแล้ว");
+            return "redirect:/Homesucess";
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            redirectAttributes.addFlashAttribute("errorMessage", "เกิดข้อผิดพลาดในการบันทึกการชำระเงิน");
+            return "redirect:/Homesucess";
         }
-
-        String uploadDir = "slipet";
-        String realPath = "C:\\WebProject\\Project\\src\\main\\webapp\\slipet";
-
-        File uploadPath = new File(realPath);
-        if (!uploadPath.exists()) uploadPath.mkdirs();
-
-        // สร้างชื่อไฟล์ใหม่แบบเรียงลำดับ
-        String[] existingFiles = uploadPath.list((dir, name) -> name.matches("slipet\\d+\\.\\w+"));
-        int nextNumber = existingFiles != null ? existingFiles.length + 1 : 1;
-        String newFileName = String.format("slipet%02d%s", nextNumber, extension);
-
-        File dest = new File(uploadPath, newFileName);
-        paymentSlip.transferTo(dest);
-
-        Room room = thanachokManager.findRoomById(roomID);
-
-        // สร้างการจองห้อง
-        Rent rent = new Rent();
-        rent.setMember(loginMember);
-        rent.setRoom(room);
-        rent.setRentDate(paymentDate);
-        thanachokManager.saveRent(rent);
-
-        // สร้างการชำระเงิน
-        RentalDeposit deposit = new RentalDeposit();
-        deposit.setRent(rent);
-        deposit.setTransferAccountName(transferAccountName);
-        deposit.setPaymentDate(paymentDate);
-        deposit.setPaymentSlipImage(uploadDir + "/" + newFileName); // เก็บ path แบบ relative
-        deposit.setDeadlineDate(deadline);
-        deposit.setStatus("รอดำเนินการ");
-        deposit.setTotalPrice("500");
-        thanachokManager.saveRentalDeposit(deposit);
-
-        // อัปเดตสถานะห้อง
-        room.setRoomStatus("ไม่ว่าง");
-        thanachokManager.updateRoom(room);
-
-        redirectAttributes.addFlashAttribute("message", "บันทึกการชำระเงินสำเร็จและห้องถูกจองแล้ว");
-        return "redirect:/Homesucess";
-
-    } catch (Exception e) {
-        e.printStackTrace();
-        redirectAttributes.addFlashAttribute("errorMessage", "เกิดข้อผิดพลาดในการบันทึกการชำระเงิน");
-        return "redirect:/Homesucess";
     }
-}
-
 
     @RequestMapping(value = "/SlipImage", method = RequestMethod.GET)
     public void getSlipImage(@RequestParam("rentalDepositId") int rentalDepositId, HttpServletResponse response) {
@@ -205,6 +204,38 @@ public String confirmPayment(@RequestParam("roomID") int roomID,
     public String logout(HttpSession session) {
         session.invalidate();
         return "redirect:/";
+    }
+
+    @RequestMapping(value = "/MemberListinvoice", method = RequestMethod.GET)
+    public ModelAndView listInvoices(HttpSession session) {
+        Member member = (Member) session.getAttribute("loginMember");
+        if (member == null) {
+            return new ModelAndView("redirect:/Login");
+        }
+
+        ThanachokManager manager = new ThanachokManager();
+        List<Invoice> invoiceList = manager.findInvoicesByMember(member.getMemberID());
+
+        ModelAndView mav = new ModelAndView("MemberListinvoice");
+        mav.addObject("invoiceList", invoiceList);
+        return mav;
+    }
+
+    @RequestMapping(value = "/MemberDetailinvoice", method = RequestMethod.GET)
+    public ModelAndView showInvoiceDetail(@RequestParam("billID") int billID, HttpSession session) {
+        Member member = (Member) session.getAttribute("loginMember");
+        if (member == null) {
+            return new ModelAndView("redirect:/Login");
+        }
+
+        ThanachokManager manager = new ThanachokManager();
+        Invoice invoice = manager.findInvoiceById(billID);
+        List<InvoiceDetail> invoiceDetails = manager.findInvoiceDetailsByInvoiceId(billID);
+
+        ModelAndView mav = new ModelAndView("MemberDetailinvoice");
+        mav.addObject("invoice", invoice);
+        mav.addObject("invoiceDetails", invoiceDetails);
+        return mav;
     }
 
 }

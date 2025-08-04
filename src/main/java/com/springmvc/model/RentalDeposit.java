@@ -1,43 +1,38 @@
 package com.springmvc.model;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
-import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
-
 import java.util.Date;
 
 @Entity
 public class RentalDeposit {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int depositID;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private int depositID;
 
-    @OneToOne
-    @JoinColumn(name = "rentID")
-    private Rent rent;
+	@OneToOne
+	@JoinColumn(name = "rentID")
+	private Rent rent;
 
-    private String transferAccountName;
+	private String transferAccountName;
 
-    @Temporal(TemporalType.DATE)
-    private Date paymentDate;
+	@Temporal(TemporalType.DATE)
+	private Date paymentDate;
 
-    @Temporal(TemporalType.DATE)
-    private Date deadlineDate;
+	@Temporal(TemporalType.DATE)
+	private Date deadlineDate;
 
-    private String paymentSlipImage;
+	private String paymentSlipImage;
 
-    private String status;
+	private String status;
 
-    private String totalPrice;
+	private String totalPrice;
 
 	public RentalDeposit() {
 		super();
@@ -121,8 +116,4 @@ public class RentalDeposit {
 		this.totalPrice = totalPrice;
 	}
 
-    
 }
-
-
-

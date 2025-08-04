@@ -1,59 +1,43 @@
 package com.springmvc.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
-@Entity @Table(name = "invoicetype")
+@Entity
+@Table(name = "invoice_type")
 public class InvoiceType {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int billtypeID;
 
     @Column(nullable = false, length = 100)
-    private String billname;        // Room, Water, Electricity, Internet, Fine
+    private String billname;
 
     @Column
-    private Double defaultPrice;    // ใส่ได้ถ้าราคาคงที่
+    private Double defaultPrice;
 
-	public InvoiceType() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
+    // Getters and Setters
+    public int getBilltypeID() {
+        return billtypeID;
+    }
 
-	public InvoiceType(int billtypeID, String billname, Double defaultPrice) {
-		super();
-		this.billtypeID = billtypeID;
-		this.billname = billname;
-		this.defaultPrice = defaultPrice;
-	}
+    public void setBilltypeID(int billtypeID) {
+        this.billtypeID = billtypeID;
+    }
 
-	public int getBilltypeID() {
-		return billtypeID;
-	}
+    public String getBillname() {
+        return billname;
+    }
 
-	public void setBilltypeID(int billtypeID) {
-		this.billtypeID = billtypeID;
-	}
+    public void setBillname(String billname) {
+        this.billname = billname;
+    }
 
-	public String getBillname() {
-		return billname;
-	}
+    public Double getDefaultPrice() {
+        return defaultPrice;
+    }
 
-	public void setBillname(String billname) {
-		this.billname = billname;
-	}
-
-	public Double getDefaultPrice() {
-		return defaultPrice;
-	}
-
-	public void setDefaultPrice(Double defaultPrice) {
-		this.defaultPrice = defaultPrice;
-	}
-    
-    
+    public void setDefaultPrice(Double defaultPrice) {
+        this.defaultPrice = defaultPrice;
+    }
 }
-

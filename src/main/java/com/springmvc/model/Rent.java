@@ -1,16 +1,17 @@
 package com.springmvc.model;
 
 import javax.persistence.CascadeType;
-import javax.persistence.Column;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
-import javax.persistence.Lob;
+
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
-import javax.persistence.Table;
+
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
@@ -91,5 +92,17 @@ public class Rent {
 	}
 
     
+
+    @OneToMany(mappedBy = "rent", cascade = CascadeType.ALL)
+    private java.util.List<Invoice> invoices;
+
+    public java.util.List<Invoice> getInvoices() {
+        return invoices;
+    }
+
+    public void setInvoices(java.util.List<Invoice> invoices) {
+        this.invoices = invoices;
+    }
+
 }
 

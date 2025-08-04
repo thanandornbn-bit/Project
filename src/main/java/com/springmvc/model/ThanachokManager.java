@@ -290,7 +290,6 @@ public class ThanachokManager {
         }
     }
 
-
     public boolean confirmRentalDeposit(int rentalDepositId) {
         Session session = null;
         Transaction tx = null;
@@ -320,7 +319,7 @@ public class ThanachokManager {
     }
 
     public RentalDeposit getRentalDepositById(int id) {
-        Session session = HibernateUtil.getSessionFactory().openSession();
+        Session session = HibernateConnection.doHibernateConnection().openSession();
         try {
             return session.get(RentalDeposit.class, id);
         } finally {
@@ -329,7 +328,7 @@ public class ThanachokManager {
     }
 
     public void updateRentalDeposit(RentalDeposit deposit) {
-        Session session = HibernateUtil.getSessionFactory().openSession();
+        Session session = HibernateConnection.doHibernateConnection().openSession();
         Transaction tx = null;
         try {
             tx = session.beginTransaction();
@@ -388,7 +387,7 @@ public class ThanachokManager {
 
         InvoiceDetail d = new InvoiceDetail();
         d.setInvoice(inv);
-        d.setBilltype(type);
+        d.setInvoiceType(type);
         d.setAmount(amt);
         d.setUnit(unit);
         return d;
@@ -548,7 +547,7 @@ public class ThanachokManager {
     // อัปเดต Invoice (ยอดรวม)
     public void updateInvoice(Invoice invoice) {
         Transaction tx = null;
-        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+        try (Session session = HibernateConnection.doHibernateConnection().openSession()) {
             tx = session.beginTransaction();
             session.update(invoice);
             tx.commit();
@@ -560,7 +559,8 @@ public class ThanachokManager {
     }
 
     public RentalDeposit findRentalDepositByRentId(int rentId) {
-        Session session = HibernateUtil.getSessionFactory().openSession();
+        Session session = HibernateConnection.doHibernateConnection().openSession();
+
         try {
             String hql = "FROM RentalDeposit WHERE rent.rentID = :rentId";
             return session.createQuery(hql, RentalDeposit.class)
@@ -573,31 +573,64 @@ public class ThanachokManager {
             session.close();
         }
     }
-  
-
+    
     public void saveInvoiceWithDetails(Invoice invoice, List<InvoiceDetail> details) {
-        Session session = HibernateUtil.getSessionFactory().openSession();
-        Transaction tx = null;
-        try {
-            tx = session.beginTransaction();
+    Session session = HibernateConnection.doHibernateConnection().openSession();
+    Transaction tx = null;
+    try {
+        tx = session.beginTransaction();
 
-            session.save(invoice); // save invoice first
+        // บันทึก Invoice
+        session.save(invoice);
 
-            for (InvoiceDetail detail : details) {
-                detail.setInvoice(invoice); // link detail to invoice
-                session.save(detail);
+        // บันทึก InvoiceDetail และตรวจสอบ InvoiceType
+        for (InvoiceDetail detail : details) {
+            // เชื่อมโยงกับ Invoice ถ้ายังไม่ได้ตั้งค่า
+            if (detail.getInvoice() == null) {
+                detail.setInvoice(invoice);
             }
 
-            tx.commit();
+            // ตรวจสอบและเชื่อมโยง InvoiceType
+            InvoiceType type = detail.getInvoiceType();
+            if (type != null) {
+                // ตรวจสอบว่า InvoiceType มีอยู่ในฐานข้อมูลหรือไม่
+                InvoiceType existingType = session.get(InvoiceType.class, type.getBilltypeID());
+                if (existingType == null) {
+                    // ถ้ายังไม่มี ให้บันทึกใหม่
+                    session.save(type);
+                } else {
+                    // ถ้ามีแล้ว ใช้ตัวที่มีอยู่
+                    detail.setInvoiceType(existingType);
+                }
+            } else {
+                System.out.println("Warning: InvoiceDetail missing InvoiceType");
+                continue; // ข้ามรายการที่ไม่มีประเภทบิล
+            }
+
+            // บันทึก InvoiceDetail
+            session.save(detail);
+        }
+
+        tx.commit();
+    } catch (Exception e) {
+        if (tx != null) tx.rollback();
+        e.printStackTrace();
+    } finally {
+        session.close();
+    }
+}
+
+
+    public Rent findRentByRoomID(int roomID) {
+        try (Session session = HibernateConnection.doHibernateConnection().openSession()) {
+            String hql = "FROM Rent r WHERE r.room.roomID = :roomID";
+            return session.createQuery(hql, Rent.class)
+                    .setParameter("roomID", roomID)
+                    .uniqueResult();
         } catch (Exception e) {
-            if (tx != null) tx.rollback();
             e.printStackTrace();
-        } finally {
-            session.close();
+            return null;
         }
     }
 
-
-    
-    
 }

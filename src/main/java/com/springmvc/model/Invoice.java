@@ -1,22 +1,15 @@
 package com.springmvc.model;
 
+import javax.persistence.*;
 import java.util.Date;
-
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
+import java.util.List;
 
 @Entity
 @Table(name = "invoice")
 public class Invoice {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int billID;
 
     @Temporal(TemporalType.DATE)
@@ -26,77 +19,72 @@ public class Invoice {
     private Date dueDate;
 
     @Column(length = 20, nullable = false)
-    private String status;          // pending / paid / overdue
+    private String status;
 
     @Column(nullable = false)
-    private double totalAmount;     // ราคารวม
+    private double totalAmount;
 
-    @ManyToOne @JoinColumn(name = "rent_rentID", nullable = false)
+    @ManyToOne
+    @JoinColumn(name = "rent_id", nullable = false)
     private Rent rent;
 
-	public Invoice() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
+    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL)
+    private List<InvoiceDetail> invoiceDetails;
 
-	public Invoice(int billID, Date billingDate, Date dueDate, String status, double totalAmount, Rent rent) {
-		super();
-		this.billID = billID;
-		this.billingDate = billingDate;
-		this.dueDate = dueDate;
-		this.status = status;
-		this.totalAmount = totalAmount;
-		this.rent = rent;
-	}
+    // Getters and Setters
+    public int getBillID() {
+        return billID;
+    }
 
-	public int getBillID() {
-		return billID;
-	}
+    public void setBillID(int billID) {
+        this.billID = billID;
+    }
 
-	public void setBillID(int billID) {
-		this.billID = billID;
-	}
+    public Date getBillingDate() {
+        return billingDate;
+    }
 
-	public Date getBillingDate() {
-		return billingDate;
-	}
+    public void setBillingDate(Date billingDate) {
+        this.billingDate = billingDate;
+    }
 
-	public void setBillingDate(Date billingDate) {
-		this.billingDate = billingDate;
-	}
+    public Date getDueDate() {
+        return dueDate;
+    }
 
-	public Date getDueDate() {
-		return dueDate;
-	}
+    public void setDueDate(Date dueDate) {
+        this.dueDate = dueDate;
+    }
 
-	public void setDueDate(Date dueDate) {
-		this.dueDate = dueDate;
-	}
+    public String getStatus() {
+        return status;
+    }
 
-	public String getStatus() {
-		return status;
-	}
+    public void setStatus(String status) {
+        this.status = status;
+    }
 
-	public void setStatus(String status) {
-		this.status = status;
-	}
+    public double getTotalAmount() {
+        return totalAmount;
+    }
 
-	public double getTotalAmount() {
-		return totalAmount;
-	}
+    public void setTotalAmount(double totalAmount) {
+        this.totalAmount = totalAmount;
+    }
 
-	public void setTotalAmount(double totalAmount) {
-		this.totalAmount = totalAmount;
-	}
+    public Rent getRent() {
+        return rent;
+    }
 
-	public Rent getRent() {
-		return rent;
-	}
+    public void setRent(Rent rent) {
+        this.rent = rent;
+    }
 
-	public void setRent(Rent rent) {
-		this.rent = rent;
-	}
-    
-    
+    public List<InvoiceDetail> getInvoiceDetails() {
+        return invoiceDetails;
+    }
+
+    public void setInvoiceDetails(List<InvoiceDetail> invoiceDetails) {
+        this.invoiceDetails = invoiceDetails;
+    }
 }
-

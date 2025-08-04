@@ -84,7 +84,7 @@ th, td {
 	</div>
 	<div class="nav">
 		<a href="Homesucess">หน้าหลัก</a> 
-		<a href="Bill">แจ้งหนี้</a>
+		<a href="MemberListinvoice">แจ้งหนี้</a>
 		<a href="Record">ดูประวัติการจอง</a>
 	</div>
 

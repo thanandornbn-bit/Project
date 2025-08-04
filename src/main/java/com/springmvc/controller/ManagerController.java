@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -22,6 +23,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.springmvc.model.Room;
 import com.springmvc.model.Invoice;
 import com.springmvc.model.InvoiceDetail;
+import com.springmvc.model.InvoiceType;
 import com.springmvc.model.Manager;
 import com.springmvc.model.Member;
 import com.springmvc.model.Rent;
@@ -63,7 +65,7 @@ public class ManagerController {
 	public String saveRoom(@RequestParam("roomNumber") String roomNumber,
 			@RequestParam("description") String description, @RequestParam("roomPrice") String roomPrice,
 			@RequestParam("roomStatus") String roomStatus, @RequestParam("roomtype") String roomtype,
-			 Model model ) {
+			Model model) {
 
 		Room room = new Room();
 		room.setRoomNumber(roomNumber);
@@ -80,7 +82,7 @@ public class ManagerController {
 	}
 
 	// GET: แสดงรายการจองทั้งหมด
-	@GetMapping("/OViewReserve")
+	@RequestMapping(value = "/OViewReserve", method = RequestMethod.GET)
 	public String viewAllReservations(Model model) {
 		ThanachokManager manager = new ThanachokManager();
 		List<Rent> rentList = manager.findAllRentsWithDeposits();
@@ -89,7 +91,7 @@ public class ManagerController {
 	}
 
 	// GET: แสดงรายละเอียดการจองแต่ละรายการ
-	@GetMapping("/ViewReservationDetail")
+	@RequestMapping(value = "/ViewReservationDetail", method = RequestMethod.GET)
 	public String viewReservationDetail(@RequestParam("rentId") int rentId, Model model) {
 		ThanachokManager manager = new ThanachokManager();
 		Rent rent = manager.findRentById(rentId);
@@ -142,7 +144,7 @@ public class ManagerController {
 		return mav;
 	}
 
-	/* อัปเดตข้อมูลห้อง  */
+	/* อัปเดตข้อมูลห้อง */
 	@RequestMapping(value = "/UpdateRoom", method = RequestMethod.POST)
 	public String updateRoom(@RequestParam("roomID") int roomID, @RequestParam("roomNumber") String roomNumber,
 			@RequestParam("description") String description, @RequestParam("roomPrice") String roomPrice,
@@ -152,7 +154,7 @@ public class ManagerController {
 		ThanachokManager tm = new ThanachokManager();
 		Room room = tm.findRoomById(roomID);
 
-		//อัปเดตฟิลด์ข้อความ 
+		// อัปเดตฟิลด์ข้อความ
 		room.setRoomNumber(roomNumber);
 		room.setDescription(description);
 		room.setRoomPrice(roomPrice);
@@ -212,5 +214,6 @@ public class ManagerController {
 		mav.addObject("invoiceDetails", details);
 		return mav;
 	}
+
 
 }
