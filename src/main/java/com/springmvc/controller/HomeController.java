@@ -238,4 +238,72 @@ public class HomeController {
         return mav;
     }
 
+    @RequestMapping(value = "/Editprofile", method = RequestMethod.GET)
+    public ModelAndView showEditProfile(HttpSession session) {
+        Member member = (Member) session.getAttribute("loginMember");
+        if (member == null) {
+            return new ModelAndView("redirect:/Login");
+        }
+        return new ModelAndView("Editprofile");
+    }
+
+    // EditProfile
+    @RequestMapping(value = "/Editprofile", method = RequestMethod.POST)
+    public ModelAndView editProfile(HttpServletRequest request, HttpSession session) {
+        Member currentMember = (Member) session.getAttribute("loginMember");
+        if (currentMember == null) {
+            return new ModelAndView("redirect:/Login");
+        }
+        String firstName = request.getParameter("firstName");
+        String lastName = request.getParameter("lastName");
+        String phoneNumber = request.getParameter("phoneNumber");
+        String password = request.getParameter("password");
+        String confirmPassword = request.getParameter("confirmPassword");
+        ModelAndView mav = new ModelAndView("Editprofile");
+
+        // ตรวจสอบข้อมูล
+        if (firstName == null || firstName.trim().isEmpty() ||
+                lastName == null || lastName.trim().isEmpty() ||
+                phoneNumber == null || phoneNumber.trim().isEmpty()) {
+            mav.addObject("edit_result", "กรุณากรอกข้อมูลให้ครบถ้วน");
+            return mav;
+        }
+
+        if (!phoneNumber.matches("^0[0-9]{9}$")) {
+            mav.addObject("edit_result", "หมายเลขโทรศัพท์ไม่ถูกต้อง (ต้องมี 10 หลัก)");
+            return mav;
+        }
+
+        if (password != null && !password.trim().isEmpty()) {
+            if (!password.equals(confirmPassword)) {
+                mav.addObject("edit_result", "รหัสผ่านไม่ตรงกัน");
+                return mav;
+            }
+            try {
+                password = PasswordUtil.getInstance().createPassword(password, "Project");
+                currentMember.setPassword(password);
+            } catch (Exception e) {
+                e.printStackTrace();
+                mav.addObject("edit_result", "เกิดข้อผิดพลาดในการเข้ารหัสรหัสผ่าน");
+                return mav;
+            }
+        }
+
+        // อัปเดตข้อมูล
+        currentMember.setFirstName(firstName);
+        currentMember.setLastName(lastName);
+        currentMember.setPhoneNumber(phoneNumber);
+
+        ThanachokManager manager = new ThanachokManager();
+        boolean success = manager.insertMember(currentMember); // ใช้ saveOrUpdate
+
+        if (success) {
+            session.setAttribute("loginMember", currentMember); // อัปเดต session
+            mav.addObject("edit_result", "บันทึกข้อมูลเรียบร้อยแล้ว");
+        } else {
+            mav.addObject("edit_result", "ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง");
+        }
+
+        return mav;
+    }
 }
