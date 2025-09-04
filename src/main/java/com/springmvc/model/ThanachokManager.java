@@ -135,22 +135,6 @@ public class ThanachokManager {
         }
     }
 
-    // ค้นหาห้องจาก ID
-    public Room findRoomById(int roomID) {
-        Session session = null;
-        try {
-            SessionFactory sessionFactory = HibernateConnection.doHibernateConnection();
-            session = sessionFactory.openSession();
-            return session.get(Room.class, roomID);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        } finally {
-            if (session != null)
-                session.close();
-        }
-    }
-
     // ค้นหาห้องจาก floor และ status
     public List<Room> findRoomsByFloorAndStatus(String floor, String status) {
         Session session = null;
@@ -275,21 +259,6 @@ public class ThanachokManager {
         }
     }
 
-    public Rent findRentById(int id) {
-        Session session = null;
-        try {
-            SessionFactory sessionFactory = HibernateConnection.doHibernateConnection();
-            session = sessionFactory.openSession();
-            return session.get(Rent.class, id);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        } finally {
-            if (session != null)
-                session.close();
-        }
-    }
-
     public boolean confirmRentalDeposit(int rentalDepositId) {
         Session session = null;
         Transaction tx = null;
@@ -376,92 +345,6 @@ public class ThanachokManager {
         }
     }
 
-    /* ---------- helper สร้าง detail ---------- */
-    private InvoiceDetail buildDetail(Session s, Invoice inv, String billName,
-            double amt, String unit) {
-
-        String hql = "FROM InvoiceType WHERE billname = :name";
-        InvoiceType type = s.createQuery(hql, InvoiceType.class)
-                .setParameter("name", billName)
-                .uniqueResult();
-
-        InvoiceDetail d = new InvoiceDetail();
-        d.setInvoice(inv);
-        d.setInvoiceType(type);
-        d.setAmount(amt);
-        d.setUnit(unit);
-        return d;
-    }
-
-    /* ---------- สร้างบิลให้ 1 ห้อง ---------- */
-    public Invoice createMonthlyInvoice(Rent rent,
-            double waterUnit, double waterRate,
-            double elecUnit, double elecRate,
-            double internetFee, double fine) {
-
-        Session s = null;
-        Transaction tx = null;
-        try {
-            s = HibernateConnection.doHibernateConnection().openSession();
-            tx = s.beginTransaction();
-
-            // ---------- Invoice หลัก ----------
-            Invoice inv = new Invoice();
-            inv.setRent(rent);
-            inv.setBillingDate(new Date());
-
-            Calendar c = Calendar.getInstance();
-            c.add(Calendar.DAY_OF_MONTH, 7);
-            inv.setDueDate(c.getTime());
-            inv.setStatus("pending");
-            s.save(inv); // save ก่อนเพื่อให้มี billID
-
-            List<InvoiceDetail> dets = new ArrayList<>();
-
-            // ---------- ค่าห้อง ----------
-            double roomPrice = Double.parseDouble(rent.getRoom().getRoomPrice());
-            dets.add(buildDetail(s, inv, "Room", roomPrice, null));
-
-            // ---------- ค่าน้ำ ----------
-            double water = waterUnit * waterRate;
-            dets.add(buildDetail(s, inv, "Water", water,
-                    String.format("%.0f หน่วย", waterUnit)));
-
-            // ---------- ค่าไฟ ----------
-            double elec = elecUnit * elecRate;
-            dets.add(buildDetail(s, inv, "Electricity", elec,
-                    String.format("%.0f หน่วย", elecUnit)));
-
-            // ---------- ค่าเน็ต ----------
-            dets.add(buildDetail(s, inv, "Internet", internetFee, null));
-
-            // ---------- ค่าปรับ (ถ้ามี) ----------
-            if (fine > 0) {
-                dets.add(buildDetail(s, inv, "Fine", fine, null));
-            }
-
-            double total = dets.stream().mapToDouble(InvoiceDetail::getAmount).sum();
-            inv.setTotalAmount(total);
-            s.update(inv); // อัปเดตราคารวม
-
-            // save รายการย่อย
-            for (InvoiceDetail d : dets)
-                s.save(d);
-
-            tx.commit();
-            return inv;
-
-        } catch (Exception e) {
-            if (tx != null)
-                tx.rollback();
-            e.printStackTrace();
-            return null;
-        } finally {
-            if (s != null)
-                s.close();
-        }
-    }
-
     // ดึงรายการ Invoice ทั้งหมดของผู้เช่า
     public List<Invoice> findInvoicesByMember(int memberID) {
         try (Session session = HibernateConnection.doHibernateConnection().openSession()) {
@@ -486,22 +369,6 @@ public class ThanachokManager {
             Query<InvoiceDetail> query = session.createQuery(hql, InvoiceDetail.class);
             query.setParameter("billID", billID);
             return query.list();
-        }
-    }
-
-    // บันทึก Invoice และคืนค่า ID ที่เพิ่ม
-    public int saveInvoice(Invoice invoice) {
-        Transaction tx = null;
-        try (Session session = HibernateConnection.doHibernateConnection().openSession()) {
-            tx = session.beginTransaction();
-            int id = (int) session.save(invoice);
-            tx.commit();
-            return id;
-        } catch (Exception e) {
-            if (tx != null)
-                tx.rollback();
-            e.printStackTrace();
-            return -1;
         }
     }
 
@@ -535,15 +402,6 @@ public class ThanachokManager {
         }
     }
 
-    // ดึง Rent ทั้งหมดของผู้เช่า (หรือทั้งหมดของระบบ)
-    public List<Rent> getAllRents() {
-        try (Session session = HibernateConnection.doHibernateConnection().openSession()) {
-            String hql = "FROM Rent";
-            Query<Rent> query = session.createQuery(hql, Rent.class);
-            return query.list();
-        }
-    }
-
     // อัปเดต Invoice (ยอดรวม)
     public void updateInvoice(Invoice invoice) {
         Transaction tx = null;
@@ -573,53 +431,6 @@ public class ThanachokManager {
             session.close();
         }
     }
-    
-    public void saveInvoiceWithDetails(Invoice invoice, List<InvoiceDetail> details) {
-    Session session = HibernateConnection.doHibernateConnection().openSession();
-    Transaction tx = null;
-    try {
-        tx = session.beginTransaction();
-
-        // บันทึก Invoice
-        session.save(invoice);
-
-        // บันทึก InvoiceDetail และตรวจสอบ InvoiceType
-        for (InvoiceDetail detail : details) {
-            // เชื่อมโยงกับ Invoice ถ้ายังไม่ได้ตั้งค่า
-            if (detail.getInvoice() == null) {
-                detail.setInvoice(invoice);
-            }
-
-            // ตรวจสอบและเชื่อมโยง InvoiceType
-            InvoiceType type = detail.getInvoiceType();
-            if (type != null) {
-                // ตรวจสอบว่า InvoiceType มีอยู่ในฐานข้อมูลหรือไม่
-                InvoiceType existingType = session.get(InvoiceType.class, type.getBilltypeID());
-                if (existingType == null) {
-                    // ถ้ายังไม่มี ให้บันทึกใหม่
-                    session.save(type);
-                } else {
-                    // ถ้ามีแล้ว ใช้ตัวที่มีอยู่
-                    detail.setInvoiceType(existingType);
-                }
-            } else {
-                System.out.println("Warning: InvoiceDetail missing InvoiceType");
-                continue; // ข้ามรายการที่ไม่มีประเภทบิล
-            }
-
-            // บันทึก InvoiceDetail
-            session.save(detail);
-        }
-
-        tx.commit();
-    } catch (Exception e) {
-        if (tx != null) tx.rollback();
-        e.printStackTrace();
-    } finally {
-        session.close();
-    }
-}
-
 
     public Rent findRentByRoomID(int roomID) {
         try (Session session = HibernateConnection.doHibernateConnection().openSession()) {
@@ -632,5 +443,76 @@ public class ThanachokManager {
             return null;
         }
     }
+
+    // ===== บันทึก Invoice และ InvoiceDetail ทั้งหมด =====
+    public boolean saveInvoice(Invoice invoice) {
+        Transaction tx = null;
+        try (Session session = HibernateConnection.doHibernateConnection().openSession()) {
+            tx = session.beginTransaction();
+
+            // บันทึก Invoice ก่อน (ต้องบันทึกก่อนเพื่อให้ได้ ID)
+            session.save(invoice);
+
+            // บันทึก InvoiceDetail ทุกตัว
+            if (invoice.getDetails() != null) {
+                for (InvoiceDetail detail : invoice.getDetails()) {
+                    detail.setInvoice(invoice); // แน่ใจว่าเชื่อม Invoice
+                    session.save(detail);
+                }
+            }
+
+            tx.commit();
+            return true;
+
+        } catch (Exception e) {
+            if (tx != null)
+                tx.rollback();
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // ===== หา Room ด้วย roomID =====
+    public Room findRoomById(int roomID) {
+        try (Session session = HibernateConnection.doHibernateConnection().openSession()) {
+            return session.get(Room.class, roomID);
+        }
+    }
+
+    // ===== หา Rent ด้วย roomID =====
+    public Rent findRentById(int rentID) {
+        try (Session session = HibernateConnection.doHibernateConnection().openSession()) {
+            return session.get(Rent.class, rentID);
+        }
+    }
+
+    // ===== ดึง InvoiceType ตามชื่อ =====
+    public InvoiceType getInvoiceTypeByName(String name) {
+        try (Session session = HibernateConnection.doHibernateConnection().openSession()) {
+            return session.createQuery("from InvoiceType where typeName = :name", InvoiceType.class)
+                    .setParameter("name", name)
+                    .uniqueResult();
+        }
+    }
+
+    // ===== ดึงรายการ Rent ทั้งหมด =====
+    public List<Rent> getAllRents() {
+        try (Session session = HibernateConnection.doHibernateConnection().openSession()) {
+            return session.createQuery("from Rent", Rent.class).list();
+        }
+    }
+
+    public List<Invoice> getAllInvoices() {
+        try (Session session = HibernateConnection.doHibernateConnection().openSession()) {
+            String hql = "from Invoice i order by i.issueDate desc";
+            Query<Invoice> query = session.createQuery(hql, Invoice.class);
+            return query.list();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    
 
 }

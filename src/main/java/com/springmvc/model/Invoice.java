@@ -1,75 +1,71 @@
 package com.springmvc.model;
 
-import javax.persistence.*;
-import java.util.Date;
+
+import java.math.BigDecimal;
+import java.sql.Date;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+
+import javax.persistence.*;
 
 @Entity
 @Table(name = "invoice")
 public class Invoice {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int billID;
+    private int invoiceId;
 
-    @Temporal(TemporalType.DATE)
-    private Date billingDate;
-
-    @Temporal(TemporalType.DATE)
-    private Date dueDate;
-
-    @Column(length = 20, nullable = false)
-    private String status;
-
-    @Column(nullable = false)
-    private double totalAmount;
+    private LocalDate issueDate;
+    private LocalDate dueDate;
+    private BigDecimal totalAmount;
+    private int status; // 0=ยังไม่ได้จ่าย, 1=ชำระแล้ว
 
     @ManyToOne
-    @JoinColumn(name = "rent_id", nullable = false)
+    @JoinColumn(name = "rent_id")
     private Rent rent;
 
-    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL)
-    private List<InvoiceDetail> invoiceDetails;
+    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<InvoiceDetail> details = new ArrayList<>();
 
-    // Getters and Setters
-    public int getBillID() {
-        return billID;
+    public int getInvoiceId() {
+        return invoiceId;
     }
 
-    public void setBillID(int billID) {
-        this.billID = billID;
+    public void setInvoiceId(int invoiceId) {
+        this.invoiceId = invoiceId;
     }
 
-    public Date getBillingDate() {
-        return billingDate;
+    public LocalDate getIssueDate() {
+        return issueDate;
     }
 
-    public void setBillingDate(Date billingDate) {
-        this.billingDate = billingDate;
+    public void setIssueDate(LocalDate issueDate) {
+        this.issueDate = issueDate;
     }
 
-    public Date getDueDate() {
+    public LocalDate getDueDate() {
         return dueDate;
     }
 
-    public void setDueDate(Date dueDate) {
+    public void setDueDate(LocalDate dueDate) {
         this.dueDate = dueDate;
     }
 
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public double getTotalAmount() {
+    public BigDecimal getTotalAmount() {
         return totalAmount;
     }
 
-    public void setTotalAmount(double totalAmount) {
+    public void setTotalAmount(BigDecimal totalAmount) {
         this.totalAmount = totalAmount;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 
     public Rent getRent() {
@@ -80,11 +76,29 @@ public class Invoice {
         this.rent = rent;
     }
 
-    public List<InvoiceDetail> getInvoiceDetails() {
-        return invoiceDetails;
+    public List<InvoiceDetail> getDetails() {
+        return details;
     }
 
-    public void setInvoiceDetails(List<InvoiceDetail> invoiceDetails) {
-        this.invoiceDetails = invoiceDetails;
+    public void setDetails(List<InvoiceDetail> details) {
+        this.details = details;
     }
+
+    public Invoice(int invoiceId, LocalDate issueDate, LocalDate dueDate, BigDecimal totalAmount, int status, Rent rent,
+            List<InvoiceDetail> details) {
+        this.invoiceId = invoiceId;
+        this.issueDate = issueDate;
+        this.dueDate = dueDate;
+        this.totalAmount = totalAmount;
+        this.status = status;
+        this.rent = rent;
+        this.details = details;
+    }
+
+    public Invoice() {
+        //TODO Auto-generated constructor stub
+    }
+
+    // getter/setter
 }
+

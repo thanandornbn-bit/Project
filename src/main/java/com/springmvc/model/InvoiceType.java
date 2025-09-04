@@ -5,39 +5,37 @@ import javax.persistence.*;
 @Entity
 @Table(name = "invoice_type")
 public class InvoiceType {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int billtypeID;
+    private int typeId;
 
-    @Column(nullable = false, length = 100)
-    private String billname;
+    private String typeName; // ค่าไฟ, ค่าน้ำ, ค่าห้อง, ค่าเน็ต, ค่าปรับ
 
-    @Column
-    private Double defaultPrice;
-
-    // Getters and Setters
-    public int getBilltypeID() {
-        return billtypeID;
+    public int getTypeId() {
+        return typeId;
     }
 
-    public void setBilltypeID(int billtypeID) {
-        this.billtypeID = billtypeID;
+    public void setTypeId(int typeId) {
+        this.typeId = typeId;
     }
 
-    public String getBillname() {
-        return billname;
+    public String getTypeName() {
+        return typeName;
     }
 
-    public void setBillname(String billname) {
-        this.billname = billname;
+    public void setTypeName(String typeName) {
+        this.typeName = typeName;
     }
 
-    public Double getDefaultPrice() {
-        return defaultPrice;
+    public InvoiceType(int typeId, String typeName) {
+        this.typeId = typeId;
+        this.typeName = typeName;
     }
 
-    public void setDefaultPrice(Double defaultPrice) {
-        this.defaultPrice = defaultPrice;
+    public InvoiceType() {
+        //TODO Auto-generated constructor stub
     }
+
+    
 }
+

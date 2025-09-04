@@ -4,11 +4,14 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 import java.util.Locale;
+import java.util.Map;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -206,20 +209,20 @@ public class HomeController {
         return "redirect:/";
     }
 
-    @RequestMapping(value = "/MemberListinvoice", method = RequestMethod.GET)
-    public ModelAndView listInvoices(HttpSession session) {
-        Member member = (Member) session.getAttribute("loginMember");
-        if (member == null) {
-            return new ModelAndView("redirect:/Login");
-        }
+    // @RequestMapping(value = "/MemberListinvoice", method = RequestMethod.GET)
+    // public ModelAndView listInvoices(HttpSession session) {
+    //     Member member = (Member) session.getAttribute("loginMember");
+    //     if (member == null) {
+    //         return new ModelAndView("redirect:/Login");
+    //     }
 
-        ThanachokManager manager = new ThanachokManager();
-        List<Invoice> invoiceList = manager.findInvoicesByMember(member.getMemberID());
+    //     ThanachokManager manager = new ThanachokManager();
+    //     List<Invoice> invoiceList = manager.findInvoicesByMember(member.getMemberID());
 
-        ModelAndView mav = new ModelAndView("MemberListinvoice");
-        mav.addObject("invoiceList", invoiceList);
-        return mav;
-    }
+    //     ModelAndView mav = new ModelAndView("MemberListinvoice");
+    //     mav.addObject("invoiceList", invoiceList);
+    //     return mav;
+    // }
 
     @RequestMapping(value = "/MemberDetailinvoice", method = RequestMethod.GET)
     public ModelAndView showInvoiceDetail(@RequestParam("billID") int billID, HttpSession session) {
@@ -306,4 +309,8 @@ public class HomeController {
 
         return mav;
     }
+
+
+
+
 }
