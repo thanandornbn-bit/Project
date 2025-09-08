@@ -17,6 +17,24 @@ if (loginManager == null) {
 <head>
     <meta charset="UTF-8">
     <title>ThanaChok Place - Manager</title>
+    <style>
+        .action-btn {
+            padding: 5px 10px;
+            margin: 2px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .btn-add { background-color: #28a745; color: white; }
+        .btn-edit { background-color: #007bff; color: white; }
+        .btn-edit-invoice { background-color: #ffc107; color: black; }
+        .btn-delete { background-color: #dc3545; color: white; }
+        .btn-add:hover { background-color: #218838; }
+        .btn-edit:hover { background-color: #0056b3; }
+        .btn-edit-invoice:hover { background-color: #e0a800; }
+        .btn-delete:hover { background-color: #c82333; }
+    </style>
 </head>
 <body>
     <div class="header">ThanaChok Place - จัดการห้องพัก</div>
@@ -68,12 +86,19 @@ if (loginManager == null) {
                     <td>${room.roomStatus}</td>
                     <td>
                         <c:if test="${room.roomStatus == 'ไม่ว่าง'}">
-                            <a href="ManagerAddInvoice?roomID=${room.roomID}"><button>เพิ่มบิล</button></a>
+                            <a href="ManagerAddInvoice?roomID=${room.roomID}">
+                                <button class="action-btn btn-add">เพิ่มบิล</button>
+                            </a>
+                            <a href="EditInvoice?roomID=${room.roomID}">
+                                <button class="action-btn btn-edit-invoice">แก้ไขใบแจ้งหนี้</button>
+                            </a>
                         </c:if>
-                        <a href="editRoom?id=${room.roomID}"><button>แก้ไข</button></a>
+                        <a href="editRoom?id=${room.roomID}">
+                            <button class="action-btn btn-edit">แก้ไข</button>
+                        </a>
                         <c:if test="${room.roomStatus == 'ว่าง'}">
                             <a href="deleteRoom?id=${room.roomID}" onclick="return confirm('คุณต้องการลบห้อง ${room.roomNumber} ใช่หรือไม่?')">
-                                <button>ลบ</button>
+                                <button class="action-btn btn-delete">ลบ</button>
                             </a>
                         </c:if>
                     </td>
@@ -83,4 +108,3 @@ if (loginManager == null) {
     </table>
 </body>
 </html>
-

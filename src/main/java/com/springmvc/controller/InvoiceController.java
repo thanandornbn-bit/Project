@@ -13,11 +13,13 @@ import org.springframework.web.servlet.ModelAndView;
 import com.springmvc.model.Invoice;
 import com.springmvc.model.InvoiceDetail;
 import com.springmvc.model.InvoiceType;
+import com.springmvc.model.Member;
 import com.springmvc.model.Rent;
 import com.springmvc.model.Room;
 import com.springmvc.model.ThanachokManager;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class InvoiceController {
@@ -98,7 +100,7 @@ public class InvoiceController {
         }
     }
 
-    // ===== สร้าง InvoiceDetail  =====
+    // ===== สร้าง InvoiceDetail =====
     private InvoiceDetail createSimpleDetail(Invoice invoice, String typeName, String amountStr) {
         InvoiceType type = manager.getInvoiceTypeByName(typeName);
         BigDecimal amount = new BigDecimal(amountStr);
@@ -107,18 +109,20 @@ public class InvoiceController {
         detail.setInvoice(invoice);
         detail.setType(type);
         detail.setQuantity(1);
-        detail.setPrice(amount);  
+        detail.setPrice(amount);
         detail.setAmount(amount);
 
         return detail;
     }
 
     // ===== สร้าง InvoiceDetail สำหรับฟิลด์ค่าน้ำ/ค่าไฟแบบคิดตามหน่วย =====
-    private InvoiceDetail createUnitDetail(Invoice invoice, String typeName, int prevUnit, int currUnit, BigDecimal unitPrice) {
+    private InvoiceDetail createUnitDetail(Invoice invoice, String typeName, int prevUnit, int currUnit,
+            BigDecimal unitPrice) {
         InvoiceType type = manager.getInvoiceTypeByName(typeName);
 
         int quantity = currUnit - prevUnit;
-        if (quantity < 0) quantity = 0;
+        if (quantity < 0)
+            quantity = 0;
 
         BigDecimal amount = unitPrice.multiply(BigDecimal.valueOf(quantity));
 
@@ -126,9 +130,68 @@ public class InvoiceController {
         detail.setInvoice(invoice);
         detail.setType(type);
         detail.setQuantity(quantity);
-        detail.setPrice(unitPrice); 
-        detail.setAmount(amount);   
+        detail.setPrice(unitPrice);
+        detail.setAmount(amount);
 
         return detail;
     }
+
+    // ===== แสดงรายการใบแจ้งหนี้ของ Member ====
+    @RequestMapping(value = "/MemberListinvoice", method = RequestMethod.GET)
+    public ModelAndView showMemberInvoices(HttpSession session) {
+        ModelAndView mv = new ModelAndView("ListInvoice");
+
+        try {
+            Member loginMember = (Member) session.getAttribute("loginMember");
+
+            if (loginMember == null) {
+                return new ModelAndView("redirect:/Login");
+            }
+
+            // ค้นหา invoices ของ member ที่ login อยู่
+            List<Invoice> memberInvoices = manager.getInvoicesByMemberID(loginMember.getMemberID());
+
+            mv.addObject("invoices", memberInvoices);
+            mv.addObject("loginMember", loginMember);
+
+            return mv;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            mv.addObject("error", "เกิดข้อผิดพลาดในการโหลดข้อมูลใบแจ้งหนี้");
+            return mv;
+        }
+    }
+
+    // ===== แสดงรายละเอียดใบแจ้งหนี้ =====
+
+    @RequestMapping(value = "/InvoiceDetail", method = RequestMethod.GET)
+    public ModelAndView showInvoiceDetail(@RequestParam("invoiceId") int invoiceId, HttpSession session) {
+        ModelAndView mv = new ModelAndView("InvoiceDetail");
+
+        try {
+            Member loginMember = (Member) session.getAttribute("loginMember");
+
+            if (loginMember == null) {
+                return new ModelAndView("redirect:/Login");
+            }
+
+            Invoice invoice = manager.getInvoiceWithDetails(invoiceId);
+
+            if (invoice != null && invoice.getRent().getMember().getMemberID() == loginMember.getMemberID()) {
+                mv.addObject("invoice", invoice);
+                mv.addObject("invoiceDetails", invoice.getDetails());
+            } else {
+                mv.addObject("error", "ไม่พบข้อมูลใบแจ้งหนี้หรือไม่มีสิทธิ์เข้าถึง");
+            }
+
+            return mv;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            mv.addObject("error", "เกิดข้อผิดพลาดในการโหลดรายละเอียดใบแจ้งหนี้");
+            return mv;
+        }
+    }
+
 }

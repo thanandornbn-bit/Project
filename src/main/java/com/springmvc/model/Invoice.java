@@ -2,7 +2,6 @@ package com.springmvc.model;
 
 
 import java.math.BigDecimal;
-import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +24,7 @@ public class Invoice {
     @JoinColumn(name = "rent_id")
     private Rent rent;
 
-    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<InvoiceDetail> details = new ArrayList<>();
 
     public int getInvoiceId() {
@@ -99,6 +98,6 @@ public class Invoice {
         //TODO Auto-generated constructor stub
     }
 
-    // getter/setter
+    
 }
 

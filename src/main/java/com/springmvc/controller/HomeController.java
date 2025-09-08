@@ -1,21 +1,13 @@
 package com.springmvc.controller;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.UUID;
 import java.util.Locale;
-import java.util.Map;
 
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -25,7 +17,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.springmvc.model.Invoice;
 import com.springmvc.model.InvoiceDetail;
-import com.springmvc.model.Manager;
 import com.springmvc.model.Member;
 import com.springmvc.model.Rent;
 import com.springmvc.model.RentalDeposit;
@@ -132,7 +123,7 @@ public class HomeController {
             deposit.setRent(rent);
             deposit.setTransferAccountName(transferAccountName);
             deposit.setPaymentDate(paymentDate);
-            deposit.setPaymentSlipImage(uploadDir + "/" + newFileName); // เก็บ path แบบ relative
+            deposit.setPaymentSlipImage(uploadDir + "/" + newFileName); 
             deposit.setDeadlineDate(deadline);
             deposit.setStatus("รอดำเนินการ");
             deposit.setTotalPrice("500");
@@ -186,21 +177,6 @@ public class HomeController {
         }
     }
 
-    // ประวัติการจองของสมาชิก
-    @RequestMapping(value = "/Record", method = RequestMethod.GET)
-    public ModelAndView showMemberRecord(HttpSession session) {
-        Member member = (Member) session.getAttribute("loginMember");
-        if (member == null) {
-            return new ModelAndView("redirect:/Login");
-        }
-
-        ThanachokManager manager = new ThanachokManager();
-        List<RentalDeposit> rentalDeposits = manager.findDepositsByMember(member);
-
-        ModelAndView mav = new ModelAndView("Record");
-        mav.addObject("rentalDeposits", rentalDeposits);
-        return mav;
-    }
 
     // ✅ ออกจากระบบ
     @RequestMapping(value = "/Logout", method = RequestMethod.POST)
@@ -209,20 +185,6 @@ public class HomeController {
         return "redirect:/";
     }
 
-    // @RequestMapping(value = "/MemberListinvoice", method = RequestMethod.GET)
-    // public ModelAndView listInvoices(HttpSession session) {
-    //     Member member = (Member) session.getAttribute("loginMember");
-    //     if (member == null) {
-    //         return new ModelAndView("redirect:/Login");
-    //     }
-
-    //     ThanachokManager manager = new ThanachokManager();
-    //     List<Invoice> invoiceList = manager.findInvoicesByMember(member.getMemberID());
-
-    //     ModelAndView mav = new ModelAndView("MemberListinvoice");
-    //     mav.addObject("invoiceList", invoiceList);
-    //     return mav;
-    // }
 
     @RequestMapping(value = "/MemberDetailinvoice", method = RequestMethod.GET)
     public ModelAndView showInvoiceDetail(@RequestParam("billID") int billID, HttpSession session) {
@@ -298,10 +260,10 @@ public class HomeController {
         currentMember.setPhoneNumber(phoneNumber);
 
         ThanachokManager manager = new ThanachokManager();
-        boolean success = manager.insertMember(currentMember); // ใช้ saveOrUpdate
+        boolean success = manager.insertMember(currentMember); 
 
         if (success) {
-            session.setAttribute("loginMember", currentMember); // อัปเดต session
+            session.setAttribute("loginMember", currentMember); 
             mav.addObject("edit_result", "บันทึกข้อมูลเรียบร้อยแล้ว");
         } else {
             mav.addObject("edit_result", "ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่อีกครั้ง");
@@ -309,6 +271,85 @@ public class HomeController {
 
         return mav;
     }
+
+
+    // เพิ่มเมท็อดเหล่านี้ใน Controller ที่จัดการหน้า Record
+
+@RequestMapping(value = "/Record", method = RequestMethod.GET)
+public ModelAndView showRecord(HttpSession session) {
+    Member loginMember = (Member) session.getAttribute("loginMember");
+    if (loginMember == null) {
+        return new ModelAndView("redirect:/Login");
+    }
+
+    ThanachokManager manager = new ThanachokManager();
+    
+    // ดึงเฉพาะการจองที่ยังไม่ได้คืนห้อง (สถานะไม่ใช่ "คืนห้องแล้ว")
+    List<RentalDeposit> rentalDeposits = manager.findActiveDepositsByMember(loginMember);
+    
+    // ตรวจสอบสถานะบิลสำหรับแต่ละการจอง
+    for (RentalDeposit deposit : rentalDeposits) {
+        if (deposit.getStatus().equals("เสร็จสมบูรณ์")) {
+            // ตรวจสอบว่ามีบิลค้างชำระหรือไม่
+            boolean hasUnpaidInvoices = manager.hasUnpaidInvoices(deposit.getRent().getRentID());
+            deposit.setHasUnpaidInvoices(hasUnpaidInvoices);
+        }
+    }
+    
+    ModelAndView mav = new ModelAndView("Record");
+    mav.addObject("rentalDeposits", rentalDeposits);
+    mav.addObject("loginMember", loginMember);
+    return mav;
+}
+
+@RequestMapping(value = "/ReturnRoom", method = RequestMethod.GET)
+public ModelAndView returnRoom(@RequestParam("rentId") int rentId, HttpSession session) {
+    Member loginMember = (Member) session.getAttribute("loginMember");
+    if (loginMember == null) {
+        return new ModelAndView("redirect:/Login");
+    }
+
+    try {
+        ThanachokManager manager = new ThanachokManager();
+        
+        // ตรวจสอบว่า rent นี้เป็นของ member ที่ login หรือไม่
+        Rent rent = manager.findRentById(rentId);
+        if (rent == null || rent.getMember().getMemberID() != loginMember.getMemberID()) {
+            ModelAndView mav = new ModelAndView("redirect:/Record");
+            mav.addObject("error", "ไม่พบข้อมูลการจองหรือไม่มีสิทธิ์เข้าถึง");
+            return mav;
+        }
+
+        // ตรวจสอบสถานะบิลค้างชำระ
+        boolean hasUnpaidInvoices = manager.hasUnpaidInvoices(rentId);
+        if (hasUnpaidInvoices) {
+            ModelAndView mav = new ModelAndView("redirect:/Record");
+            mav.addObject("error", "ไม่สามารถคืนห้องได้ เนื่องจากมีค่าใช้จ่ายค้างชำระ กรุณาชำระบิลให้ครบถ้วนก่อน");
+            return mav;
+        }
+
+        // ดำเนินการคืนห้อง
+        boolean success = manager.returnRoom(rentId);
+        
+        ModelAndView mav = new ModelAndView("redirect:/Record");
+        if (success) {
+            mav.addObject("message", "คืนห้องเรียบร้อยแล้ว ห้อง " + rent.getRoom().getRoomNumber() + " ได้ถูกเปลี่ยนสถานะเป็นว่างแล้ว");
+        } else {
+            mav.addObject("error", "เกิดข้อผิดพลาดในการคืนห้อง กรุณาลองใหม่อีกครั้ง");
+        }
+        
+        return mav;
+        
+    } catch (Exception e) {
+        e.printStackTrace();
+        ModelAndView mav = new ModelAndView("redirect:/Record");
+        mav.addObject("error", "เกิดข้อผิดพลาดในระบบ: " + e.getMessage());
+        return mav;
+    }
+}
+
+
+
 
 
 

@@ -23,7 +23,7 @@ public class HomeOtherController {
 	public ModelAndView Home() {
 	    ThanachokManager manager = new ThanachokManager();
 	    List<Room> roomList = manager.getAllrooms();
-	    ModelAndView mav = new ModelAndView("Home"); // ไปหน้า Home.jsp
+	    ModelAndView mav = new ModelAndView("Home"); 
 	    mav.addObject("roomList", roomList);
 	    return mav;
 	}
@@ -131,7 +131,7 @@ public class HomeOtherController {
 			Member member = manager.findMemberByEmailAndPassword(email, password);
 			if (member != null) {
 				session.setAttribute("loginMember", member);
-				return new ModelAndView("redirect:/Homesucess"); // ✅ Redirect เพื่อโหลดข้อมูลผ่าน GET
+				return new ModelAndView("redirect:/Homesucess"); 
 			} else {
 				return new ModelAndView("Login", "error_message", "Email หรือรหัสผ่านของ Member ไม่ถูกต้อง");
 			}
@@ -142,7 +142,7 @@ public class HomeOtherController {
 	@RequestMapping(value = "/roomDetail", method = RequestMethod.GET)
 	public ModelAndView roomDetail(@RequestParam("id") int roomID) {
 	    ThanachokManager manager = new ThanachokManager();
-	    Room room = manager.findRoomById(roomID); // คุณต้องมีเมธอดนี้
+	    Room room = manager.findRoomById(roomID); 
 	    ModelAndView mav = new ModelAndView("ODetailRoom");
 	    mav.addObject("room", room);
 	    return mav;

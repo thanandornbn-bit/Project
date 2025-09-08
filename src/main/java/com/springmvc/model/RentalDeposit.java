@@ -8,6 +8,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.Transient;
 import java.util.Date;
 
 @Entity
@@ -33,6 +34,9 @@ public class RentalDeposit {
 	private String status;
 
 	private String totalPrice;
+
+	@Transient
+	private boolean hasUnpaidInvoices = false;
 
 	public RentalDeposit() {
 		super();
@@ -116,4 +120,28 @@ public class RentalDeposit {
 		this.totalPrice = totalPrice;
 	}
 
+	public boolean isHasUnpaidInvoices() {
+		return hasUnpaidInvoices;
+	}
+
+	public void setHasUnpaidInvoices(boolean hasUnpaidInvoices) {
+		this.hasUnpaidInvoices = hasUnpaidInvoices;
+	}
+	
+	public boolean getHasUnpaidInvoices() {
+		return hasUnpaidInvoices;
+	}
+
+	// ตรวจสอบว่าคืนห้องแล้วหรือยัง
+	public boolean isReturned() {
+		return "คืนห้องแล้ว".equals(status);
+	}
+
+	@Override
+	public String toString() {
+		return "RentalDeposit [depositID=" + depositID + ", transferAccountName=" + transferAccountName
+				+ ", paymentDate=" + paymentDate + ", deadlineDate=" + deadlineDate + ", paymentSlipImage="
+				+ paymentSlipImage + ", status=" + status + ", totalPrice=" + totalPrice + ", hasUnpaidInvoices="
+				+ hasUnpaidInvoices + "]";
+	}
 }

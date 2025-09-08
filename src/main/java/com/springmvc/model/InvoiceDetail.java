@@ -85,7 +85,7 @@ public class InvoiceDetail {
         //TODO Auto-generated constructor stub
     }
 
-    // getter/setter
+    
 }
 
 
