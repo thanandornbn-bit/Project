@@ -313,37 +313,42 @@ public class ThanachokManager {
     }
 
     public boolean deleteRoom(int roomID) {
-        Session session = null;
-        Transaction tx = null;
-        try {
-            SessionFactory factory = HibernateConnection.doHibernateConnection();
-            session = factory.openSession();
-            tx = session.beginTransaction();
+    Session session = null;
+    Transaction tx = null;
+    try {
+        SessionFactory factory = HibernateConnection.doHibernateConnection();
+        session = factory.openSession();
+        tx = session.beginTransaction();
 
-            Room room = session.get(Room.class, roomID);
-            if (room != null) {
-                // ตรวจสอบสถานะต้องเป็น "ว่าง" เท่านั้นถึงจะลบได้
-                if ("ว่าง".equals(room.getRoomStatus())) {
-                    session.delete(room);
-                    tx.commit();
-                    return true;
-                } else {
-                    System.out.println("ไม่สามารถลบห้องที่ไม่ว่างได้");
-                    return false;
-                }
-            }
+        Room room = session.get(Room.class, roomID);
+        if (room == null) {
+            System.out.println("ไม่พบห้อง ID: " + roomID);
             return false;
+        }
 
-        } catch (Exception e) {
-            if (tx != null)
-                tx.rollback();
-            e.printStackTrace();
+        // ตรวจสอบว่าห้องว่างหรือไม่เท่านั้น
+        if (!"ว่าง".equals(room.getRoomStatus())) {
+            System.out.println("ไม่สามารถลบห้องที่ไม่ว่างได้");
             return false;
-        } finally {
-            if (session != null)
-                session.close();
+        }
+
+        // ลบห้องที่ว่าง
+        session.delete(room);
+        tx.commit();
+        return true;
+
+    } catch (Exception e) {
+        if (tx != null && tx.isActive()) {
+            tx.rollback();
+        }
+        e.printStackTrace();
+        return false;
+    } finally {
+        if (session != null) {
+            session.close();
         }
     }
+}
 
     // ดึงรายการ Invoice ทั้งหมดของผู้เช่า
     public List<Invoice> findInvoicesByMember(int memberID) {
@@ -558,34 +563,34 @@ public class ThanachokManager {
     }
 
     // คืนค่า Rent ที่ยังไม่ได้คืนห้อง (active) สำหรับห้องนั้นๆ
-public Rent getRentByRoomID(int roomID) {
-    Session session = null;
-    try {
-        SessionFactory sessionFactory = HibernateConnection.doHibernateConnection();
-        session = sessionFactory.openSession();
+    public Rent getRentByRoomID(int roomID) {
+        Session session = null;
+        try {
+            SessionFactory sessionFactory = HibernateConnection.doHibernateConnection();
+            session = sessionFactory.openSession();
 
-        // ดึงเฉพาะ Rent ที่ยังไม่ได้คืนห้อง (RentalDeposit.status != 'คืนห้องแล้ว')
-        String hql = "SELECT DISTINCT r FROM Rent r " +
-                     "LEFT JOIN FETCH r.rentalDeposit rd " +
-                     "WHERE r.room.roomID = :roomID " +
-                     "AND rd.status != 'คืนห้องแล้ว' " +
-                     "ORDER BY r.rentDate DESC";
-        
-        Query<Rent> query = session.createQuery(hql, Rent.class);
-        query.setParameter("roomID", roomID);
-        query.setMaxResults(1); // ดึงแค่ 1 รายการล่าสุด
-        
-        return query.uniqueResult();
+            // ดึงเฉพาะ Rent ที่ยังไม่ได้คืนห้อง (RentalDeposit.status != 'คืนห้องแล้ว')
+            String hql = "SELECT DISTINCT r FROM Rent r " +
+                    "LEFT JOIN FETCH r.rentalDeposit rd " +
+                    "WHERE r.room.roomID = :roomID " +
+                    "AND rd.status != 'คืนห้องแล้ว' " +
+                    "ORDER BY r.rentDate DESC";
 
-    } catch (Exception e) {
-        e.printStackTrace();
-        return null;
-    } finally {
-        if (session != null) {
-            session.close();
+            Query<Rent> query = session.createQuery(hql, Rent.class);
+            query.setParameter("roomID", roomID);
+            query.setMaxResults(1); // ดึงแค่ 1 รายการล่าสุด
+
+            return query.uniqueResult();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            if (session != null) {
+                session.close();
+            }
         }
     }
-}
 
     // ดึงเฉพาะการจองที่ยังไม่ได้คืนห้อง (ไม่รวมสถานะ "คืนห้องแล้ว")
     public List<RentalDeposit> findActiveDepositsByMember(Member member) {
@@ -845,8 +850,6 @@ public Rent getRentByRoomID(int roomID) {
         }
     }
 
-    
-
     public List<RentalDeposit> getMemberActiveRentals(Member member) {
         Session session = null;
         try {
@@ -1017,156 +1020,151 @@ public Rent getRentByRoomID(int roomID) {
         }
     }
 
-
-
     // เมธอดตรวจสอบว่าใบแจ้งหนี้มีอยู่จริงไหม
     public boolean invoiceExists(int invoiceId) {
-    Session session = null;
-    try {
-        SessionFactory sessionFactory = HibernateConnection.doHibernateConnection();
-        session = sessionFactory.openSession();
-        
-        // ใช้ชื่อ field ที่ถูกต้องตาม Entity
-        String hql = "SELECT COUNT(i) FROM Invoice i WHERE i.invoiceId = :invoiceId";
-        Long count = session.createQuery(hql, Long.class)
-                .setParameter("invoiceId", invoiceId)
-                .uniqueResult();
-        
-        System.out.println("Invoice " + invoiceId + " exists check: " + count);
-        return count != null && count > 0;
-        
-    } catch (Exception e) {
-        System.out.println("Error checking invoice existence: " + e.getMessage());
-        e.printStackTrace();
-        return false;
-    } finally {
-        if (session != null) {
-            session.close();
-        }
-    }
-}
+        Session session = null;
+        try {
+            SessionFactory sessionFactory = HibernateConnection.doHibernateConnection();
+            session = sessionFactory.openSession();
 
+            // ใช้ชื่อ field ที่ถูกต้องตาม Entity
+            String hql = "SELECT COUNT(i) FROM Invoice i WHERE i.invoiceId = :invoiceId";
+            Long count = session.createQuery(hql, Long.class)
+                    .setParameter("invoiceId", invoiceId)
+                    .uniqueResult();
 
+            System.out.println("Invoice " + invoiceId + " exists check: " + count);
+            return count != null && count > 0;
 
-// แก้ไขเมธอด deleteInvoice ใน ThanachokManager.java
-
-public boolean deleteInvoice(int invoiceId) {
-    Session session = null;
-    Transaction tx = null;
-    try {
-        SessionFactory sessionFactory = HibernateConnection.doHibernateConnection();
-        session = sessionFactory.openSession();
-        tx = session.beginTransaction();
-        
-        System.out.println("Starting delete process for invoice ID: " + invoiceId);
-        
-        // ตรวจสอบว่ามี Invoice อยู่จริง
-        Invoice invoice = session.get(Invoice.class, invoiceId);
-        if (invoice == null) {
-            System.out.println("Invoice " + invoiceId + " not found");
+        } catch (Exception e) {
+            System.out.println("Error checking invoice existence: " + e.getMessage());
+            e.printStackTrace();
             return false;
-        }
-        
-        // ตรวจสอบสถานะการชำระ - ไม่ให้ลบถ้าชำระแล้ว
-        if (invoice.getStatus() == 1) {
-            System.out.println("Cannot delete paid invoice: " + invoiceId + " (status: " + invoice.getStatus() + ")");
-            throw new RuntimeException("ไม่สามารถลบใบแจ้งหนี้ที่ชำระแล้วได้");
-        }
-        
-        System.out.println("Invoice status: " + invoice.getStatus() + " (0=unpaid, 1=paid)");
-        
-        // ลบ InvoiceDetail ก่อน
-        if (invoice.getDetails() != null && !invoice.getDetails().isEmpty()) {
-            for (InvoiceDetail detail : invoice.getDetails()) {
-                session.delete(detail);
+        } finally {
+            if (session != null) {
+                session.close();
             }
-            System.out.println("Deleted " + invoice.getDetails().size() + " invoice details");
-        }
-        
-        // ลบ Invoice
-        session.delete(invoice);
-        System.out.println("Deleted invoice: " + invoiceId);
-        
-        tx.commit();
-        return true;
-        
-    } catch (RuntimeException re) {
-        if (tx != null) {
-            tx.rollback();
-        }
-        // Re-throw runtime exception เพื่อให้ Controller จัดการ
-        throw re;
-    } catch (Exception e) {
-        if (tx != null) {
-            tx.rollback();
-        }
-        System.out.println("Error deleting invoice " + invoiceId + ": " + e.getMessage());
-        e.printStackTrace();
-        return false;
-    } finally {
-        if (session != null) {
-            session.close();
         }
     }
-}
 
-// เพิ่มเมธอดตรวจสอบสถานะการชำระ
-public boolean canDeleteInvoice(int invoiceId) {
-    Session session = null;
-    try {
-        SessionFactory sessionFactory = HibernateConnection.doHibernateConnection();
-        session = sessionFactory.openSession();
-        
-        Invoice invoice = session.get(Invoice.class, invoiceId);
-        if (invoice == null) {
+    // แก้ไขเมธอด deleteInvoice ใน ThanachokManager.java
+
+    public boolean deleteInvoice(int invoiceId) {
+        Session session = null;
+        Transaction tx = null;
+        try {
+            SessionFactory sessionFactory = HibernateConnection.doHibernateConnection();
+            session = sessionFactory.openSession();
+            tx = session.beginTransaction();
+
+            System.out.println("Starting delete process for invoice ID: " + invoiceId);
+
+            // ตรวจสอบว่ามี Invoice อยู่จริง
+            Invoice invoice = session.get(Invoice.class, invoiceId);
+            if (invoice == null) {
+                System.out.println("Invoice " + invoiceId + " not found");
+                return false;
+            }
+
+            // ตรวจสอบสถานะการชำระ - ไม่ให้ลบถ้าชำระแล้ว
+            if (invoice.getStatus() == 1) {
+                System.out
+                        .println("Cannot delete paid invoice: " + invoiceId + " (status: " + invoice.getStatus() + ")");
+                throw new RuntimeException("ไม่สามารถลบใบแจ้งหนี้ที่ชำระแล้วได้");
+            }
+
+            System.out.println("Invoice status: " + invoice.getStatus() + " (0=unpaid, 1=paid)");
+
+            // ลบ InvoiceDetail ก่อน
+            if (invoice.getDetails() != null && !invoice.getDetails().isEmpty()) {
+                for (InvoiceDetail detail : invoice.getDetails()) {
+                    session.delete(detail);
+                }
+                System.out.println("Deleted " + invoice.getDetails().size() + " invoice details");
+            }
+
+            // ลบ Invoice
+            session.delete(invoice);
+            System.out.println("Deleted invoice: " + invoiceId);
+
+            tx.commit();
+            return true;
+
+        } catch (RuntimeException re) {
+            if (tx != null) {
+                tx.rollback();
+            }
+            // Re-throw runtime exception เพื่อให้ Controller จัดการ
+            throw re;
+        } catch (Exception e) {
+            if (tx != null) {
+                tx.rollback();
+            }
+            System.out.println("Error deleting invoice " + invoiceId + ": " + e.getMessage());
+            e.printStackTrace();
             return false;
-        }
-        
-        // ตรวจสอบสถานะ: 0 = ยังไม่ชำระ, 1 = ชำระแล้ว
-        boolean canDelete = invoice.getStatus() == 0;
-        System.out.println("Invoice " + invoiceId + " can delete: " + canDelete + " (status: " + invoice.getStatus() + ")");
-        
-        return canDelete;
-        
-    } catch (Exception e) {
-        System.out.println("Error checking invoice delete permission: " + e.getMessage());
-        e.printStackTrace();
-        return false;
-    } finally {
-        if (session != null) {
-            session.close();
+        } finally {
+            if (session != null) {
+                session.close();
+            }
         }
     }
-}
 
-// เพิ่มเมธอดดึงข้อมูลใบแจ้งหนี้พร้อมสถานะ
-public Invoice getInvoiceWithStatus(int invoiceId) {
-    Session session = null;
-    try {
-        SessionFactory sessionFactory = HibernateConnection.doHibernateConnection();
-        session = sessionFactory.openSession();
-        
-        Invoice invoice = session.get(Invoice.class, invoiceId);
-        System.out.println("Retrieved invoice " + invoiceId + " with status: " + 
-                          (invoice != null ? invoice.getStatus() : "null"));
-        
-        return invoice;
-        
-    } catch (Exception e) {
-        System.out.println("Error retrieving invoice: " + e.getMessage());
-        e.printStackTrace();
-        return null;
-    } finally {
-        if (session != null) {
-            session.close();
+    // เพิ่มเมธอดตรวจสอบสถานะการชำระ
+    public boolean canDeleteInvoice(int invoiceId) {
+        Session session = null;
+        try {
+            SessionFactory sessionFactory = HibernateConnection.doHibernateConnection();
+            session = sessionFactory.openSession();
+
+            Invoice invoice = session.get(Invoice.class, invoiceId);
+            if (invoice == null) {
+                return false;
+            }
+
+            // ตรวจสอบสถานะ: 0 = ยังไม่ชำระ, 1 = ชำระแล้ว
+            boolean canDelete = invoice.getStatus() == 0;
+            System.out.println(
+                    "Invoice " + invoiceId + " can delete: " + canDelete + " (status: " + invoice.getStatus() + ")");
+
+            return canDelete;
+
+        } catch (Exception e) {
+            System.out.println("Error checking invoice delete permission: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        } finally {
+            if (session != null) {
+                session.close();
+            }
         }
     }
-}
 
+    // เพิ่มเมธอดดึงข้อมูลใบแจ้งหนี้พร้อมสถานะ
+    public Invoice getInvoiceWithStatus(int invoiceId) {
+        Session session = null;
+        try {
+            SessionFactory sessionFactory = HibernateConnection.doHibernateConnection();
+            session = sessionFactory.openSession();
 
+            Invoice invoice = session.get(Invoice.class, invoiceId);
+            System.out.println("Retrieved invoice " + invoiceId + " with status: " +
+                    (invoice != null ? invoice.getStatus() : "null"));
 
+            return invoice;
 
-public boolean hasMemberActiveRental(Member member) {
+        } catch (Exception e) {
+            System.out.println("Error retrieving invoice: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+    }
+
+    public boolean hasMemberActiveRental(Member member) {
         Session session = null;
         try {
             SessionFactory sessionFactory = HibernateConnection.doHibernateConnection();
@@ -1193,63 +1191,60 @@ public boolean hasMemberActiveRental(Member member) {
         }
     }
 
-
-
     // ตรวจสอบว่าหมายเลขห้องมีอยู่ในระบบแล้วหรือไม่
-public boolean isRoomNumberExists(String roomNumber) {
-    Session session = null;
-    try {
-        SessionFactory sessionFactory = HibernateConnection.doHibernateConnection();
-        session = sessionFactory.openSession();
-        
-        String hql = "SELECT COUNT(r) FROM Room r WHERE r.roomNumber = :roomNumber";
-        Query<Long> query = session.createQuery(hql, Long.class);
-        query.setParameter("roomNumber", roomNumber);
-        
-        Long count = query.uniqueResult();
-        return count != null && count > 0;
-        
-    } catch (Exception e) {
-        e.printStackTrace();
-        return false;
-    } finally {
-        if (session != null) {
-            session.close();
+    public boolean isRoomNumberExists(String roomNumber) {
+        Session session = null;
+        try {
+            SessionFactory sessionFactory = HibernateConnection.doHibernateConnection();
+            session = sessionFactory.openSession();
+
+            String hql = "SELECT COUNT(r) FROM Room r WHERE r.roomNumber = :roomNumber";
+            Query<Long> query = session.createQuery(hql, Long.class);
+            query.setParameter("roomNumber", roomNumber);
+
+            Long count = query.uniqueResult();
+            return count != null && count > 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            if (session != null) {
+                session.close();
+            }
         }
     }
-}
 
+    public Rent getActiveRentByRoomID(int roomID) {
+        Session session = null;
+        try {
+            SessionFactory sessionFactory = HibernateConnection.doHibernateConnection();
+            session = sessionFactory.openSession();
 
-public Rent getActiveRentByRoomID(int roomID) {
-    Session session = null;
-    try {
-        SessionFactory sessionFactory = HibernateConnection.doHibernateConnection();
-        session = sessionFactory.openSession();
+            // ดึงเฉพาะ Rent ที่สถานะห้อง = 'ไม่ว่าง' และยังไม่ได้คืนห้อง
+            String hql = "SELECT DISTINCT r FROM Rent r " +
+                    "LEFT JOIN FETCH r.rentalDeposit rd " +
+                    "LEFT JOIN FETCH r.room room " +
+                    "WHERE room.roomID = :roomID " +
+                    "AND room.roomStatus = 'ไม่ว่าง' " +
+                    "AND (rd.status IS NULL OR rd.status != 'คืนห้องแล้ว') " +
+                    "ORDER BY r.rentDate DESC";
 
-        // ดึงเฉพาะ Rent ที่สถานะห้อง = 'ไม่ว่าง' และยังไม่ได้คืนห้อง
-        String hql = "SELECT DISTINCT r FROM Rent r " +
-                     "LEFT JOIN FETCH r.rentalDeposit rd " +
-                     "LEFT JOIN FETCH r.room room " +
-                     "WHERE room.roomID = :roomID " +
-                     "AND room.roomStatus = 'ไม่ว่าง' " +
-                     "AND (rd.status IS NULL OR rd.status != 'คืนห้องแล้ว') " +
-                     "ORDER BY r.rentDate DESC";
-        
-        Query<Rent> query = session.createQuery(hql, Rent.class);
-        query.setParameter("roomID", roomID);
-        query.setMaxResults(1); // เอาล่าสุดเท่านั้น
-        
-        List<Rent> results = query.list();
-        return results.isEmpty() ? null : results.get(0);
+            Query<Rent> query = session.createQuery(hql, Rent.class);
+            query.setParameter("roomID", roomID);
+            query.setMaxResults(1); // เอาล่าสุดเท่านั้น
 
-    } catch (Exception e) {
-        e.printStackTrace();
-        return null;
-    } finally {
-        if (session != null) {
-            session.close();
+            List<Rent> results = query.list();
+            return results.isEmpty() ? null : results.get(0);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            if (session != null) {
+                session.close();
+            }
         }
     }
-}
 
 }

@@ -222,20 +222,38 @@ public String saveRoom(@RequestParam("roomNumber") String roomNumber,
 	}
 
 	@RequestMapping(value = "/deleteRoom", method = RequestMethod.GET)
-	public String deleteRoom(@RequestParam("id") int roomId, Model model) {
-		ThanachokManager manager = new ThanachokManager();
-		boolean success = manager.deleteRoom(roomId);
+public String deleteRoom(@RequestParam(value = "id", required = false) Integer roomId, 
+                        RedirectAttributes redirectAttributes) {
+    
+    if (roomId == null) {
+        redirectAttributes.addFlashAttribute("error", "ไม่พบรหัสห้องที่ต้องการลบ");
+        return "redirect:/OwnerHome";
+    }
+    
+    ThanachokManager manager = new ThanachokManager();
+    Room room = manager.findRoomById(roomId);
+    
+    if (room == null) {
+        redirectAttributes.addFlashAttribute("error", "ไม่พบห้องที่ต้องการลบ");
+        return "redirect:/OwnerHome";
+    }
+    
+    if (!"ว่าง".equals(room.getRoomStatus())) {
+        redirectAttributes.addFlashAttribute("error", 
+            "ไม่สามารถลบห้อง " + room.getRoomNumber() + " ได้ เนื่องจากห้องมีสถานะ: " + room.getRoomStatus());
+        return "redirect:/OwnerHome";
+    }
+    
+    boolean success = manager.deleteRoom(roomId);
 
-		if (success) {
-			model.addAttribute("message", "ลบห้องสำเร็จ");
-		} else {
-			model.addAttribute("error", "ไม่สามารถลบห้องได้ เพราะสถานะไม่ว่างหรือเกิดข้อผิดพลาด");
-		}
+    if (success) {
+        redirectAttributes.addFlashAttribute("message", "ลบห้อง " + room.getRoomNumber() + " สำเร็จ");
+    } else {
+        redirectAttributes.addFlashAttribute("error", "เกิดข้อผิดพลาดในการลบห้อง");
+    }
 
-		List<Room> rooms = manager.getAllrooms();
-		model.addAttribute("rooms", rooms);
-		return "OwnerHome";
-	}
+    return "redirect:/OwnerHome";
+}
 
 	@RequestMapping(value = "/Listinvoice", method = RequestMethod.GET)
 	public ModelAndView listInvoices(HttpSession session) {

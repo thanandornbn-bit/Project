@@ -2,6 +2,7 @@
     <%@ page import="java.util.*" %>
         <%@ page import="com.springmvc.model.*" %>
             <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+            <%@ page import="Css.*" %>
                 <!DOCTYPE html>
                 <html lang="th">
 
@@ -11,7 +12,7 @@
                     <title>ThanaChok Place - เพิ่มห้องพัก</title>
                     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
                         rel="stylesheet" />
-                    <style>
+    <style>
         * {
             margin: 0;
             padding: 0;
