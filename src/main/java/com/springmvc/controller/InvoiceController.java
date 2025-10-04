@@ -28,21 +28,33 @@ public class InvoiceController {
 
     // ===== แสดงหน้าสร้าง Invoice =====
     @RequestMapping(value = "/ManagerAddInvoice", method = RequestMethod.GET)
-    public ModelAndView showAddInvoice(@RequestParam("roomID") int roomID) {
-        ModelAndView mv = new ModelAndView("ManagerAddInvoice");
+public ModelAndView showAddInvoice(@RequestParam("roomID") int roomID) {
+    ModelAndView mv = new ModelAndView("ManagerAddInvoice");
 
-        Room room = manager.findRoomById(roomID);
-        mv.addObject("selectedRoomID", roomID);
-        mv.addObject("selectedRoomPrice", room.getRoomPrice());
-
-        List<Rent> rents = manager.getAllRents();
-        mv.addObject("rents", rents);
-
-        mv.addObject("today", LocalDate.now().toString());
-        mv.addObject("dueDate", LocalDate.now().plusDays(7).toString());
-
+    // ดึงข้อมูลห้องที่เลือก
+    Room room = manager.findRoomById(roomID);
+    
+    // ดึง Rent ที่ active ของห้องนี้
+    Rent rent = manager.getActiveRentByRoomID(roomID); // เปลี่ยนชื่อ method
+    
+    if (room == null) {
+        mv.addObject("error", "ไม่พบข้อมูลห้องที่เลือก");
         return mv;
     }
+    
+    if (rent == null) {
+        mv.addObject("error", "ไม่พบข้อมูลการจองที่ active สำหรับห้อง " + room.getRoomNumber());
+        mv.addObject("room", room);
+        return mv;
+    }
+
+    mv.addObject("room", room);
+    mv.addObject("rent", rent);
+    mv.addObject("today", LocalDate.now().toString());
+    mv.addObject("dueDate", LocalDate.now().plusDays(7).toString());
+
+    return mv;
+}
 
     // ===== บันทึก Invoice =====
     @RequestMapping(value = "/SaveInvoice", method = RequestMethod.POST)

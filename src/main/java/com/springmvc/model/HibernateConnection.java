@@ -27,7 +27,6 @@ public class HibernateConnection {
 				.addAnnotatedClass(InvoiceType.class)
 				.addAnnotatedClass(Manager.class)
 				.addAnnotatedClass(Member.class)
-				.addAnnotatedClass(Receipt.class)
 				.addAnnotatedClass(RentalDeposit.class)
 				.addAnnotatedClass(Rent.class)
 				.addAnnotatedClass(Room.class);

@@ -1,6 +1,8 @@
 package com.springmvc.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
@@ -25,6 +27,8 @@ import com.springmvc.model.ThanachokManager;
 public class ManagerController {
 
 	// ✅ หน้าเจ้าของหอ (ดูห้องทั้งหมด)
+	// แก้ไข Method showOwnerRooms ใน ManagerController.java
+
 	@RequestMapping(value = "/OwnerHome", method = RequestMethod.GET)
 	public ModelAndView showOwnerRooms(HttpSession session,
 			@RequestParam(value = "floor", required = false) String floor,
@@ -38,8 +42,33 @@ public class ManagerController {
 		ThanachokManager tm = new ThanachokManager();
 		List<Room> roomList = tm.findRoomsByFloorAndStatus(floor, status);
 
+		// ✅ เพิ่มข้อมูลสถานะการอนุมัติสำหรับแต่ละห้อง
+		Map<Integer, Boolean> roomApprovalStatus = new HashMap<>();
+		Map<Integer, String> roomDepositStatus = new HashMap<>();
+
+		for (Room room : roomList) {
+			if ("ไม่ว่าง".equals(room.getRoomStatus())) {
+				// ตรวจสอบว่าห้องนี้ได้รับการอนุมัติแล้วหรือไม่
+				boolean isApproved = tm.isRoomApproved(room.getRoomID());
+				roomApprovalStatus.put(room.getRoomID(), isApproved);
+
+				// ดึงสถานะของ RentalDeposit
+				RentalDeposit deposit = tm.getRentalDepositByRoomID(room.getRoomID());
+				if (deposit != null) {
+					roomDepositStatus.put(room.getRoomID(), deposit.getStatus());
+				} else {
+					roomDepositStatus.put(room.getRoomID(), "ไม่มีข้อมูล");
+				}
+			} else {
+				roomApprovalStatus.put(room.getRoomID(), false);
+				roomDepositStatus.put(room.getRoomID(), "ว่าง");
+			}
+		}
+
 		ModelAndView mav = new ModelAndView("OwnerHome");
 		mav.addObject("roomList", roomList);
+		mav.addObject("roomApprovalStatus", roomApprovalStatus);
+		mav.addObject("roomDepositStatus", roomDepositStatus);
 		mav.addObject("floor", floor == null ? "" : floor);
 		mav.addObject("status", status == null ? "" : status);
 		return mav;
@@ -52,25 +81,49 @@ public class ManagerController {
 	}
 
 	// POST: บันทึกห้องใหม่
-	@RequestMapping(value = "/AddRoom", method = RequestMethod.POST)
-	public String saveRoom(@RequestParam("roomNumber") String roomNumber,
-			@RequestParam("description") String description, @RequestParam("roomPrice") String roomPrice,
-			@RequestParam("roomStatus") String roomStatus, @RequestParam("roomtype") String roomtype,
-			Model model) {
+@RequestMapping(value = "/AddRoom", method = RequestMethod.POST)
+public String saveRoom(@RequestParam("roomNumber") String roomNumber,
+        @RequestParam("description") String description, 
+        @RequestParam("roomPrice") String roomPrice,
+        @RequestParam("roomStatus") String roomStatus, 
+        @RequestParam("roomtype") String roomtype,
+        Model model) {
 
-		Room room = new Room();
-		room.setRoomNumber(roomNumber);
-		room.setDescription(description);
-		room.setRoomPrice(roomPrice);
-		room.setRoomStatus(roomStatus);
-		room.setRoomtype(roomtype);
+    ThanachokManager manager = new ThanachokManager();
+    
+    // ตรวจสอบว่าหมายเลขห้องซ้ำหรือไม่
+    if (manager.isRoomNumberExists(roomNumber)) {
+        model.addAttribute("errorMessage", "หมายเลขห้อง " + roomNumber + " มีอยู่ในระบบแล้ว กรุณาใช้หมายเลขอื่น");
+        // ส่งค่ากลับไปให้ user ไม่ต้องกรอกใหม่
+        Room room = new Room();
+        room.setRoomNumber(roomNumber);
+        room.setDescription(description);
+        room.setRoomPrice(roomPrice);
+        room.setRoomStatus(roomStatus);
+        room.setRoomtype(roomtype);
+        model.addAttribute("room", room);
+        return "AddRoom";
+    }
 
-		ThanachokManager manager = new ThanachokManager();
-		boolean success = manager.insertRoom(room);
-		model.addAttribute("message", success ? "เพิ่มห้องเรียบร้อย" : "เกิดข้อผิดพลาด");
+    Room room = new Room();
+    room.setRoomNumber(roomNumber);
+    room.setDescription(description);
+    room.setRoomPrice(roomPrice);
+    room.setRoomStatus(roomStatus);
+    room.setRoomtype(roomtype);
 
-		return "AddRoom";
-	}
+    boolean success = manager.insertRoom(room);
+    
+    if (success) {
+        model.addAttribute("message", "เพิ่มห้อง " + roomNumber + " เรียบร้อยแล้ว");
+    } else {
+        model.addAttribute("errorMessage", "เกิดข้อผิดพลาดในการเพิ่มห้อง กรุณาลองใหม่อีกครั้ง");
+    }
+
+    return "AddRoom";
+}
+
+
 
 	// GET: แสดงรายการจองทั้งหมด
 	@RequestMapping(value = "/OViewReserve", method = RequestMethod.GET)
@@ -81,13 +134,25 @@ public class ManagerController {
 		return "OViewReserve";
 	}
 
-	// GET: แสดงรายละเอียดการจองแต่ละรายการ
 	@RequestMapping(value = "/ViewReservationDetail", method = RequestMethod.GET)
-	public String viewReservationDetail(@RequestParam("rentId") int rentId, Model model) {
-		ThanachokManager manager = new ThanachokManager();
-		Rent rent = manager.findRentById(rentId);
-		model.addAttribute("rent", rent);
-		return "ViewReservationDetail";
+	public ModelAndView viewReservationDetail(@RequestParam("rentId") int rentId, HttpSession session) {
+		Manager manager = (Manager) session.getAttribute("loginManager");
+		if (manager == null) {
+			return new ModelAndView("redirect:/Login");
+		}
+
+		ThanachokManager thanachokManager = new ThanachokManager();
+		Rent rent = thanachokManager.findRentById(rentId);
+
+		ModelAndView mav = new ModelAndView("ViewReservationDetail");
+		mav.addObject("rent", rent);
+
+		// เพิ่ม error handling
+		if (rent == null) {
+			mav.addObject("error", "ไม่พบข้อมูลการจองที่ต้องการ");
+		}
+
+		return mav;
 	}
 
 	// POST: ยืนยันการชำระเงินและเปลี่ยนสถานะเป็น "เสร็จสมบูรณ์"
@@ -234,6 +299,7 @@ public class ManagerController {
 
 		ThanachokManager tm = new ThanachokManager();
 
+		// ใช้ getInvoiceWithDetails แทน เพื่อให้ได้ข้อมูลครบถ้วน
 		Invoice invoice = tm.getInvoiceWithDetails(invoiceId);
 
 		if (invoice == null) {
@@ -244,7 +310,7 @@ public class ManagerController {
 
 		ModelAndView mav = new ModelAndView("EditInvoiceForm");
 		mav.addObject("invoice", invoice);
-		mav.addObject("invoiceDetails", invoice.getDetails());
+		mav.addObject("invoiceDetails", invoice.getDetails()); // ใช้จาก invoice.getDetails() แทน
 		return mav;
 	}
 
@@ -283,6 +349,124 @@ public class ManagerController {
 			mav.addObject("error", "เกิดข้อผิดพลาดในการอัปเดตข้อมูล: " + e.getMessage());
 			return mav;
 		}
+	}
+
+	// เพิ่มเมธอดนี้ใน ManagerController.java
+
+	// แก้ไขเมธอด deleteInvoice ใน ManagerController.java
+
+	@RequestMapping(value = "/DeleteInvoice", method = RequestMethod.GET)
+	public String deleteInvoice(@RequestParam("invoiceId") int invoiceId,
+			@RequestParam("roomID") int roomID,
+			HttpSession session,
+			RedirectAttributes redirectAttributes) {
+
+		System.out.println("=== Delete Invoice Request ===");
+		System.out.println("Invoice ID: " + invoiceId);
+		System.out.println("Room ID: " + roomID);
+
+		Manager manager = (Manager) session.getAttribute("loginManager");
+		if (manager == null) {
+			System.out.println("No manager session - redirecting to login");
+			return "redirect:/Login";
+		}
+
+		try {
+			ThanachokManager tm = new ThanachokManager();
+
+			// ตรวจสอบว่าใบแจ้งหนี้มีอยู่จริงและดึงข้อมูล
+			Invoice invoice = tm.getInvoiceWithStatus(invoiceId);
+
+			if (invoice == null) {
+				redirectAttributes.addFlashAttribute("error",
+						"ไม่พบใบแจ้งหนี้ที่ต้องการลบ (ID: " + invoiceId + ")");
+				return "redirect:/EditInvoice?roomID=" + roomID;
+			}
+
+			// ตรวจสอบสถานะการชำระ
+			if (invoice.getStatus() == 1) {
+				redirectAttributes.addFlashAttribute("error",
+						"ไม่สามารถลบใบแจ้งหนี้ INV-" + invoiceId + " ได้ เนื่องจากได้ชำระเงินแล้ว");
+				System.out.println("Cannot delete paid invoice: " + invoiceId);
+				return "redirect:/EditInvoice?roomID=" + roomID;
+			}
+
+			// ลบใบแจ้งหนี้
+			System.out.println("Attempting to delete unpaid invoice: " + invoiceId);
+			boolean deleted = tm.deleteInvoice(invoiceId);
+
+			if (deleted) {
+				redirectAttributes.addFlashAttribute("message",
+						"ลบใบแจ้งหนี้ INV-" + invoiceId + " เรียบร้อยแล้ว");
+				System.out.println("Successfully deleted invoice: " + invoiceId);
+			} else {
+				redirectAttributes.addFlashAttribute("error",
+						"ไม่สามารถลบใบแจ้งหนี้ได้ กรุณาลองใหม่อีกครั้ง");
+				System.out.println("Failed to delete invoice: " + invoiceId);
+			}
+
+		} catch (RuntimeException re) {
+			// จัดการ error ที่เกิดจากการตรวจสอบสถานะ
+			System.out.println("Runtime exception: " + re.getMessage());
+			redirectAttributes.addFlashAttribute("error", re.getMessage());
+		} catch (Exception e) {
+			System.out.println("General exception: " + e.getMessage());
+			e.printStackTrace();
+			redirectAttributes.addFlashAttribute("error",
+					"เกิดข้อผิดพลาดในระบบ: " + e.getMessage());
+		}
+
+		return "redirect:/EditInvoice?roomID=" + roomID;
+	}
+
+	// เพิ่มเมธอดสำหรับตรวจสอบสถานะก่อนแสดงปุ่มลบ (ไว้ใช้ใน JSP)
+	@RequestMapping(value = "/CheckInvoiceStatus", method = RequestMethod.GET)
+	@ResponseBody
+	public Map<String, Object> checkInvoiceStatus(@RequestParam("invoiceId") int invoiceId) {
+		Map<String, Object> result = new HashMap<>();
+
+		try {
+			ThanachokManager tm = new ThanachokManager();
+			boolean canDelete = tm.canDeleteInvoice(invoiceId);
+
+			result.put("canDelete", canDelete);
+			result.put("invoiceId", invoiceId);
+
+			if (!canDelete) {
+				result.put("reason", "ใบแจ้งหนี้นี้ได้ชำระเงินแล้ว จึงไม่สามารถลบได้");
+			}
+
+		} catch (Exception e) {
+			result.put("canDelete", false);
+			result.put("error", e.getMessage());
+		}
+
+		return result;
+	}
+
+	// เพิ่มใน ManagerController.java สำหรับดูรายละเอียดใบแจ้งหนี้
+	@RequestMapping(value = "/ViewInvoiceDetail", method = RequestMethod.GET)
+	public ModelAndView viewInvoiceDetail(@RequestParam("invoiceId") int invoiceId,
+			HttpSession session) {
+
+		Manager manager = (Manager) session.getAttribute("loginManager");
+		if (manager == null) {
+			return new ModelAndView("redirect:/Login");
+		}
+
+		ThanachokManager tm = new ThanachokManager();
+		Invoice invoice = tm.getInvoiceWithDetails(invoiceId);
+
+		if (invoice == null) {
+			ModelAndView mav = new ModelAndView("redirect:/OwnerHome");
+			mav.addObject("error", "ไม่พบใบแจ้งหนี้ที่ต้องการ");
+			return mav;
+		}
+
+		ModelAndView mav = new ModelAndView("ViewInvoiceDetail");
+		mav.addObject("invoice", invoice);
+		mav.addObject("invoiceDetails", invoice.getDetails());
+		return mav;
 	}
 
 }
