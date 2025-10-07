@@ -33,7 +33,7 @@ String todayStr = sdf.format(today);
             padding: 20px 0;
         }
 
-        /* Animated Background */
+        
         .bg-animation {
             position: fixed;
             top: 0;
@@ -63,7 +63,7 @@ String todayStr = sdf.format(today);
             50% { transform: translateY(-20px) rotate(180deg); }
         }
 
-        /* Header */
+        
         .page-header {
             background: linear-gradient(135deg, #ff8c00, #ff6b00);
             color: white;
@@ -100,7 +100,7 @@ String todayStr = sdf.format(today);
             gap: 15px;
         }
 
-        /* Container */
+        
         .container {
             max-width: 800px;
             margin: 0 auto;
@@ -109,7 +109,7 @@ String todayStr = sdf.format(today);
             z-index: 1;
         }
 
-        /* Payment Card */
+       
         .payment-card {
             background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
             backdrop-filter: blur(20px);
@@ -125,7 +125,7 @@ String todayStr = sdf.format(today);
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Room Details */
+      
         .room-details {
             background: rgba(0, 0, 0, 0.4);
             padding: 25px;
@@ -170,7 +170,7 @@ String todayStr = sdf.format(today);
             font-weight: bold;
         }
 
-        /* Warning Note */
+        
         .warning-note {
             background: linear-gradient(135deg, #ff4444, #cc0000);
             color: white;
@@ -194,7 +194,7 @@ String todayStr = sdf.format(today);
             margin-top: 2px;
         }
 
-        /* QR Code Section */
+        
         .qr-section {
             background: rgba(0, 0, 0, 0.4);
             padding: 30px;
@@ -239,7 +239,7 @@ String todayStr = sdf.format(today);
             color: #ff8c00;
         }
 
-        /* Form Section */
+       
         .form-section {
             margin-top: 30px;
         }
@@ -312,7 +312,7 @@ String todayStr = sdf.format(today);
             color: #999;
         }
 
-        /* Buttons */
+       
         .button-group {
             display: flex;
             gap: 15px;
@@ -357,7 +357,7 @@ String todayStr = sdf.format(today);
             transform: translateY(-2px);
         }
 
-        /* Info Box */
+        
         .info-box {
             background: rgba(66, 165, 245, 0.1);
             border-left: 4px solid #42a5f5;
@@ -374,7 +374,7 @@ String todayStr = sdf.format(today);
             margin-right: 10px;
         }
 
-        /* Particles */
+        
         .particles {
             position: fixed;
             top: 0;
@@ -402,7 +402,7 @@ String todayStr = sdf.format(today);
             100% { opacity: 0; transform: translateY(-100vh) scale(1); }
         }
 
-        /* Responsive */
+       
         @media (max-width: 768px) {
             .page-header h1 {
                 font-size: 1.5rem;

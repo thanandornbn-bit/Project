@@ -35,7 +35,6 @@ if (loginManager == null) {
             overflow-x: hidden;
         }
 
-        /* Background Animation */
         .bg-animation {
             position: fixed;
             top: 0;
@@ -171,7 +170,6 @@ if (loginManager == null) {
             padding: 40px;
         }
 
-        /* Alert Messages */
         .alert {
             padding: 15px 20px;
             border-radius: 10px;
@@ -199,7 +197,6 @@ if (loginManager == null) {
             color: #ff4444;
         }
 
-        /* Invoice Info Section */
         .invoice-info-section {
             background: rgba(0, 0, 0, 0.4);
             border: 2px solid rgba(255, 140, 0, 0.3);
@@ -249,7 +246,6 @@ if (loginManager == null) {
             font-weight: bold;
         }
 
-        /* Status Badges */
         .status-badge {
             display: inline-flex;
             align-items: center;
@@ -272,7 +268,6 @@ if (loginManager == null) {
             border: 2px solid #ff4444;
         }
 
-        /* Details Table */
         .table-container {
             background: rgba(0, 0, 0, 0.4);
             border: 2px solid rgba(255, 140, 0, 0.3);
@@ -320,7 +315,6 @@ if (loginManager == null) {
             color: #00ff88;
         }
 
-        /* Total Section */
         .total-section {
             background: linear-gradient(135deg, rgba(255, 140, 0, 0.2), rgba(255, 107, 0, 0.2));
             border: 3px solid #ff8c00;
@@ -342,7 +336,6 @@ if (loginManager == null) {
             50% { transform: scale(1.05); }
         }
 
-        /* Form Section */
         .form-section {
             background: rgba(0, 0, 0, 0.4);
             border: 2px solid rgba(255, 140, 0, 0.3);
@@ -381,7 +374,6 @@ if (loginManager == null) {
             box-shadow: 0 0 15px rgba(255, 140, 0, 0.3);
         }
 
-        /* Buttons */
         .btn-group {
             display: flex;
             gap: 15px;
@@ -429,7 +421,6 @@ if (loginManager == null) {
             transform: translateY(-2px);
         }
 
-        /* Toast Notification */
         .toast {
             position: fixed;
             top: 20px;
@@ -459,7 +450,6 @@ if (loginManager == null) {
             to { transform: translateX(0); opacity: 1; }
         }
 
-        /* Loading Spinner */
         .loading {
             display: none;
             position: fixed;
@@ -487,7 +477,6 @@ if (loginManager == null) {
             100% { transform: rotate(360deg); }
         }
 
-        /* Responsive Design */
         @media (max-width: 768px) {
             .container { padding: 15px; }
             .page-header { font-size: 2rem; }
@@ -762,7 +751,7 @@ if (loginManager == null) {
                 showToast("${error}", "error");
             </c:if>
 
-            // Fade in animation
+            
             document.body.style.opacity = '0';
             document.body.style.transition = 'opacity 0.5s ease-in-out';
             
@@ -770,13 +759,11 @@ if (loginManager == null) {
                 document.body.style.opacity = '1';
             }, 100);
 
-            // Hide loading
             setTimeout(() => {
                 document.getElementById('loading').style.display = 'none';
             }, 500);
         });
 
-        // Create particles
         function createParticles() {
             const particlesContainer = document.getElementById('particles');
             const particleCount = 20;
@@ -793,7 +780,6 @@ if (loginManager == null) {
 
         createParticles();
 
-        // Add animation delay to sections
         document.addEventListener('DOMContentLoaded', function() {
             const sections = document.querySelectorAll('.invoice-info-section, .table-container, .total-section, .form-section');
             sections.forEach((section, index) => {

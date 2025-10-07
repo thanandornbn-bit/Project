@@ -35,7 +35,6 @@
             overflow-x: hidden;
         }
 
-        /* Animated Background */
         .bg-animation {
             position: fixed;
             top: 0;
@@ -79,7 +78,6 @@
             50% { transform: translateY(-20px) rotate(180deg); }
         }
 
-        /* Header */
         .page-header {
             background: linear-gradient(135deg, #ff8c00, #ff6b00);
             color: white;
@@ -126,7 +124,7 @@
             }
         }
 
-        /* Container */
+
         .container {
             max-width: 900px;
             margin: 30px auto;
@@ -135,7 +133,7 @@
             z-index: 1;
         }
 
-        /* Back Button */
+
         .back-btn {
             display: inline-flex;
             align-items: center;
@@ -156,7 +154,7 @@
             transform: translateX(-5px);
         }
 
-        /* Print Button */
+
         .print-btn {
             display: inline-flex;
             align-items: center;
@@ -179,7 +177,7 @@
             box-shadow: 0 6px 15px rgba(255, 140, 0, 0.5);
         }
 
-        /* Error Message */
+      
         .error-message {
             background: linear-gradient(135deg, #ff4444, #cc0000);
             color: white;
@@ -206,7 +204,7 @@
             }
         }
 
-        /* Invoice Header Card */
+        
         .invoice-header-card {
             background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
             backdrop-filter: blur(20px);
@@ -270,7 +268,7 @@
             font-weight: 600;
         }
 
-        /* Status Badges */
+      
         .status-paid {
             background: linear-gradient(135deg, #00ff88, #00cc6f);
             color: #000;
@@ -297,7 +295,7 @@
             box-shadow: 0 4px 10px rgba(255, 68, 68, 0.3);
         }
 
-        /* Details Table */
+     
         .table-container {
             background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
             border-radius: 15px;
@@ -359,7 +357,7 @@
             color: #ff8c00;
         }
 
-        /* Total Section */
+       
         .total-section {
             background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
             padding: 30px;
@@ -398,7 +396,7 @@
             }
         }
 
-        /* Responsive Design */
+       
         @media (max-width: 768px) {
             .page-header h1 {
                 font-size: 1.5rem;
@@ -437,7 +435,7 @@
             }
         }
 
-        /* Particles Effect */
+    
         .particles {
             position: fixed;
             top: 0;
@@ -475,7 +473,7 @@
             }
         }
 
-        /* Print Styles */
+      
         @media print {
             body {
                 background: white;

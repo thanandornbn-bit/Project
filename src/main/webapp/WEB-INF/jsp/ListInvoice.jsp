@@ -35,7 +35,7 @@
             overflow-x: hidden;
         }
 
-        /* Animated Background */
+       
         .bg-animation {
             position: fixed;
             top: 0;
@@ -85,7 +85,7 @@
             50% { transform: translateY(-20px) rotate(180deg); }
         }
 
-        /* Header */
+        
         .header {
             background: linear-gradient(135deg, #ff8c00, #ff6b00);
             color: white;
@@ -132,7 +132,6 @@
             }
         }
 
-        /* Navigation */
         .nav {
             background: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(10px);
@@ -184,7 +183,7 @@
             width: 0;
         }
 
-        /* Container */
+       
         .container {
             max-width: 1200px;
             margin: 30px auto;
@@ -193,7 +192,7 @@
             z-index: 1;
         }
 
-        /* Back Button */
+       
         .back-btn {
             display: inline-flex;
             align-items: center;
@@ -214,7 +213,7 @@
             transform: translateX(-5px);
         }
 
-        /* Welcome Message */
+    
         .welcome-message {
             background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
             backdrop-filter: blur(20px);
@@ -251,7 +250,7 @@
             font-size: 1rem;
         }
 
-        /* Messages */
+    
         .error-message {
             background: linear-gradient(135deg, #ff4444, #cc0000);
             color: white;
@@ -267,7 +266,7 @@
             border: 1px solid rgba(255, 68, 68, 0.5);
         }
 
-        /* Table Container */
+        
         .table-container {
             background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
             border-radius: 15px;
@@ -309,7 +308,7 @@
             transform: scale(1.01);
         }
 
-        /* Status Badges */
+     
         .status-paid {
             background: linear-gradient(135deg, #00ff88, #00cc6f);
             color: #000;
@@ -332,7 +331,7 @@
             box-shadow: 0 4px 10px rgba(255, 68, 68, 0.3);
         }
 
-        /* Buttons */
+ 
         .btn {
             padding: 10px 20px;
             border: none;
@@ -356,7 +355,6 @@
             box-shadow: 0 6px 15px rgba(255, 140, 0, 0.5);
         }
 
-        /* No Invoice Message */
         .no-invoice {
             text-align: center;
             padding: 60px 20px;
@@ -380,20 +378,20 @@
             font-size: 1.1rem;
         }
 
-        /* Amount Styling */
+   
         .amount {
             font-weight: 700;
             color: #ff8c00;
             font-size: 1.05rem;
         }
 
-        /* Invoice ID */
+      
         .invoice-id {
             color: #ff8c00;
             font-weight: 600;
         }
 
-        /* Responsive Design */
+        
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 1.5rem;
@@ -434,7 +432,7 @@
             }
         }
 
-        /* Particles Effect */
+        
         .particles {
             position: fixed;
             top: 0;
@@ -472,7 +470,7 @@
             }
         }
 
-        /* Loading Animation */
+       
         @keyframes pulse {
             0%, 100% {
                 opacity: 1;

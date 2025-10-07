@@ -38,7 +38,7 @@ if (loginMember == null) {
             overflow-x: hidden;
         }
 
-        /* Animated Background */
+        
         .bg-animation {
             position: fixed;
             top: 0;
@@ -69,7 +69,7 @@ if (loginMember == null) {
             50% { transform: translateY(-20px) rotate(180deg); }
         }
 
-        /* Header */
+        
         .page-header {
             background: linear-gradient(135deg, #ff8c00, #ff6b00);
             color: white;
@@ -111,7 +111,7 @@ if (loginMember == null) {
             50% { text-shadow: 0 0 30px rgba(0, 0, 0, 0.5), 0 0 40px rgba(255, 255, 255, 0.3); }
         }
 
-        /* Navigation */
+      
         .nav {
             background: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(10px);
@@ -143,7 +143,7 @@ if (loginMember == null) {
             color: white;
         }
 
-        /* Container */
+        
         .container {
             max-width: 1200px;
             margin: 30px auto;
@@ -152,7 +152,7 @@ if (loginMember == null) {
             z-index: 1;
         }
 
-        /* Back Button */
+        
         .back-btn {
             display: inline-flex;
             align-items: center;
@@ -173,7 +173,7 @@ if (loginMember == null) {
             transform: translateX(-5px);
         }
 
-        /* Welcome Section */
+       
         .welcome-section {
             background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
             padding: 25px;
@@ -202,7 +202,7 @@ if (loginMember == null) {
             color: #ccc;
         }
 
-        /* Stats Cards */
+        
         .rental-stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -265,7 +265,7 @@ if (loginMember == null) {
         .stat-card.completed-rentals .stat-number,
         .stat-card.completed-rentals .stat-icon { color: #00ff88; }
 
-        /* Alerts */
+        
         .alert {
             padding: 18px 25px;
             border-radius: 15px;
@@ -304,7 +304,7 @@ if (loginMember == null) {
             border: 1px solid rgba(66, 165, 245, 0.5);
         }
 
-        /* Table */
+       
         .table-container {
             background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
             border-radius: 15px;
@@ -346,7 +346,7 @@ if (loginMember == null) {
             transform: scale(1.01);
         }
 
-        /* Status Badges */
+        
         .status-badge {
             padding: 8px 16px;
             border-radius: 20px;
@@ -383,7 +383,7 @@ if (loginMember == null) {
             box-shadow: 0 4px 10px rgba(155, 89, 182, 0.3);
         }
 
-        /* Buttons */
+        
         .btn {
             padding: 10px 20px;
             border: none;
@@ -421,7 +421,7 @@ if (loginMember == null) {
             box-shadow: none;
         }
 
-        /* No Record */
+        
         .no-record {
             text-align: center;
             padding: 80px 20px;
@@ -469,7 +469,7 @@ if (loginMember == null) {
             box-shadow: 0 6px 20px rgba(255, 140, 0, 0.5);
         }
 
-        /* Price */
+        
         .price {
             font-weight: 600;
             color: #00ff88;
@@ -491,7 +491,7 @@ if (loginMember == null) {
             line-height: 1.4;
         }
 
-        /* Loading */
+       
         .loading {
             display: none;
             position: fixed;
@@ -519,7 +519,7 @@ if (loginMember == null) {
             100% { transform: rotate(360deg); }
         }
 
-        /* Toast */
+        
         .toast {
             position: fixed;
             top: 20px;
@@ -544,7 +544,7 @@ if (loginMember == null) {
             to { transform: translateX(0); opacity: 1; }
         }
 
-        /* Particles */
+        
         .particles {
             position: fixed;
             top: 0;
@@ -572,7 +572,7 @@ if (loginMember == null) {
             100% { opacity: 0; transform: translateY(-100vh) scale(1); }
         }
 
-        /* Responsive */
+        
         @media (max-width: 768px) {
             .page-header h1 { font-size: 1.5rem; }
             .container { padding: 0 15px; }

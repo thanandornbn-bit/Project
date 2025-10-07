@@ -28,7 +28,7 @@
             padding: 20px 0;
         }
 
-        /* Animated Background Elements */
+        
         .bg-animation {
             position: fixed;
             top: 0;
@@ -89,7 +89,7 @@
             50% { transform: translateY(-20px) rotate(180deg); }
         }
 
-        /* Main Container */
+        
         .register-container {
             background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
             backdrop-filter: blur(20px);
@@ -114,7 +114,7 @@
             }
         }
 
-        /* Header Section */
+       
         .register-header {
             background: linear-gradient(135deg, #ff8c00, #ff6b00);
             color: white;
@@ -170,7 +170,7 @@
             opacity: 0.95;
         }
 
-        /* Form Container */
+        
         .form-container {
             padding: 40px;
         }
@@ -197,7 +197,7 @@
             text-decoration: none;
         }
 
-        /* Form Styles */
+        
         .form-grid {
             display: grid;
             gap: 20px;
@@ -265,7 +265,7 @@
             color: #ff8c00;
         }
 
-        /* Password Toggle */
+    
         .password-toggle {
             position: absolute;
             right: 15px;
@@ -283,7 +283,7 @@
             color: #ff8c00;
         }
 
-        /* Password Strength Indicator */
+        
         .password-strength {
             margin-top: 8px;
             height: 4px;
@@ -322,7 +322,7 @@
             opacity: 1;
         }
 
-        /* Submit Button */
+    
         .submit-btn {
             width: 100%;
             padding: 18px;
@@ -370,7 +370,7 @@
             left: 100%;
         }
 
-        /* Loading Spinner */
+       
         .loading {
             display: none;
             position: absolute;
@@ -393,7 +393,7 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Error Message */
+        
         .error-message {
             background: linear-gradient(135deg, #ff4444, #cc0000);
             color: white;
@@ -423,7 +423,6 @@
             }
         }
 
-        /* Form Footer */
         .form-footer {
             text-align: center;
             margin-top: 25px;
@@ -457,7 +456,6 @@
             text-decoration: none;
         }
 
-        /* Input Validation */
         .form-group input.valid {
             border-color: #00ff88;
             background: rgba(0, 255, 136, 0.05);
@@ -490,7 +488,6 @@
             color: #ff4444;
         }
 
-        /* Responsive Design */
         @media (max-width: 600px) {
             .register-container {
                 margin: 10px;
@@ -515,7 +512,7 @@
             }
         }
 
-        /* Particles Effect */
+  
         .particles {
             position: fixed;
             top: 0;

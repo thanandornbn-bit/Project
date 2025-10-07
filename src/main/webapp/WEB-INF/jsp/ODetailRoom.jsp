@@ -99,7 +99,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Image Gallery Grid */
+      
         .image-gallery-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -178,7 +178,7 @@
             transform: rotate(90deg);
         }
 
-        /* Fullscreen Preview */
+       
         .fullscreen-overlay {
             display: none;
             position: fixed;
@@ -230,7 +230,7 @@
             transform: rotate(90deg) scale(1.1);
         }
 
-        /* Room Info */
+     
         .room-info {
             padding: 40px;
         }
@@ -276,7 +276,6 @@
             box-shadow: 0 4px 15px rgba(255, 68, 68, 0.3);
         }
 
-        /* Info Grid */
         .info-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -337,7 +336,7 @@
             color: #ff8c00;
         }
 
-        /* WiFi Section */
+      
         .wifi-section {
             background: linear-gradient(135deg, rgba(255, 140, 0, 0.2), rgba(255, 107, 0, 0.2));
             border: 1px solid rgba(255, 140, 0, 0.3);
@@ -397,7 +396,7 @@
             color: #ff8c00;
         }
 
-        /* Notice */
+     
         .notice {
             background: linear-gradient(135deg, rgba(66, 165, 245, 0.2), rgba(25, 118, 210, 0.2));
             border: 1px solid rgba(66, 165, 245, 0.3);
@@ -415,7 +414,7 @@
             color: #42a5f5;
         }
 
-        /* Alerts */
+       
         .alert {
             padding: 18px 25px;
             border-radius: 12px;
@@ -450,7 +449,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Buttons */
+     
         .action-buttons {
             display: flex;
             gap: 20px;
@@ -511,7 +510,7 @@
             color: #999 !important;
         }
 
-        /* Loading */
+      
         .loading {
             display: none;
             position: fixed;
@@ -551,7 +550,7 @@
             font-weight: 600;
         }
 
-        /* Responsive */
+    
         @media (max-width: 768px) {
             .container { padding: 15px; }
             .page-header { font-size: 1.8rem; margin-bottom: 25px; }

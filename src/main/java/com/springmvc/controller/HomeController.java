@@ -118,7 +118,7 @@ public ModelAndView showAvailableRooms(HttpSession session,
             }
 
             String uploadDir = "slipet";
-            String realPath = "C:\\WebProject\\Project\\src\\main\\webapp\\slipet";
+            String realPath = "C:\\M1Project\\Project\\src\\main\\webapp\\slipet";//เปลี่ยน Path File
 
             File uploadPath = new File(realPath);
             if (!uploadPath.exists())
@@ -138,7 +138,7 @@ public ModelAndView showAvailableRooms(HttpSession session,
             rent.setRoom(room);
             rent.setRentDate(paymentDate);
 
-            // ✅ บันทึกการจองก่อน
+            // บันทึกการจองก่อน
             boolean rentSaved = thanachokManager.saveRent(rent);
             if (!rentSaved) {
                 redirectAttributes.addFlashAttribute("errorMessage", "ไม่สามารถบันทึกการจองได้");
@@ -233,9 +233,9 @@ public ModelAndView showAvailableRooms(HttpSession session,
             RentalDeposit deposit = thanachokManager.findRentalDepositByRentId(rentalDepositId);
 
             if (deposit != null && deposit.getPaymentSlipImage() != null) {
-                // Path ที่ใช้หลังจาก deploy แล้ว
+            
                 String basePath = "C:\\WebProject\\Project\\target\\Thanachok03-0.0.1-SNAPSHOT\\";
-                String imagePath = basePath + deposit.getPaymentSlipImage(); // เช่น slipet/xxxx.png
+                String imagePath = basePath + deposit.getPaymentSlipImage(); 
 
                 File imageFile = new File(imagePath);
 
@@ -260,7 +260,7 @@ public ModelAndView showAvailableRooms(HttpSession session,
         }
     }
 
-    // ✅ ออกจากระบบ
+    // ออกจากระบบ
     @RequestMapping(value = "/Logout", method = RequestMethod.POST)
     public String logout(HttpSession session) {
         session.invalidate();
@@ -352,8 +352,6 @@ public ModelAndView showAvailableRooms(HttpSession session,
 
         return mav;
     }
-
-    // เพิ่มเมท็อดเหล่านี้ใน Controller ที่จัดการหน้า Record
 
     @RequestMapping(value = "/Record", method = RequestMethod.GET)
     public ModelAndView showRecord(HttpSession session) {

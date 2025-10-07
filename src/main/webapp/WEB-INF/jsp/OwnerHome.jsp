@@ -33,7 +33,6 @@
                                         overflow-x: hidden;
                                     }
 
-                                    /* Background Animation */
                                     .bg-animation {
                                         position: fixed;
                                         top: 0;
@@ -90,7 +89,7 @@
                                         }
                                     }
 
-                                    /* Particles */
+                                    
                                     .particles {
                                         position: fixed;
                                         top: 0;
@@ -139,7 +138,7 @@
                                         z-index: 1;
                                     }
 
-                                    /* Header */
+                                  
                                     .header {
                                         background: linear-gradient(135deg, #ff8c00, #ff6b00);
                                         color: white;
@@ -169,7 +168,7 @@
                                         }
                                     }
 
-                                    /* Top Bar */
+                                   
                                     .top-bar {
                                         display: flex;
                                         justify-content: space-between;
@@ -220,7 +219,7 @@
                                         transform: translateY(-2px);
                                     }
 
-                                    /* Stats Container */
+                                   
                                     .stats-container {
                                         display: grid;
                                         grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -314,7 +313,7 @@
                                         color: #42a5f5;
                                     }
 
-                                    /* Navigation */
+                                
                                     .nav {
                                         background: rgba(0, 0, 0, 0.6);
                                         backdrop-filter: blur(10px);
@@ -354,7 +353,7 @@
                                         border-color: transparent;
                                     }
 
-                                    /* Search Form */
+                                   
                                     .search-form {
                                         background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
                                         padding: 30px;
@@ -445,7 +444,7 @@
                                         color: white;
                                     }
 
-                                    /* Table Container */
+                                
                                     .table-container {
                                         background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
                                         border-radius: 15px;
@@ -526,7 +525,7 @@
                                         font-size: 1.05rem;
                                     }
 
-                                    /* Status Badges */
+                                  
                                     .status-badge {
                                         padding: 6px 16px;
                                         border-radius: 20px;
@@ -563,7 +562,7 @@
                                         color: #ffa726;
                                     }
 
-                                    /* Action Buttons */
+                                    
                                     .action-buttons {
                                         display: flex;
                                         gap: 8px;
@@ -621,7 +620,7 @@
                                         box-shadow: 0 4px 15px rgba(255, 140, 0, 0.4);
                                     }
 
-                                    /* Empty State */
+                                  
                                     .empty-state {
                                         text-align: center;
                                         padding: 60px 20px;
@@ -645,7 +644,7 @@
                                         font-size: 1.1rem;
                                     }
 
-                                    /* Loading & Toast */
+                                    
                                     .loading {
                                         display: none;
                                         position: fixed;
@@ -714,7 +713,7 @@
                                         }
                                     }
 
-                                    /* Responsive */
+                                   
                                     @media (max-width: 768px) {
                                         .header {
                                             font-size: 1.8rem;

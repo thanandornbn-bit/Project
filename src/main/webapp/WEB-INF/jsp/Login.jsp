@@ -27,7 +27,7 @@
             overflow: hidden;
         }
 
-        /* Animated Background Elements */
+       
         .bg-animation {
             position: absolute;
             top: 0;
@@ -81,7 +81,6 @@
             50% { transform: translateY(-20px) rotate(180deg); }
         }
 
-        /* Main Container */
         .login-container {
             background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
             backdrop-filter: blur(20px);
@@ -106,7 +105,6 @@
             }
         }
 
-        /* Header Section */
         .login-header {
             background: linear-gradient(135deg, #ff8c00, #ff6b00);
             color: white;
@@ -155,7 +153,7 @@
             opacity: 0.9;
         }
 
-        /* Role Selection */
+     
         .role-selection {
             padding: 40px;
             text-align: center;
@@ -240,7 +238,6 @@
             left: 100%;
         }
 
-        /* Login Form */
         .login-form-container {
             padding: 40px;
             opacity: 0;
@@ -292,7 +289,7 @@
             transform: translateX(-5px);
         }
 
-        /* Form Elements */
+      
         .form-group {
             margin-bottom: 25px;
             position: relative;
@@ -346,7 +343,7 @@
             color: #ff8c00;
         }
 
-        /* Submit Button */
+       
         .submit-btn {
             width: 100%;
             padding: 15px;
@@ -388,7 +385,7 @@
             left: 100%;
         }
 
-        /* Messages */
+      
         .message {
             padding: 12px 20px;
             border-radius: 10px;
@@ -423,7 +420,7 @@
             }
         }
 
-        /* Loading Spinner */
+    
         .loading {
             display: none;
             position: absolute;
@@ -446,7 +443,7 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Password Toggle */
+      
         .password-toggle {
             position: absolute;
             right: 15px;
@@ -464,7 +461,7 @@
             color: #ff8c00;
         }
 
-        /* Responsive Design */
+       
         @media (max-width: 480px) {
             .login-container {
                 margin: 20px;
@@ -488,7 +485,7 @@
             }
         }
 
-        /* Particle Effect */
+       
         .particles {
             position: absolute;
             top: 0;

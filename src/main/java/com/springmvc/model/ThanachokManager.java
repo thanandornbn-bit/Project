@@ -1,9 +1,6 @@
 package com.springmvc.model;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -433,7 +430,7 @@ public class ThanachokManager {
         }
     }
 
-    // ===== บันทึก Invoice และ InvoiceDetail ทั้งหมด =====
+    //บันทึก Invoice และ InvoiceDetail ทั้งหมด
     public boolean saveInvoice(Invoice invoice) {
         Transaction tx = null;
         try (Session session = HibernateConnection.doHibernateConnection().openSession()) {
@@ -457,21 +454,21 @@ public class ThanachokManager {
         }
     }
 
-    // ===== หา Room ด้วย roomID =====
+    //หา Room ด้วย roomID
     public Room findRoomById(int roomID) {
         try (Session session = HibernateConnection.doHibernateConnection().openSession()) {
             return session.get(Room.class, roomID);
         }
     }
 
-    // ===== หา Rent ด้วย roomID =====
+    //หา Rent ด้วย roomID 
     public Rent findRentById(int rentID) {
         try (Session session = HibernateConnection.doHibernateConnection().openSession()) {
             return session.get(Rent.class, rentID);
         }
     }
 
-    // ===== ดึง InvoiceType ตามชื่อ =====
+    //ดึง InvoiceType ตามชื่อ
     public InvoiceType getInvoiceTypeByName(String name) {
         Session session = null;
         Transaction tx = null;
@@ -479,7 +476,7 @@ public class ThanachokManager {
             SessionFactory sessionFactory = HibernateConnection.doHibernateConnection();
             session = sessionFactory.openSession();
 
-            // ลองหาข้อมูลที่มีอยู่
+            // หาข้อมูลที่มีอยู่
             InvoiceType type = session.createQuery("FROM InvoiceType WHERE typeName = :name", InvoiceType.class)
                     .setParameter("name", name)
                     .uniqueResult();
@@ -507,7 +504,7 @@ public class ThanachokManager {
         }
     }
 
-    // ===== ดึงรายการ Rent ทั้งหมด =====
+    //ดึงรายการ Rent ทั้งหมด
     public List<Rent> getAllRents() {
         try (Session session = HibernateConnection.doHibernateConnection().openSession()) {
             return session.createQuery("from Rent", Rent.class).list();
@@ -578,7 +575,7 @@ public class ThanachokManager {
 
             Query<Rent> query = session.createQuery(hql, Rent.class);
             query.setParameter("roomID", roomID);
-            query.setMaxResults(1); // ดึงแค่ 1 รายการล่าสุด
+            query.setMaxResults(1);
 
             return query.uniqueResult();
 
@@ -781,7 +778,7 @@ public class ThanachokManager {
             for (RentalDeposit deposit : deposits) {
                 String returnDate = getReturnDateFromRent(deposit.getRent().getRentID());
 
-                deposit.setHasUnpaidInvoices(false); // reset
+                deposit.setHasUnpaidInvoices(false); 
             }
 
             return deposits;
@@ -969,7 +966,7 @@ public class ThanachokManager {
 
             String hql = "SELECT DISTINCT i FROM Invoice i " +
                     "LEFT JOIN FETCH i.details d " +
-                    "LEFT JOIN FETCH d.type " + // สำคัญ: ต้อง JOIN กับ InvoiceType
+                    "LEFT JOIN FETCH d.type " + 
                     "LEFT JOIN FETCH i.rent r " +
                     "LEFT JOIN FETCH r.member " +
                     "LEFT JOIN FETCH r.room " +
@@ -999,7 +996,7 @@ public class ThanachokManager {
 
             String hql = "SELECT DISTINCT i FROM Invoice i " +
                     "LEFT JOIN FETCH i.details d " +
-                    "LEFT JOIN FETCH d.type t " + // สำคัญมาก: ต้องมีบรรทัดนี้
+                    "LEFT JOIN FETCH d.type t " +
                     "LEFT JOIN FETCH i.rent r " +
                     "LEFT JOIN FETCH r.member " +
                     "LEFT JOIN FETCH r.room " +
@@ -1026,8 +1023,6 @@ public class ThanachokManager {
         try {
             SessionFactory sessionFactory = HibernateConnection.doHibernateConnection();
             session = sessionFactory.openSession();
-
-            // ใช้ชื่อ field ที่ถูกต้องตาม Entity
             String hql = "SELECT COUNT(i) FROM Invoice i WHERE i.invoiceId = :invoiceId";
             Long count = session.createQuery(hql, Long.class)
                     .setParameter("invoiceId", invoiceId)
@@ -1046,8 +1041,6 @@ public class ThanachokManager {
             }
         }
     }
-
-    // แก้ไขเมธอด deleteInvoice ใน ThanachokManager.java
 
     public boolean deleteInvoice(int invoiceId) {
         Session session = null;
@@ -1075,7 +1068,7 @@ public class ThanachokManager {
 
             System.out.println("Invoice status: " + invoice.getStatus() + " (0=unpaid, 1=paid)");
 
-            // ลบ InvoiceDetail ก่อน
+            // ลบ InvoiceDetail
             if (invoice.getDetails() != null && !invoice.getDetails().isEmpty()) {
                 for (InvoiceDetail detail : invoice.getDetails()) {
                     session.delete(detail);
@@ -1094,7 +1087,6 @@ public class ThanachokManager {
             if (tx != null) {
                 tx.rollback();
             }
-            // Re-throw runtime exception เพื่อให้ Controller จัดการ
             throw re;
         } catch (Exception e) {
             if (tx != null) {
@@ -1110,7 +1102,7 @@ public class ThanachokManager {
         }
     }
 
-    // เพิ่มเมธอดตรวจสอบสถานะการชำระ
+    // ตรวจสอบสถานะการชำระ
     public boolean canDeleteInvoice(int invoiceId) {
         Session session = null;
         try {
@@ -1140,7 +1132,7 @@ public class ThanachokManager {
         }
     }
 
-    // เพิ่มเมธอดดึงข้อมูลใบแจ้งหนี้พร้อมสถานะ
+    // ข้อมูลใบแจ้งหนี้พร้อมสถานะ
     public Invoice getInvoiceWithStatus(int invoiceId) {
         Session session = null;
         try {
@@ -1183,7 +1175,7 @@ public class ThanachokManager {
 
         } catch (Exception e) {
             e.printStackTrace();
-            return true; // ให้ถือว่ามีการจองเพื่อความปลอดภัย
+            return true; 
         } finally {
             if (session != null) {
                 session.close();
@@ -1232,7 +1224,7 @@ public class ThanachokManager {
 
             Query<Rent> query = session.createQuery(hql, Rent.class);
             query.setParameter("roomID", roomID);
-            query.setMaxResults(1); // เอาล่าสุดเท่านั้น
+            query.setMaxResults(1); 
 
             List<Rent> results = query.list();
             return results.isEmpty() ? null : results.get(0);

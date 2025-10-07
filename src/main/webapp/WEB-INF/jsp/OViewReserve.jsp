@@ -36,7 +36,7 @@ if (loginManager == null) {
             overflow-x: hidden;
         }
 
-        /* Background Animation */
+      
         .bg-animation {
             position: fixed;
             top: 0;
@@ -166,7 +166,7 @@ if (loginManager == null) {
             transform: translateX(-5px);
         }
 
-        /* Statistics Cards */
+        
         .stats-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -228,7 +228,7 @@ if (loginManager == null) {
             font-weight: 500;
         }
 
-        /* Table Container */
+      
         .table-container {
             background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
             border-radius: 20px;
@@ -302,7 +302,7 @@ if (loginManager == null) {
             font-size: 1.05rem;
         }
 
-        /* Status Badges */
+       
         .status-badge {
             display: inline-flex;
             align-items: center;
@@ -344,7 +344,7 @@ if (loginManager == null) {
             border: 2px solid #666;
         }
 
-        /* Action Buttons */
+      
         .action-buttons {
             display: flex;
             gap: 8px;
@@ -418,7 +418,7 @@ if (loginManager == null) {
             opacity: 0.6;
         }
 
-        /* Empty State */
+       
         .empty-state {
             text-align: center;
             padding: 60px 20px;
@@ -437,7 +437,7 @@ if (loginManager == null) {
             font-size: 1.5rem;
         }
 
-        /* Loading */
+        
         .loading {
             display: none;
             position: fixed;
@@ -465,7 +465,7 @@ if (loginManager == null) {
             100% { transform: rotate(360deg); }
         }
 
-        /* Toast */
+        
         .toast {
             position: fixed;
             top: 20px;
@@ -490,7 +490,7 @@ if (loginManager == null) {
             to { transform: translateX(0); opacity: 1; }
         }
 
-        /* Section Dividers */
+        
         .section-divider {
             background: linear-gradient(90deg, transparent, rgba(255, 140, 0, 0.5), transparent);
             height: 2px;
@@ -521,7 +521,7 @@ if (loginManager == null) {
             color: #4a90e2;
         }
 
-        /* Responsive */
+        
         @media (max-width: 768px) {
             .container { padding: 15px; }
             .header { font-size: 2rem; }

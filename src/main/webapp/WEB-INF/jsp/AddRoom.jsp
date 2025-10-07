@@ -28,7 +28,6 @@
             overflow-x: hidden;
         }
 
-        /* Background Animation */
         .bg-animation {
             position: fixed;
             top: 0;
@@ -104,7 +103,6 @@
             transform: translateX(-5px);
         }
 
-        /* Main Card */
         .form-card {
             background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
             border-radius: 20px;
@@ -137,7 +135,6 @@
             padding: 40px;
         }
 
-        /* Alert Messages */
         .alert {
             padding: 20px 25px;
             border-radius: 12px;
@@ -166,7 +163,6 @@
             color: #ff4444;
         }
 
-        /* Form Sections */
         .form-section {
             margin-bottom: 30px;
             padding: 25px;
@@ -231,7 +227,6 @@
             cursor: pointer;
         }
 
-        /* Validation States */
         .form-control.valid {
             border-color: #00ff88;
             background: rgba(0, 255, 136, 0.05);
@@ -242,7 +237,6 @@
             background: rgba(255, 68, 68, 0.05);
         }
 
-        /* Buttons */
         .btn-group {
             display: flex;
             gap: 15px;
@@ -318,7 +312,6 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Loading Overlay */
         .loading-overlay {
             display: none;
             position: fixed;
@@ -341,7 +334,6 @@
             animation: spin 1s linear infinite;
         }
 
-        /* Responsive */
         @media (max-width: 768px) {
             .container { padding: 15px; }
             .page-header { font-size: 2rem; }
@@ -402,7 +394,7 @@
 
                 <!-- Add Room Form -->
                 <form action="AddRoom" method="post" id="addRoomForm">
-                    <!-- Room Basic Info -->
+                    <!-- Room Info -->
                     <div class="form-section">
                         <div class="section-title">
                             <i class="fas fa-info-circle"></i>
@@ -525,7 +517,7 @@
                             roomStatus: (value) => value !== ''
                         };
 
-                        // Form validation
+                        
                         function validateField(field, validationFunc) {
                             const value = field.value.trim();
                             const isValid = validationFunc(value);
@@ -554,9 +546,7 @@
                             return isValid;
                         }
 
-                        // Add event listeners
                         document.addEventListener('DOMContentLoaded', function () {
-                            // Field validation
                             Object.keys(validators).forEach(fieldId => {
                                 const field = document.getElementById(fieldId);
                                 if (field) {
@@ -570,11 +560,10 @@
                                 }
                             });
 
-                            // Form submission
+                            
                             document.getElementById('addRoomForm').addEventListener('submit', function (e) {
                                 const submitBtn = document.getElementById('submitBtn');
 
-                                // Validate all fields before submission
                                 let allValid = true;
                                 Object.keys(validators).forEach(fieldId => {
                                     const field = document.getElementById(fieldId);
@@ -589,16 +578,13 @@
                                     return;
                                 }
 
-                                // Show loading state
                                 submitBtn.classList.add('loading');
                                 submitBtn.disabled = true;
                             });
 
-                            // Auto-focus first field
                             document.getElementById('roomNumber').focus();
                         });
 
-                        // Room number formatting
                         document.getElementById('roomNumber').addEventListener('input', function (e) {
                             let value = e.target.value.replace(/\D/g, '');
                             if (value.length > 4) {
@@ -607,7 +593,7 @@
                             e.target.value = value;
                         });
 
-                        // Price formatting
+
                         document.getElementById('roomPrice').addEventListener('input', function (e) {
                             let value = parseInt(e.target.value);
                             if (value < 1000) {
@@ -619,7 +605,6 @@
                             }
                         });
 
-                        // Create particles
                         function createParticles() {
                             const particles = document.getElementById('particles');
                             const particleCount = 25;
@@ -634,11 +619,9 @@
                             }
                         }
 
-                        // Initialize
                         window.addEventListener('load', function () {
                             createParticles();
 
-                            // Page load animation
                             document.body.style.opacity = '0';
                             document.body.style.transition = 'opacity 0.5s ease-in-out';
 
@@ -647,7 +630,6 @@
                             }, 100);
                         });
 
-                        // Auto-hide success message
                         setTimeout(function () {
                             const successMessage = document.getElementById('successMessage');
                             const errorMessage = document.getElementById('errorMessage');

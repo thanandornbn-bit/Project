@@ -40,7 +40,7 @@
             padding: 20px;
         }
 
-        /* Header Styles */
+
         .header {
             text-align: center;
             color: #ff8c00;
@@ -76,7 +76,6 @@
             box-shadow: 0 0 10px rgba(255, 140, 0, 0.5);
         }
 
-        /* Top Bar with Welcome & Dropdown */
         .top-bar {
             display: flex;
             justify-content: space-between;
@@ -104,7 +103,6 @@
             color: #ff8c00;
         }
 
-        /* Active Rental Alert */
         .rental-alert {
             background: linear-gradient(45deg, rgba(255, 140, 0, 0.2), rgba(255, 107, 0, 0.2));
             border: 2px solid rgba(255, 140, 0, 0.6);
@@ -145,7 +143,6 @@
             }
         }
 
-        /* Dropdown Styles */
         .dropdown {
             position: relative;
             display: inline-block;
@@ -206,7 +203,6 @@
             display: block;
         }
 
-        /* Navigation Styles */
         .nav {
             display: flex;
             justify-content: center;
@@ -242,7 +238,6 @@
             box-shadow: 0 5px 15px rgba(255, 140, 0, 0.4);
         }
 
-        /* Logout Button */
         .logout-container {
             text-align: center;
             margin-bottom: 20px;
@@ -269,7 +264,6 @@
             box-shadow: 0 8px 20px rgba(255, 68, 68, 0.5);
         }
 
-        /* Search Form */
         .search-form {
             background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
             padding: 25px;
@@ -387,7 +381,6 @@
             box-shadow: 0 5px 15px rgba(255, 140, 0, 0.4);
         }
 
-        /* Table Styles */
         .table-container {
             background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
             border-radius: 20px;
@@ -451,7 +444,6 @@
             color: #fff;
         }
 
-        /* Status Badges */
         .status-badge {
             padding: 8px 16px;
             border-radius: 20px;
@@ -472,7 +464,6 @@
             color: white;
         }
 
-        /* View Button */
         .view-btn {
             background: linear-gradient(45deg, #ff8c00, #ff6b00);
             color: white;
@@ -518,27 +509,27 @@
             left: 100%;
         }
 
-        /* Price Display */
+   
         .price {
             font-weight: 600;
             color: #ff8c00;
             font-size: 1.1rem;
         }
 
-        /* Room Number */
+
         .room-number {
             font-weight: 600;
             font-size: 1.1rem;
             color: #ff8c00;
         }
 
-        /* Room Type */
+
         .room-type {
             color: #ccc;
             font-weight: 500;
         }
 
-        /* Loading Animation */
+
         .loading {
             display: none;
             position: fixed;
@@ -566,7 +557,7 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Empty State */
+
         .empty-state {
             text-align: center;
             padding: 60px 20px;
@@ -590,7 +581,6 @@
             color: #999;
         }
 
-        /* Toast Notification */
         .toast {
             position: fixed;
             top: 20px;
@@ -625,7 +615,7 @@
             }
         }
 
-        /* Responsive Design */
+
         @media (max-width: 768px) {
             .container {
                 padding: 10px;

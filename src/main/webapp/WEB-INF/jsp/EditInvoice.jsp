@@ -35,7 +35,6 @@ if (loginManager == null) {
             overflow-x: hidden;
         }
 
-        /* Background Animation */
         .bg-animation {
             position: fixed;
             top: 0;
@@ -111,7 +110,6 @@ if (loginManager == null) {
             transform: translateX(-5px);
         }
 
-        /* Alert Messages */
         .alert {
             padding: 20px 25px;
             border-radius: 12px;
@@ -140,7 +138,6 @@ if (loginManager == null) {
             color: #ff4444;
         }
 
-        /* Room Info Card */
         .room-info-card {
             background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
             border-radius: 15px;
@@ -185,7 +182,6 @@ if (loginManager == null) {
             font-weight: 600;
         }
 
-        /* Invoice Table Container */
         .table-container {
             background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
             border-radius: 20px;
@@ -248,7 +244,6 @@ if (loginManager == null) {
             font-size: 1.05rem;
         }
 
-        /* Status Badges */
         .status-badge {
             display: inline-flex;
             align-items: center;
@@ -272,7 +267,6 @@ if (loginManager == null) {
             border: 2px solid #ffc107;
         }
 
-        /* Action Buttons */
         .action-buttons {
             display: flex;
             gap: 8px;
@@ -342,7 +336,6 @@ if (loginManager == null) {
             box-shadow: 0 8px 25px rgba(255, 140, 0, 0.5);
         }
 
-        /* No Invoice State */
         .no-invoice-state {
             text-align: center;
             padding: 80px 20px;
@@ -366,7 +359,6 @@ if (loginManager == null) {
             font-size: 1.1rem;
         }
 
-        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -468,7 +460,6 @@ if (loginManager == null) {
             transform: translateY(-2px);
         }
 
-        /* Create Invoice Section */
         .create-invoice-section {
             text-align: center;
             margin-top: 30px;
@@ -478,7 +469,6 @@ if (loginManager == null) {
             border: 2px dashed rgba(255, 140, 0, 0.3);
         }
 
-        /* Loading */
         .loading {
             display: none;
             position: fixed;
@@ -506,7 +496,6 @@ if (loginManager == null) {
             100% { transform: rotate(360deg); }
         }
 
-        /* Responsive */
         @media (max-width: 768px) {
             .container { padding: 15px; }
             .page-header { font-size: 2rem; }
@@ -760,15 +749,13 @@ if (loginManager == null) {
             }
         }
         
-        // Close modal when clicking outside
         window.onclick = function(event) {
             const modal = document.getElementById('deleteModal');
             if (event.target === modal) {
                 closeModal();
             }
         }
-        
-        // Close modal with ESC key
+ 
         document.addEventListener('keydown', function(event) {
             if (event.key === 'Escape') {
                 closeModal();

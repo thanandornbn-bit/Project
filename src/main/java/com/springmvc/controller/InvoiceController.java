@@ -26,7 +26,7 @@ public class InvoiceController {
 
     ThanachokManager manager = new ThanachokManager();
 
-    // ===== แสดงหน้าสร้าง Invoice =====
+    //แสดงหน้าสร้าง Invoice
     @RequestMapping(value = "/ManagerAddInvoice", method = RequestMethod.GET)
 public ModelAndView showAddInvoice(@RequestParam("roomID") int roomID) {
     ModelAndView mv = new ModelAndView("ManagerAddInvoice");
@@ -35,7 +35,7 @@ public ModelAndView showAddInvoice(@RequestParam("roomID") int roomID) {
     Room room = manager.findRoomById(roomID);
     
     // ดึง Rent ที่ active ของห้องนี้
-    Rent rent = manager.getActiveRentByRoomID(roomID); // เปลี่ยนชื่อ method
+    Rent rent = manager.getActiveRentByRoomID(roomID); 
     
     if (room == null) {
         mv.addObject("error", "ไม่พบข้อมูลห้องที่เลือก");
@@ -56,7 +56,7 @@ public ModelAndView showAddInvoice(@RequestParam("roomID") int roomID) {
     return mv;
 }
 
-    // ===== บันทึก Invoice =====
+    //บันทึก Invoice
     @RequestMapping(value = "/SaveInvoice", method = RequestMethod.POST)
     public ModelAndView saveInvoice(HttpServletRequest request) {
         try {
@@ -68,7 +68,7 @@ public ModelAndView showAddInvoice(@RequestParam("roomID") int roomID) {
 
             Rent rent = manager.findRentById(roomId);
 
-            // ===== สร้าง Invoice =====
+            //สร้าง Invoice 
             Invoice invoice = new Invoice();
             invoice.setIssueDate(issueDate);
             invoice.setDueDate(dueDate);
@@ -76,30 +76,30 @@ public ModelAndView showAddInvoice(@RequestParam("roomID") int roomID) {
             invoice.setStatus(status);
             invoice.setRent(rent);
 
-            // ===== ค่าห้อง =====
+            //ค่าห้อง
             invoice.getDetails().add(createSimpleDetail(invoice, "ค่าห้อง", request.getParameter("roomPrice")));
 
-            // ===== ค่าเน็ต =====
+            //ค่าเน็ต
             invoice.getDetails().add(createSimpleDetail(invoice, "ค่าเน็ต", request.getParameter("internetPrice")));
 
-            // ===== ค่าน้ำ =====
+            //ค่าน้ำ
             int prevWater = Integer.parseInt(request.getParameter("prevWater"));
             int currWater = Integer.parseInt(request.getParameter("currWater"));
             BigDecimal waterRate = new BigDecimal(request.getParameter("waterRate"));
             invoice.getDetails().add(createUnitDetail(invoice, "ค่าน้ำ", prevWater, currWater, waterRate));
 
-            // ===== ค่าไฟ =====
+            //ค่าไฟ
             int prevElectric = Integer.parseInt(request.getParameter("prevElectric"));
             int currElectric = Integer.parseInt(request.getParameter("currElectric"));
             BigDecimal electricRate = new BigDecimal(request.getParameter("electricRate"));
             invoice.getDetails().add(createUnitDetail(invoice, "ค่าไฟ", prevElectric, currElectric, electricRate));
 
-            // ===== ค่าปรับ =====
+            //ค่าปรับ
             if (request.getParameter("penalty") != null && !request.getParameter("penalty").isEmpty()) {
                 invoice.getDetails().add(createSimpleDetail(invoice, "ค่าปรับ", request.getParameter("penalty")));
             }
 
-            // ===== บันทึก Invoice และรายละเอียด =====
+            //บันทึก Invoice และรายละเอียด
             manager.saveInvoice(invoice);
 
             return new ModelAndView("redirect:/OwnerHome");
@@ -112,7 +112,7 @@ public ModelAndView showAddInvoice(@RequestParam("roomID") int roomID) {
         }
     }
 
-    // ===== สร้าง InvoiceDetail =====
+    //สร้าง InvoiceDetail
     private InvoiceDetail createSimpleDetail(Invoice invoice, String typeName, String amountStr) {
         InvoiceType type = manager.getInvoiceTypeByName(typeName);
         BigDecimal amount = new BigDecimal(amountStr);
@@ -127,7 +127,7 @@ public ModelAndView showAddInvoice(@RequestParam("roomID") int roomID) {
         return detail;
     }
 
-    // ===== สร้าง InvoiceDetail สำหรับฟิลด์ค่าน้ำ/ค่าไฟแบบคิดตามหน่วย =====
+    //สร้าง InvoiceDetail สำหรับค่าน้ำ/ค่าไฟแบบคิดตามหน่วย
     private InvoiceDetail createUnitDetail(Invoice invoice, String typeName, int prevUnit, int currUnit,
             BigDecimal unitPrice) {
         InvoiceType type = manager.getInvoiceTypeByName(typeName);
@@ -148,7 +148,7 @@ public ModelAndView showAddInvoice(@RequestParam("roomID") int roomID) {
         return detail;
     }
 
-    // ===== แสดงรายการใบแจ้งหนี้ของ Member ====
+    //แสดงรายการใบแจ้งหนี้ของ Member
     @RequestMapping(value = "/MemberListinvoice", method = RequestMethod.GET)
     public ModelAndView showMemberInvoices(HttpSession session) {
         ModelAndView mv = new ModelAndView("ListInvoice");
@@ -160,7 +160,7 @@ public ModelAndView showAddInvoice(@RequestParam("roomID") int roomID) {
                 return new ModelAndView("redirect:/Login");
             }
 
-            // ค้นหา invoices ของ member ที่ login อยู่
+            // ค้นหา invoices ของ member ที่ login
             List<Invoice> memberInvoices = manager.getInvoicesByMemberID(loginMember.getMemberID());
 
             mv.addObject("invoices", memberInvoices);
@@ -175,8 +175,7 @@ public ModelAndView showAddInvoice(@RequestParam("roomID") int roomID) {
         }
     }
 
-    // ===== แสดงรายละเอียดใบแจ้งหนี้ =====
-
+    //แสดงรายละเอียดใบแจ้งหนี้
     @RequestMapping(value = "/InvoiceDetail", method = RequestMethod.GET)
     public ModelAndView showInvoiceDetail(@RequestParam("invoiceId") int invoiceId, HttpSession session) {
         ModelAndView mv = new ModelAndView("InvoiceDetail");

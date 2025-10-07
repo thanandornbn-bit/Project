@@ -28,7 +28,6 @@
             padding: 20px;
         }
 
-        /* Header Styles */
         .header {
             text-align: center;
             color: #ff8c00;
@@ -64,7 +63,6 @@
             box-shadow: 0 0 10px rgba(255, 140, 0, 0.5);
         }
 
-        /* Top Bar */
         .top-bar {
             display: flex;
             justify-content: space-between;
@@ -111,7 +109,6 @@
             box-shadow: 0 5px 15px rgba(255, 140, 0, 0.3);
         }
 
-        /* Form Container */
         .form-container {
             background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
             padding: 40px;
@@ -154,7 +151,6 @@
             font-size: 2.5rem;
         }
 
-        /* Form Grid Layout */
         .form-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
@@ -162,7 +158,6 @@
             margin-bottom: 25px;
         }
 
-        /* Form Elements */
         .form-group {
             position: relative;
         }
@@ -239,7 +234,6 @@
             resize: vertical;
         }
 
-        /* Info Box */
         .info-box {
             background: rgba(255, 140, 0, 0.1);
             border: 1px solid rgba(255, 140, 0, 0.3);
@@ -258,7 +252,6 @@
             flex-shrink: 0;
         }
 
-        /* Room Info Display */
         .room-info {
             background: rgba(255, 140, 0, 0.05);
             border: 1px solid rgba(255, 140, 0, 0.2);
@@ -287,7 +280,6 @@
             color: #fff;
         }
 
-        /* Buttons */
         .button-group {
             display: flex;
             gap: 15px;
@@ -359,7 +351,6 @@
             box-shadow: 0 5px 15px rgba(255, 140, 0, 0.2);
         }
 
-        /* Validation Feedback */
         .valid-feedback {
             color: #00ff88;
             font-size: 0.9rem;
@@ -386,7 +377,6 @@
             border-color: #ff4444;
         }
 
-        /* Loading Animation */
         .loading {
             display: none;
             position: fixed;
@@ -414,7 +404,6 @@
             100% { transform: rotate(360deg); }
         }
 
-        /* Price Input with Currency Symbol */
         .price-input-wrapper {
             position: relative;
         }
@@ -434,7 +423,6 @@
             padding-left: 45px;
         }
 
-        /* Responsive Design */
         @media (max-width: 768px) {
             .container {
                 padding: 10px;

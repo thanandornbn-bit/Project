@@ -35,7 +35,7 @@ if (loginManager == null) {
             overflow-x: hidden;
         }
 
-        /* Background Animation */
+        
         .bg-animation {
             position: fixed;
             top: 0;
@@ -111,7 +111,7 @@ if (loginManager == null) {
             transform: translateX(-5px);
         }
 
-        /* Alert Messages */
+       
         .success-message, .error-message {
             padding: 20px 25px;
             border-radius: 12px;
@@ -140,7 +140,7 @@ if (loginManager == null) {
             color: #ff4444;
         }
 
-        /* Main Card */
+       
         .detail-card {
             background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
             border-radius: 20px;
@@ -174,7 +174,7 @@ if (loginManager == null) {
             padding: 40px;
         }
 
-        /* Info Grid */
+        
         .info-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
@@ -233,7 +233,7 @@ if (loginManager == null) {
             text-align: right;
         }
 
-        /* Status Badges */
+        
         .status-badge {
             display: inline-flex;
             align-items: center;
@@ -262,7 +262,7 @@ if (loginManager == null) {
             50% { box-shadow: 0 0 20px rgba(255, 193, 7, 0.6); }
         }
 
-        /* Slip Section */
+       
         .slip-section {
             grid-column: 1 / -1;
             background: rgba(0, 0, 0, 0.4);
@@ -326,7 +326,7 @@ if (loginManager == null) {
             font-size: 1.3rem;
         }
 
-        /* Image Modal */
+      
         .modal {
             display: none;
             position: fixed;
@@ -387,7 +387,7 @@ if (loginManager == null) {
             transform: rotate(90deg);
         }
 
-        /* Action Section */
+    
         .action-section {
             margin-top: 30px;
             padding-top: 30px;
@@ -454,7 +454,7 @@ if (loginManager == null) {
             transform: translateY(-2px);
         }
 
-        /* Loading */
+      
         .loading {
             display: none;
             position: fixed;
@@ -482,7 +482,7 @@ if (loginManager == null) {
             100% { transform: rotate(360deg); }
         }
 
-        /* Responsive */
+       
         @media (max-width: 768px) {
             .container { padding: 15px; }
             .page-header { font-size: 2rem; }
