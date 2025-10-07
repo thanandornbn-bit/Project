@@ -739,19 +739,19 @@
         </div>
 
         <div class="nav">
-            <a href="Homesucess" class="active">
-                <i class="fas fa-home"></i>
-                หน้าหลัก
-            </a>
-            <a href="MemberListinvoice">
-                <i class="fas fa-file-invoice-dollar"></i>
-                แจ้งหนี้
-            </a>
-            <a href="Record">
-                <i class="fas fa-history"></i>
-                ประวัติการจอง
-            </a>
-        </div>
+    <a href="Homesucess" class="active">
+        <i class="fas fa-home"></i>
+        หน้าหลัก
+    </a>
+    <a href="Listinvoice">
+        <i class="fas fa-file-invoice-dollar"></i>
+        แจ้งหนี้
+    </a>
+    <a href="Record">
+        <i class="fas fa-history"></i>
+        ประวัติการจอง
+    </a>
+</div>
 
         <div class="logout-container">
             <form action="Logout" method="post" style="display: inline;">

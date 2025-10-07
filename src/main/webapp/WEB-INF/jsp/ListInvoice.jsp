@@ -503,7 +503,7 @@
     <!-- Navigation -->
     <div class="nav">
         <a href="Homesucess"><i class="fas fa-home"></i> หน้าหลัก</a>
-        <a href="MemberListinvoice" class="active"><i class="fas fa-file-invoice"></i> แจ้งหนี้</a>
+        <a href="Listinvoice" class="active"><i class="fas fa-file-invoice"></i> แจ้งหนี้</a>
         <a href="Record"><i class="fas fa-history"></i> ดูประวัติการจอง</a>
     </div>
 

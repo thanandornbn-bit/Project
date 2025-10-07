@@ -1,6 +1,9 @@
 package com.springmvc.model;
 
-
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -347,15 +350,7 @@ public class ThanachokManager {
     }
 }
 
-    // ดึงรายการ Invoice ทั้งหมดของผู้เช่า
-    public List<Invoice> findInvoicesByMember(int memberID) {
-        try (Session session = HibernateConnection.doHibernateConnection().openSession()) {
-            String hql = "FROM Invoice i WHERE i.rent.member.memberID = :memberID ORDER BY i.billingDate DESC";
-            Query<Invoice> query = session.createQuery(hql, Invoice.class);
-            query.setParameter("memberID", memberID);
-            return query.list();
-        }
-    }
+    
 
     // ดึง Invoice เดี่ยวตาม ID
     public Invoice findInvoiceById(int billID) {
@@ -461,7 +456,7 @@ public class ThanachokManager {
         }
     }
 
-    //หา Rent ด้วย roomID 
+    //หา Rent ด้วย roomID
     public Rent findRentById(int rentID) {
         try (Session session = HibernateConnection.doHibernateConnection().openSession()) {
             return session.get(Rent.class, rentID);
@@ -476,7 +471,7 @@ public class ThanachokManager {
             SessionFactory sessionFactory = HibernateConnection.doHibernateConnection();
             session = sessionFactory.openSession();
 
-            // หาข้อมูลที่มีอยู่
+            // ลองหาข้อมูลที่มีอยู่
             InvoiceType type = session.createQuery("FROM InvoiceType WHERE typeName = :name", InvoiceType.class)
                     .setParameter("name", name)
                     .uniqueResult();
@@ -488,7 +483,6 @@ public class ThanachokManager {
                 type.setTypeName(name);
                 session.save(type);
                 tx.commit();
-                System.out.println("Created new InvoiceType: " + name);
             }
 
             return type;
@@ -531,33 +525,7 @@ public class ThanachokManager {
         }
     }
 
-    public List<Invoice> getInvoicesByMemberID(int memberID) {
-        Session session = null;
-        try {
-            SessionFactory sessionFactory = HibernateConnection.doHibernateConnection();
-            session = sessionFactory.openSession();
 
-            String hql = "SELECT DISTINCT i FROM Invoice i " +
-                    "LEFT JOIN FETCH i.rent r " +
-                    "LEFT JOIN FETCH r.member " +
-                    "LEFT JOIN FETCH r.room " +
-                    "WHERE r.member.memberID = :memberID " +
-                    "ORDER BY i.issueDate DESC";
-
-            Query<Invoice> query = session.createQuery(hql, Invoice.class);
-            query.setParameter("memberID", memberID);
-
-            return query.list();
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Collections.emptyList();
-        } finally {
-            if (session != null) {
-                session.close();
-            }
-        }
-    }
 
     // คืนค่า Rent ที่ยังไม่ได้คืนห้อง (active) สำหรับห้องนั้นๆ
     public Rent getRentByRoomID(int roomID) {
@@ -575,7 +543,7 @@ public class ThanachokManager {
 
             Query<Rent> query = session.createQuery(hql, Rent.class);
             query.setParameter("roomID", roomID);
-            query.setMaxResults(1);
+            query.setMaxResults(1); // ดึงแค่ 1 รายการล่าสุด
 
             return query.uniqueResult();
 
@@ -668,7 +636,6 @@ public class ThanachokManager {
             // เปลี่ยนสถานะห้องเป็น "ว่าง"
             room.setRoomStatus("ว่าง");
             session.update(room);
-            System.out.println("Updated room status to ว่าง for room: " + room.getRoomNumber());
 
             // หา RentalDeposit ด้วย session เดียวกัน
             String depositHql = "FROM RentalDeposit WHERE rent.rentID = :rentId";
@@ -679,22 +646,17 @@ public class ThanachokManager {
             if (deposit != null) {
                 deposit.setStatus("คืนห้องแล้ว");
                 session.update(deposit);
-                System.out.println(
-                        "Updated rental deposit status to คืนห้องแล้ว for depositId: " + deposit.getDepositID());
-            } else {
-                System.out.println("Warning: RentalDeposit not found for rentId: " + rentId);
             }
 
             tx.commit();
-            System.out.println("Transaction committed successfully for rentId: " + rentId);
+
             return true;
 
         } catch (Exception e) {
             if (tx != null) {
                 tx.rollback();
-                System.out.println("Transaction rolled back due to error");
             }
-            System.out.println("Error in returnRoom method:");
+            
             e.printStackTrace();
             return false;
         } finally {
@@ -760,7 +722,6 @@ public class ThanachokManager {
         }
     }
 
-    // อัปเดต findActiveDepositsByMember เพื่อเพิ่มวันที่คืนห้อง
     public List<RentalDeposit> findActiveDepositsByMemberWithReturnDate(Member member) {
         Session session = null;
         try {
@@ -778,7 +739,7 @@ public class ThanachokManager {
             for (RentalDeposit deposit : deposits) {
                 String returnDate = getReturnDateFromRent(deposit.getRent().getRentID());
 
-                deposit.setHasUnpaidInvoices(false); 
+                deposit.setHasUnpaidInvoices(false); // reset
             }
 
             return deposits;
@@ -966,7 +927,7 @@ public class ThanachokManager {
 
             String hql = "SELECT DISTINCT i FROM Invoice i " +
                     "LEFT JOIN FETCH i.details d " +
-                    "LEFT JOIN FETCH d.type " + 
+                    "LEFT JOIN FETCH d.type " +
                     "LEFT JOIN FETCH i.rent r " +
                     "LEFT JOIN FETCH r.member " +
                     "LEFT JOIN FETCH r.room " +
@@ -1017,12 +978,13 @@ public class ThanachokManager {
         }
     }
 
-    // เมธอดตรวจสอบว่าใบแจ้งหนี้มีอยู่จริงไหม
+    //ตรวจสอบว่าใบแจ้งหนี้มีอยู่จริงไหม
     public boolean invoiceExists(int invoiceId) {
         Session session = null;
         try {
             SessionFactory sessionFactory = HibernateConnection.doHibernateConnection();
             session = sessionFactory.openSession();
+
             String hql = "SELECT COUNT(i) FROM Invoice i WHERE i.invoiceId = :invoiceId";
             Long count = session.createQuery(hql, Long.class)
                     .setParameter("invoiceId", invoiceId)
@@ -1049,36 +1011,22 @@ public class ThanachokManager {
             SessionFactory sessionFactory = HibernateConnection.doHibernateConnection();
             session = sessionFactory.openSession();
             tx = session.beginTransaction();
-
-            System.out.println("Starting delete process for invoice ID: " + invoiceId);
-
-            // ตรวจสอบว่ามี Invoice อยู่จริง
             Invoice invoice = session.get(Invoice.class, invoiceId);
             if (invoice == null) {
                 System.out.println("Invoice " + invoiceId + " not found");
                 return false;
             }
 
-            // ตรวจสอบสถานะการชำระ - ไม่ให้ลบถ้าชำระแล้ว
-            if (invoice.getStatus() == 1) {
-                System.out
-                        .println("Cannot delete paid invoice: " + invoiceId + " (status: " + invoice.getStatus() + ")");
-                throw new RuntimeException("ไม่สามารถลบใบแจ้งหนี้ที่ชำระแล้วได้");
-            }
 
-            System.out.println("Invoice status: " + invoice.getStatus() + " (0=unpaid, 1=paid)");
-
-            // ลบ InvoiceDetail
+            // ลบ InvoiceDetail 
             if (invoice.getDetails() != null && !invoice.getDetails().isEmpty()) {
                 for (InvoiceDetail detail : invoice.getDetails()) {
                     session.delete(detail);
                 }
-                System.out.println("Deleted " + invoice.getDetails().size() + " invoice details");
             }
 
             // ลบ Invoice
-            session.delete(invoice);
-            System.out.println("Deleted invoice: " + invoiceId);
+            session.delete(invoice);  
 
             tx.commit();
             return true;
@@ -1102,7 +1050,7 @@ public class ThanachokManager {
         }
     }
 
-    // ตรวจสอบสถานะการชำระ
+    // เพิ่มเมธอดตรวจสอบสถานะการชำระ
     public boolean canDeleteInvoice(int invoiceId) {
         Session session = null;
         try {
@@ -1132,7 +1080,7 @@ public class ThanachokManager {
         }
     }
 
-    // ข้อมูลใบแจ้งหนี้พร้อมสถานะ
+    // เพิ่มเมธอดดึงข้อมูลใบแจ้งหนี้พร้อมสถานะ
     public Invoice getInvoiceWithStatus(int invoiceId) {
         Session session = null;
         try {
@@ -1224,7 +1172,7 @@ public class ThanachokManager {
 
             Query<Rent> query = session.createQuery(hql, Rent.class);
             query.setParameter("roomID", roomID);
-            query.setMaxResults(1); 
+            query.setMaxResults(1); // เอาล่าสุดเท่านั้น
 
             List<Rent> results = query.list();
             return results.isEmpty() ? null : results.get(0);
@@ -1238,5 +1186,56 @@ public class ThanachokManager {
             }
         }
     }
+
+    public List<Invoice> getInvoicesByMemberID(int memberID) {
+    Session session = null;
+    try {
+        SessionFactory sessionFactory = HibernateConnection.doHibernateConnection();
+        session = sessionFactory.openSession();
+
+        String hql = "SELECT DISTINCT i FROM Invoice i " +
+                "LEFT JOIN FETCH i.rent r " +
+                "LEFT JOIN FETCH r.member m " +
+                "LEFT JOIN FETCH r.room " +
+                "LEFT JOIN FETCH i.details " + // เพิ่มบรรทัดนี้
+                "WHERE m.memberID = :memberID " +
+                "ORDER BY i.issueDate DESC";
+
+        Query<Invoice> query = session.createQuery(hql, Invoice.class);
+        query.setParameter("memberID", memberID);
+
+        List<Invoice> invoices = query.list();
+        
+        System.out.println("Retrieved " + invoices.size() + " invoices for memberID: " + memberID);
+        
+        return invoices;
+
+    } catch (Exception e) {
+        System.out.println("Error getting invoices for memberID " + memberID + ": " + e.getMessage());
+        e.printStackTrace();
+        return Collections.emptyList();
+    } finally {
+        if (session != null) {
+            session.close();
+        }
+    }
+}
+
+public List<Invoice> findInvoicesByMember(int memberID) {
+    try (Session session = HibernateConnection.doHibernateConnection().openSession()) {
+        String hql = "SELECT DISTINCT i FROM Invoice i " +
+                    "LEFT JOIN FETCH i.rent r " +
+                    "LEFT JOIN FETCH r.room " +
+                    "LEFT JOIN FETCH r.member m " +
+                    "WHERE m.memberID = :memberID " +
+                    "ORDER BY i.issueDate DESC";
+        Query<Invoice> query = session.createQuery(hql, Invoice.class);
+        query.setParameter("memberID", memberID);
+        return query.list();
+    } catch (Exception e) {
+        e.printStackTrace();
+        return Collections.emptyList();
+    }
+}
 
 }

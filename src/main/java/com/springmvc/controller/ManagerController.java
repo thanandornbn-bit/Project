@@ -251,40 +251,7 @@ public class ManagerController {
 		return "redirect:/OwnerHome";
 	}
 
-	//แสดงรายการใบแจ้งหนี้
-	@RequestMapping(value = "/Listinvoice", method = RequestMethod.GET)
-	public ModelAndView listInvoices(HttpSession session) {
-		Member member = (Member) session.getAttribute("loginMember");
-		if (member == null) {
-			return new ModelAndView("redirect:/Login");
-		}
-
-		ThanachokManager manager = new ThanachokManager();
-		List<Invoice> invoiceList = manager.findInvoicesByMember(member.getMemberID());
-
-		ModelAndView mav = new ModelAndView("Listinvoice");
-		mav.addObject("invoiceList", invoiceList);
-		return mav;
-	}
-
-
-	//แสดงรายละเอียดใบแจ้งหนี้
-	@RequestMapping(value = "/Detailinvoice", method = RequestMethod.GET)
-	public ModelAndView invoiceDetail(@RequestParam("billID") int billID, HttpSession session) {
-		Member member = (Member) session.getAttribute("loginMember");
-		if (member == null) {
-			return new ModelAndView("redirect:/Login");
-		}
-
-		ThanachokManager manager = new ThanachokManager();
-		Invoice invoice = manager.findInvoiceById(billID);
-		List<InvoiceDetail> details = manager.findInvoiceDetailsByInvoiceId(billID);
-
-		ModelAndView mav = new ModelAndView("Detailinvoice");
-		mav.addObject("invoice", invoice);
-		mav.addObject("invoiceDetails", details);
-		return mav;
-	}
+	
 
 	// แก้ไขใบแจ้งหนี้ของห้องที่เลือก
 	@RequestMapping(value = "/EditInvoice", method = RequestMethod.GET)
@@ -451,7 +418,7 @@ public class ManagerController {
 		return result;
 	}
 
-	//ดูรายละเอียดใบแจ้งหนี้
+	// ดูรายละเอียดใบแจ้งหนี้
 	@RequestMapping(value = "/ViewInvoiceDetail", method = RequestMethod.GET)
 	public ModelAndView viewInvoiceDetail(@RequestParam("invoiceId") int invoiceId,
 			HttpSession session) {

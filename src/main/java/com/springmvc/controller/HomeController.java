@@ -36,30 +36,30 @@ public class HomeController {
 
     // แสดงรายการห้อง (หน้า Homesucess.jsp)
     @RequestMapping(value = "/Homesucess", method = RequestMethod.GET)
-public ModelAndView showAvailableRooms(HttpSession session,
-        @RequestParam(value = "floor", required = false) String floor,
-        @RequestParam(value = "status", required = false) String status) {
+    public ModelAndView showAvailableRooms(HttpSession session,
+            @RequestParam(value = "floor", required = false) String floor,
+            @RequestParam(value = "status", required = false) String status) {
 
-    Member member = (Member) session.getAttribute("loginMember");
-    if (member == null) {
-        return new ModelAndView("redirect:/Login");
+        Member member = (Member) session.getAttribute("loginMember");
+        if (member == null) {
+            return new ModelAndView("redirect:/Login");
+        }
+
+        ThanachokManager manager = new ThanachokManager();
+        List<Room> roomList = manager.findRoomsByFloorAndStatus(floor, status);
+
+        // ✅ เพิ่มการตรวจสอบว่ามีการจอง active หรือไม่
+        List<RentalDeposit> activeRentals = manager.findActiveDepositsByMember(member);
+        int activeRentalCount = activeRentals.size();
+
+        ModelAndView mav = new ModelAndView("Homesucess");
+        mav.addObject("roomList", roomList);
+        mav.addObject("floor", floor);
+        mav.addObject("status", status);
+        mav.addObject("activeRentalCount", activeRentalCount); // เพิ่มบรรทัดนี้
+        mav.addObject("activeRentals", activeRentals); // เพิ่มบรรทัดนี้
+        return mav;
     }
-
-    ThanachokManager manager = new ThanachokManager();
-    List<Room> roomList = manager.findRoomsByFloorAndStatus(floor, status);
-
-    // ✅ เพิ่มการตรวจสอบว่ามีการจอง active หรือไม่
-    List<RentalDeposit> activeRentals = manager.findActiveDepositsByMember(member);
-    int activeRentalCount = activeRentals.size();
-
-    ModelAndView mav = new ModelAndView("Homesucess");
-    mav.addObject("roomList", roomList);
-    mav.addObject("floor", floor);
-    mav.addObject("status", status);
-    mav.addObject("activeRentalCount", activeRentalCount);  // เพิ่มบรรทัดนี้
-    mav.addObject("activeRentals", activeRentals);  // เพิ่มบรรทัดนี้
-    return mav;
-}
 
     // หน้าแสดงฟอร์มการชำระเงิน
     @RequestMapping(value = "/Payment", method = RequestMethod.GET)
@@ -118,7 +118,7 @@ public ModelAndView showAvailableRooms(HttpSession session,
             }
 
             String uploadDir = "slipet";
-            String realPath = "C:\\M1Project\\Project\\src\\main\\webapp\\slipet";//เปลี่ยน Path File
+            String realPath = "C:\\M1Project\\Project\\src\\main\\webapp\\slipet";// เปลี่ยน Path File
 
             File uploadPath = new File(realPath);
             if (!uploadPath.exists())
@@ -233,9 +233,9 @@ public ModelAndView showAvailableRooms(HttpSession session,
             RentalDeposit deposit = thanachokManager.findRentalDepositByRentId(rentalDepositId);
 
             if (deposit != null && deposit.getPaymentSlipImage() != null) {
-            
+
                 String basePath = "C:\\WebProject\\Project\\target\\Thanachok03-0.0.1-SNAPSHOT\\";
-                String imagePath = basePath + deposit.getPaymentSlipImage(); 
+                String imagePath = basePath + deposit.getPaymentSlipImage();
 
                 File imageFile = new File(imagePath);
 
@@ -429,6 +429,50 @@ public ModelAndView showAvailableRooms(HttpSession session,
             mav.addObject("error", "เกิดข้อผิดพลาดในระบบ: " + e.getMessage());
             return mav;
         }
+    }
+
+    @RequestMapping(value = "/Listinvoice", method = RequestMethod.GET)
+    public ModelAndView listInvoices(HttpSession session) {
+        Member member = (Member) session.getAttribute("loginMember");
+        if (member == null) {
+            return new ModelAndView("redirect:/Login");
+        }
+
+        ThanachokManager manager = new ThanachokManager();
+
+        // ดึงรายการใบแจ้งหนี้ของสมาชิก
+        List<Invoice> invoices = manager.findInvoicesByMember(member.getMemberID());
+
+        ModelAndView mav = new ModelAndView("ListInvoice");
+        mav.addObject("invoices", invoices);
+        mav.addObject("loginMember", member);
+
+        return mav;
+    }
+
+    // รายละเอียดใบแจ้งหนี้
+    @RequestMapping(value = "/InvoiceDetail", method = RequestMethod.GET)
+    public ModelAndView invoiceDetail(@RequestParam("invoiceId") int invoiceId, HttpSession session) {
+        Member member = (Member) session.getAttribute("loginMember");
+        if (member == null) {
+            return new ModelAndView("redirect:/Login");
+        }
+
+        ThanachokManager manager = new ThanachokManager();
+        Invoice invoice = manager.getInvoiceWithDetails(invoiceId);
+
+        // ตรวจสอบว่าใบแจ้งหนี้นี้เป็นของสมาชิกคนนี้หรือไม่
+        if (invoice == null || invoice.getRent().getMember().getMemberID() != member.getMemberID()) {
+            ModelAndView mav = new ModelAndView("redirect:/Listinvoice");
+            mav.addObject("error", "ไม่พบใบแจ้งหนี้ที่ต้องการ หรือคุณไม่มีสิทธิ์เข้าถึง");
+            return mav;
+        }
+
+        ModelAndView mav = new ModelAndView("InvoiceDetail");
+        mav.addObject("invoice", invoice);
+        mav.addObject("invoiceDetails", invoice.getDetails());
+
+        return mav;
     }
 
 }

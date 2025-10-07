@@ -523,7 +523,7 @@
     <!-- Container -->
     <div class="container">
         <div>
-            <a href="MemberListinvoice" class="back-btn">
+            <a href="Listinvoice" class="back-btn">
                 <i class="fas fa-arrow-left"></i>
                 กลับรายการใบแจ้งหนี้
             </a>
