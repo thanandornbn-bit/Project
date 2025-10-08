@@ -38,3 +38,10 @@ c:\apache-tomcat-10.1.43\bin> .\catalina.bat start
 ## URL for test on browser
 
 http://localhost:8080/Thanachok03-0.0.1-SNAPSHOT
+
+
+## Docker startup
+`
+docker compose up -d
+docker compose down
+`
