@@ -57,7 +57,6 @@ out/
 atlassian-ide-plugin.xml
 
 # IDE - Visual Studio Code
-.vscode/
 *.code-workspace
 
 # IDE - NetBeans

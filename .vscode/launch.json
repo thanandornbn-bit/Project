@@ -1,0 +1,36 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "EncodePassword",
+      "request": "launch",
+      "mainClass": "com.springmvc.model.EncodePassword",
+      "projectName": "Thanachok03"
+    },
+    {
+      "type": "java",
+      "name": "Attach to Tomcat (no prelaunch)",
+      "request": "attach",
+      "hostName": "localhost",
+      "port": 8000,
+      "projectName": "Thanachok03"
+    },
+    {
+      "type": "java",
+      "name": "Attach to Tomcat in Docker",
+      "request": "attach",
+      "hostName": "localhost",
+      "port": 8000,
+      "preLaunchTask": "dev: build and up",
+      "projectName": "Thanachok03"
+    },
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "Launch Chrome against localhost",
+      "url": "http://localhost:8080/shabu",
+      "webRoot": "${workspaceFolder}"
+    }
+  ]
+}

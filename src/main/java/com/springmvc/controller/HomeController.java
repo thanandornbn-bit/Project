@@ -118,7 +118,7 @@ public class HomeController {
             }
 
             String uploadDir = "slipet";
-            String realPath = "C:\\M1Project\\Project\\src\\main\\webapp\\slipet";// เปลี่ยน Path File
+            String realPath = "/usr/local/tomcat/webapps/thanachok/slipet";// เปลี่ยน Path File
 
             File uploadPath = new File(realPath);
             if (!uploadPath.exists())

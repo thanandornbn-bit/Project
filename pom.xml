@@ -100,6 +100,14 @@ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xs
     <version>3.4.1</version>
 </dependency>
 
+<!-- The servlet API must be provided by the container (Tomcat). Mark it provided so it is not packaged into WEB-INF/lib. -->
+<dependency>
+  <groupId>jakarta.servlet</groupId>
+  <artifactId>jakarta.servlet-api</artifactId>
+  <version>6.0.0</version>
+  <scope>provided</scope>
+</dependency>
+
   </dependencies>
   
   
