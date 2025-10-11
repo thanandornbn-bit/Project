@@ -550,115 +550,105 @@ if (loginManager == null) {
                                 </div>
                             </div>
                         </div>
+                        <div class="alert alert-warning" id="meterWarning" style="display: none; background: rgba(255, 193, 7, 0.15); border: 2px solid #ffc107; color: #ffc107; padding: 15px 20px; border-radius: 10px; margin-bottom: 25px; display: flex; align-items: center; gap: 12px; animation: slideInDown 0.5s ease;">
+    <i class="fas fa-exclamation-circle"></i>
+    <span id="warningMessage"></span>
+</div>  
 
                         <form action="SaveInvoice" method="post" id="invoiceForm">
                             <input type="hidden" name="rentId" value="${rent.rentID}" />
                             <input type="hidden" id="roomPrice" name="roomPrice" value="${room.roomPrice}" />
 
-                            <!-- Date Section -->
-                            <div class="form-section">
-                                <div class="section-title">
-                                    <i class="fas fa-calendar-alt"></i>
-                                    ข้อมูลวันที่
-                                </div>
-                                <div class="form-grid">
-                                    <div class="form-group">
-                                        <label for="issueDate">วันที่ออกบิล:</label>
-                                        <input type="date" name="issueDate" id="issueDate" class="form-control" value="${today}" readonly/>
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="dueDate">วันครบกำหนด:</label>
-                                        <input type="date" name="dueDate" id="dueDate" class="form-control" value="${dueDate}" readonly/>
-                                    </div>
-                                </div>
-                            </div>
-
                             <!-- Utilities Section -->
-                            <div class="form-section">
-                                <div class="section-title">
-                                    <i class="fas fa-tools"></i>
-                                    ค่าสาธารณูปโภค
-                                </div>
-                                <div class="utility-section">
-                                    <!-- Internet -->
-                                    <div class="utility-card">
-                                        <div class="utility-title">
-                                            <i class="fas fa-wifi"></i>
-                                            ค่าอินเทอร์เน็ต
-                                        </div>
-                                        <div class="form-group">
-                                            <input type="number" id="internetPrice" name="internetPrice" 
-                                                   class="form-control" value="200" min="0"/>
-                                        </div>
-                                    </div>
+<div class="form-section">
+    <div class="section-title">
+        <i class="fas fa-tools"></i>
+        ค่าสาธารณูปโภค
+    </div>
+    <div class="utility-section">
+        <!-- Internet -->
+        <div class="utility-card">
+            <div class="utility-title">
+                <i class="fas fa-wifi"></i>
+                ค่าอินเทอร์เน็ต
+            </div>
+            <div class="form-group">
+                <input type="number" id="internetPrice" name="internetPrice" 
+                       class="form-control" value="0" min="0" step="0.01"/>
+            </div>
+        </div>
 
-                                    <!-- Water -->
-                                    <div class="utility-card">
-                                        <div class="utility-title">
-                                            <i class="fas fa-tint"></i>
-                                            ค่าน้ำ
-                                        </div>
-                                        <div class="form-group">
-                                            <label>หน่วยปัจจุบัน:</label>
-                                            <input type="number" id="currWater" name="currWater" 
-                                                   class="form-control" value="0" min="0"/>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>หน่วยเดือนก่อน:</label>
-                                            <input type="number" id="prevWater" name="prevWater" 
-                                                   class="form-control" value="0" min="0"/>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>ราคาต่อหน่วย:</label>
-                                            <input type="number" id="waterRate" name="waterRate" 
-                                                   class="form-control" value="20" step="0.01" min="0"/>
-                                        </div>
-                                        <div class="calculation-display">
-                                            <div>รวมค่าน้ำ</div>
-                                            <div class="amount" id="waterTotalDisplay">฿0.00</div>
-                                        </div>
-                                    </div>
+        <!-- Water -->
+        <div class="utility-card">
+            <div class="utility-title">
+                <i class="fas fa-tint"></i>
+                ค่าน้ำ
+            </div>
+            <div class="form-group">
+                <label>หน่วยเดือนก่อน:</label>
+                <input type="number" id="prevWater" name="prevWater" 
+                       class="form-control" value="${prevWater}" min="0" readonly
+                       style="background: rgba(100, 100, 100, 0.3); cursor: not-allowed;"/>
+            </div>
+            <div class="form-group">
+                <label>หน่วยปัจจุบัน:</label>
+                <input type="number" id="currWater" name="currWater" 
+                       class="form-control" value="${prevWater}" min="0"
+                       onchange="checkMeterReading();" oninput="checkMeterReading();"/>
+            </div>
+            <div class="form-group">
+                <label>ราคาต่อหน่วย:</label>
+                <input type="number" id="waterRate" name="waterRate" 
+                       class="form-control" value="${waterRate}" step="1" min="0"/>
+            </div>
+            <div class="calculation-display">
+                <div>รวมค่าน้ำ</div>
+                <div class="amount" id="waterTotalDisplay">฿0.00</div>
+            </div>
+        </div>
 
-                                    <!-- Electricity -->
-                                    <div class="utility-card">
-                                        <div class="utility-title">
-                                            <i class="fas fa-bolt"></i>
-                                            ค่าไฟฟ้า
-                                        </div>
-                                        <div class="form-group">
-                                            <label>หน่วยปัจจุบัน:</label>
-                                            <input type="number" id="currElectric" name="currElectric" 
-                                                   class="form-control" value="0" min="0"/>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>หน่วยเดือนก่อน:</label>
-                                            <input type="number" id="prevElectric" name="prevElectric" 
-                                                   class="form-control" value="0" min="0"/>
-                                        </div>
-                                        <div class="form-group">
-                                            <label>ราคาต่อหน่วย:</label>
-                                            <input type="number" id="electricRate" name="electricRate" 
-                                                   class="form-control" value="7" step="0.01" min="0"/>
-                                        </div>
-                                        <div class="calculation-display">
-                                            <div>รวมค่าไฟฟ้า</div>
-                                            <div class="amount" id="electricityTotalDisplay">฿0.00</div>
-                                        </div>
-                                    </div>
+        <!-- Electricity -->
+        <div class="utility-card">
+            <div class="utility-title">
+                <i class="fas fa-bolt"></i>
+                ค่าไฟฟ้า
+            </div>
+            <div class="form-group">
+                <label>หน่วยเดือนก่อน:</label>
+                <input type="number" id="prevElectric" name="prevElectric" 
+                       class="form-control" value="${prevElectric}" min="0" readonly
+                       style="background: rgba(100, 100, 100, 0.3); cursor: not-allowed;"/>
+            </div>
+            <div class="form-group">
+                <label>หน่วยปัจจุบัน:</label>
+                <input type="number" id="currElectric" name="currElectric" 
+                       class="form-control" value="${prevElectric}" min="0"
+                       onchange="checkMeterReading();" oninput="checkMeterReading();"/>
+            </div>
+            <div class="form-group">
+                <label>ราคาต่อหน่วย:</label>
+                <input type="number" id="electricRate" name="electricRate" 
+                       class="form-control" value="${electricRate}" step="1" min="0"/>
+            </div>
+            <div class="calculation-display">
+                <div>รวมค่าไฟฟ้า</div>
+                <div class="amount" id="electricityTotalDisplay">฿0.00</div>
+            </div>
+        </div>
 
-                                    <!-- Penalty -->
-                                    <div class="utility-card">
-                                        <div class="utility-title">
-                                            <i class="fas fa-exclamation-triangle"></i>
-                                            ค่าปรับ (ถ้ามี)
-                                        </div>
-                                        <div class="form-group">
-                                            <input type="number" id="penalty" name="penalty" 
-                                                   class="form-control" value="0" min="0"/>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+        <!-- Penalty -->
+        <div class="utility-card">
+            <div class="utility-title">
+                <i class="fas fa-exclamation-triangle"></i>
+                ค่าปรับ (ถ้ามี)
+            </div>
+            <div class="form-group">
+                <input type="number" id="penalty" name="penalty" 
+                       class="form-control" value="0" min="0" step="0.01"/>
+            </div>
+        </div>
+    </div>
+</div>
 
                             <!-- Total Section -->
                             <div class="total-section">
@@ -671,7 +661,6 @@ if (loginManager == null) {
                                         <label for="statusSelect">สถานะการชำระ:</label>
                                         <select name="statusId" id="statusSelect" class="form-control">
                                             <option value="0">ยังไม่ได้ชำระ</option>
-                                            <option value="1">ชำระแล้ว</option>
                                         </select>
                                     </div>
                                 </div>
@@ -882,6 +871,84 @@ if (loginManager == null) {
         if (window.history.replaceState) {
             window.history.replaceState(null, null, window.location.href);
         }
+
+        function checkMeterReading() {
+    const prevWater = parseFloat(document.getElementById('prevWater').value) || 0;
+    const currWater = parseFloat(document.getElementById('currWater').value) || 0;
+    const prevElectric = parseFloat(document.getElementById('prevElectric').value) || 0;
+    const currElectric = parseFloat(document.getElementById('currElectric').value) || 0;
+    
+    const warningDiv = document.getElementById('meterWarning');
+    const warningMsg = document.getElementById('warningMessage');
+    const waterInput = document.getElementById('currWater');
+    const electricInput = document.getElementById('currElectric');
+    
+    let warnings = [];
+    
+    // เช็คค่าน้ำ
+    if (currWater < prevWater && currWater > 0) {
+        warnings.push('เลขมิเตอร์น้ำปัจจุบัน (' + currWater + ') น้อยกว่าเดือนก่อน (' + prevWater + ')');
+        waterInput.style.borderColor = '#ffc107';
+    } else {
+        waterInput.style.borderColor = 'rgba(255, 140, 0, 0.3)';
+    }
+    
+    // เช็คค่าไฟ
+    if (currElectric < prevElectric && currElectric > 0) {
+        warnings.push('เลขมิเตอร์ไฟฟ้าปัจจุบัน (' + currElectric + ') น้อยกว่าเดือนก่อน (' + prevElectric + ')');
+        electricInput.style.borderColor = '#ffc107';
+    } else {
+        electricInput.style.borderColor = 'rgba(255, 140, 0, 0.3)';
+    }
+    
+    // แสดง warning
+    if (warnings.length > 0) {
+        warningMsg.textContent = warnings.join(' และ ');
+        warningDiv.style.display = 'flex';
+    } else {
+        warningDiv.style.display = 'none';
+    }
+    
+    // คำนวณค่าใช้จ่าย
+    calculateTotal();
+}
+
+// อัปเดต validateForm function เดิม
+function validateForm() {
+    const totalPrice = parseFloat(document.getElementById('totalPrice').value) || 0;
+
+    if (totalPrice < 0) {
+        showToast('ยอดรวมไม่สามารถติดลบได้', 'error');
+        return false;
+    }
+
+    const prevWater = parseFloat(document.getElementById("prevWater").value) || 0;
+    const currWater = parseFloat(document.getElementById("currWater").value) || 0;
+    const prevElectric = parseFloat(document.getElementById("prevElectric").value) || 0;
+    const currElectric = parseFloat(document.getElementById("currElectric").value) || 0;
+
+    // เช็คว่าหน่วยปัจจุบันน้อยกว่าเดือนก่อนหรือไม่
+    if (currWater < prevWater) {
+        alert('❌ เลขมิเตอร์น้ำปัจจุบัน (' + currWater + ') ต้องมากกว่าหรือเท่ากับเดือนก่อน (' + prevWater + ')');
+        document.getElementById('currWater').focus();
+        return false;
+    }
+
+    if (currElectric < prevElectric) {
+        alert('❌ เลขมิเตอร์ไฟฟ้าปัจจุบัน (' + currElectric + ') ต้องมากกว่าหรือเท่ากับเดือนก่อน (' + prevElectric + ')');
+        document.getElementById('currElectric').focus();
+        return false;
+    }
+
+    document.getElementById('loading').style.display = 'flex';
+    return true;
+}
+
+// เรียกใช้ checkMeterReading เมื่อโหลดหน้าเสร็จ
+window.addEventListener('load', function() {
+    checkMeterReading();
+    calculateTotal();
+});
     </script>
 </body>
 </html>

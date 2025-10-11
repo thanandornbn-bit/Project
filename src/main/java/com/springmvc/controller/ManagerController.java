@@ -1,5 +1,8 @@
 package com.springmvc.controller;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,6 +20,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.springmvc.model.Room;
 import com.springmvc.model.Invoice;
 import com.springmvc.model.InvoiceDetail;
+import com.springmvc.model.InvoiceType;
 import com.springmvc.model.Manager;
 import com.springmvc.model.Member;
 import com.springmvc.model.Rent;
@@ -251,147 +255,6 @@ public class ManagerController {
 		return "redirect:/OwnerHome";
 	}
 
-	
-
-	// แก้ไขใบแจ้งหนี้ของห้องที่เลือก
-	@RequestMapping(value = "/EditInvoice", method = RequestMethod.GET)
-	public ModelAndView showEditInvoice(@RequestParam("roomID") int roomID, HttpSession session) {
-		Manager manager = (Manager) session.getAttribute("loginManager");
-		if (manager == null) {
-			return new ModelAndView("redirect:/Login");
-		}
-
-		ThanachokManager tm = new ThanachokManager();
-
-		Room room = tm.findRoomById(roomID);
-
-		List<Invoice> invoices = tm.getInvoicesByRoomID(roomID);
-
-		ModelAndView mav = new ModelAndView("EditInvoice");
-		mav.addObject("room", room);
-		mav.addObject("invoices", invoices);
-		return mav;
-	}
-
-	// แสดงฟอร์มแก้ไขใบแจ้งหนี้เฉพาะห้องที่เลือก
-	@RequestMapping(value = "/EditInvoiceForm", method = RequestMethod.GET)
-	public ModelAndView showEditInvoiceForm(@RequestParam("invoiceId") int invoiceId, HttpSession session) {
-		Manager manager = (Manager) session.getAttribute("loginManager");
-		if (manager == null) {
-			return new ModelAndView("redirect:/Login");
-		}
-
-		ThanachokManager tm = new ThanachokManager();
-		Invoice invoice = tm.getInvoiceWithDetails(invoiceId);
-		if (invoice == null) {
-			ModelAndView mav = new ModelAndView("EditInvoice");
-			mav.addObject("error", "ไม่พบใบแจ้งหนี้ที่ต้องการแก้ไข");
-			return mav;
-		}
-
-		ModelAndView mav = new ModelAndView("EditInvoiceForm");
-		mav.addObject("invoice", invoice);
-		mav.addObject("invoiceDetails", invoice.getDetails());
-		return mav;
-	}
-
-	// บันทึกการแก้ไขใบแจ้งหนี้
-	@RequestMapping(value = "/UpdateInvoice", method = RequestMethod.POST)
-	public ModelAndView updateInvoice(HttpServletRequest request, HttpSession session) {
-		Manager manager = (Manager) session.getAttribute("loginManager");
-		if (manager == null) {
-			return new ModelAndView("redirect:/Login");
-		}
-
-		try {
-			int invoiceId = Integer.parseInt(request.getParameter("invoiceId"));
-			int status = Integer.parseInt(request.getParameter("status"));
-
-			ThanachokManager tm = new ThanachokManager();
-			Invoice invoice = tm.getInvoiceById(invoiceId);
-
-			if (invoice != null) {
-				invoice.setStatus(status);
-				tm.updateInvoice(invoice);
-
-				ModelAndView mav = new ModelAndView("redirect:/EditInvoice");
-				mav.addObject("roomID", invoice.getRent().getRoom().getRoomID());
-				mav.addObject("message", "อัปเดตใบแจ้งหนี้เรียบร้อยแล้ว");
-				return mav;
-			} else {
-				ModelAndView mav = new ModelAndView("EditInvoiceForm");
-				mav.addObject("error", "ไม่พบใบแจ้งหนี้ที่ต้องการอัปเดต");
-				return mav;
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			ModelAndView mav = new ModelAndView("EditInvoiceForm");
-			mav.addObject("error", "เกิดข้อผิดพลาดในการอัปเดตข้อมูล: " + e.getMessage());
-			return mav;
-		}
-	}
-
-	//ลบใบแจ้งหนี้
-	@RequestMapping(value = "/DeleteInvoice", method = RequestMethod.GET)
-	public String deleteInvoice(@RequestParam("invoiceId") int invoiceId,
-			@RequestParam("roomID") int roomID,
-			HttpSession session,
-			RedirectAttributes redirectAttributes) {
-
-		System.out.println("=== Delete Invoice Request ===");
-		System.out.println("Invoice ID: " + invoiceId);
-		System.out.println("Room ID: " + roomID);
-
-		Manager manager = (Manager) session.getAttribute("loginManager");
-		if (manager == null) {
-			System.out.println("No manager session - redirecting to login");
-			return "redirect:/Login";
-		}
-
-		try {
-			ThanachokManager tm = new ThanachokManager();
-			// ตรวจสอบว่าใบแจ้งหนี้มีอยู่จริงและดึงข้อมูล
-			Invoice invoice = tm.getInvoiceWithStatus(invoiceId);
-			if (invoice == null) {
-				redirectAttributes.addFlashAttribute("error",
-						"ไม่พบใบแจ้งหนี้ที่ต้องการลบ (ID: " + invoiceId + ")");
-				return "redirect:/EditInvoice?roomID=" + roomID;
-			}
-			// ตรวจสอบสถานะการชำระ
-			if (invoice.getStatus() == 1) {
-				redirectAttributes.addFlashAttribute("error",
-						"ไม่สามารถลบใบแจ้งหนี้ INV-" + invoiceId + " ได้ เนื่องจากได้ชำระเงินแล้ว");
-				System.out.println("Cannot delete paid invoice: " + invoiceId);
-				return "redirect:/EditInvoice?roomID=" + roomID;
-			}
-
-			// ลบใบแจ้งหนี้
-			System.out.println("Attempting to delete unpaid invoice: " + invoiceId);
-			boolean deleted = tm.deleteInvoice(invoiceId);
-
-			if (deleted) {
-				redirectAttributes.addFlashAttribute("message",
-						"ลบใบแจ้งหนี้ INV-" + invoiceId + " เรียบร้อยแล้ว");
-				System.out.println("Successfully deleted invoice: " + invoiceId);
-			} else {
-				redirectAttributes.addFlashAttribute("error",
-						"ไม่สามารถลบใบแจ้งหนี้ได้ กรุณาลองใหม่อีกครั้ง");
-				System.out.println("Failed to delete invoice: " + invoiceId);
-			}
-
-		} catch (RuntimeException re) {
-			System.out.println("Runtime exception: " + re.getMessage());
-			redirectAttributes.addFlashAttribute("error", re.getMessage());
-		} catch (Exception e) {
-			System.out.println("General exception: " + e.getMessage());
-			e.printStackTrace();
-			redirectAttributes.addFlashAttribute("error",
-					"เกิดข้อผิดพลาดในระบบ: " + e.getMessage());
-		}
-
-		return "redirect:/EditInvoice?roomID=" + roomID;
-	}
 
 	//เช็คสถานะใบแจ้งหนี้
 	@RequestMapping(value = "/CheckInvoiceStatus", method = RequestMethod.GET)
@@ -442,5 +305,8 @@ public class ManagerController {
 		mav.addObject("invoiceDetails", invoice.getDetails());
 		return mav;
 	}
+
+
+
 
 }

@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -1235,6 +1236,387 @@ public List<Invoice> findInvoicesByMember(int memberID) {
     } catch (Exception e) {
         e.printStackTrace();
         return Collections.emptyList();
+    }
+}
+
+
+// เช็คว่ามีบิลในเดือนปัจจุบันสำหรับห้องนี้หรือยัง
+public boolean hasInvoiceForCurrentMonth(int roomID) {
+    Session session = null;
+    try {
+        SessionFactory sessionFactory = HibernateConnection.doHibernateConnection();
+        session = sessionFactory.openSession();
+
+        // หาเดือนและปีปัจจุบัน
+        java.time.LocalDate now = java.time.LocalDate.now();
+        int currentMonth = now.getMonthValue();
+        int currentYear = now.getYear();
+
+        String hql = "SELECT COUNT(i) FROM Invoice i " +
+                "WHERE i.rent.room.roomID = :roomID " +
+                "AND MONTH(i.issueDate) = :month " +
+                "AND YEAR(i.issueDate) = :year";
+
+        Query<Long> query = session.createQuery(hql, Long.class);
+        query.setParameter("roomID", roomID);
+        query.setParameter("month", currentMonth);
+        query.setParameter("year", currentYear);
+
+        Long count = query.uniqueResult();
+        return count != null && count > 0;
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        return false;
+    } finally {
+        if (session != null) {
+            session.close();
+        }
+    }
+}
+
+
+
+
+
+
+// แทนที่ method เดิมใน ThanachokManager.java ด้วย method ใหม่นี้
+
+/**
+ * อัปเดต Invoice และ InvoiceDetails แบบเต็มรูปแบบ
+ * แก้ไขให้ทำงานกับ Hibernate orphanRemoval ได้ถูกต้อง
+ */
+public boolean updateInvoiceFull(Invoice invoice, List<InvoiceDetail> oldDetails) {
+    Session session = null;
+    Transaction tx = null;
+    try {
+        SessionFactory sessionFactory = HibernateConnection.doHibernateConnection();
+        session = sessionFactory.openSession();
+        tx = session.beginTransaction();
+
+        System.out.println("=== Starting Invoice Update ===");
+        System.out.println("Invoice ID: " + invoice.getInvoiceId());
+        System.out.println("Old details count: " + (oldDetails != null ? oldDetails.size() : 0));
+        System.out.println("New details count: " + (invoice.getDetails() != null ? invoice.getDetails().size() : 0));
+
+        // ดึง Invoice จากฐานข้อมูลใน session นี้
+        Invoice dbInvoice = session.get(Invoice.class, invoice.getInvoiceId());
+        
+        if (dbInvoice == null) {
+            System.out.println("ERROR: Invoice not found in database");
+            return false;
+        }
+
+        // อัปเดตข้อมูลพื้นฐานของ Invoice
+        dbInvoice.setIssueDate(invoice.getIssueDate());
+        dbInvoice.setDueDate(invoice.getDueDate());
+        dbInvoice.setTotalAmount(invoice.getTotalAmount());
+        dbInvoice.setStatus(invoice.getStatus());
+
+        System.out.println("Updated basic invoice info");
+
+        // ลบ InvoiceDetails เดิมทั้งหมด (ใช้ orphanRemoval)
+        dbInvoice.getDetails().clear();
+        session.flush(); // บังคับให้ลบทันที
+        
+        System.out.println("Cleared old details");
+
+        // เพิ่ม InvoiceDetails ใหม่
+        if (invoice.getDetails() != null && !invoice.getDetails().isEmpty()) {
+            for (InvoiceDetail newDetail : invoice.getDetails()) {
+                // สร้าง detail ใหม่ที่ยังไม่ถูก persist
+                InvoiceDetail detail = new InvoiceDetail();
+                detail.setInvoice(dbInvoice);
+                detail.setType(newDetail.getType());
+                detail.setPrice(newDetail.getPrice());
+                detail.setQuantity(newDetail.getQuantity());
+                detail.setAmount(newDetail.getAmount());
+                
+                dbInvoice.getDetails().add(detail);
+                System.out.println("Added detail: " + newDetail.getType().getTypeName() + 
+                                 " = " + newDetail.getAmount());
+            }
+        }
+
+        // บันทึกการเปลี่ยนแปลง
+        session.update(dbInvoice);
+        
+        tx.commit();
+        System.out.println("=== Invoice Update SUCCESS ===");
+        return true;
+
+    } catch (Exception e) {
+        if (tx != null && tx.isActive()) {
+            tx.rollback();
+            System.out.println("Transaction rolled back");
+        }
+        System.out.println("=== Invoice Update FAILED ===");
+        System.out.println("Error: " + e.getMessage());
+        e.printStackTrace();
+        return false;
+    } finally {
+        if (session != null) {
+            session.close();
+        }
+    }
+}
+
+/**
+ * ดึงข้อมูล Invoice พร้อม Details แบบละเอียด (สำหรับแก้ไข)
+ * รวมถึงข้อมูล Rent, Member, และ Room
+ */
+public Invoice getInvoiceForEdit(int invoiceId) {
+    Session session = null;
+    try {
+        SessionFactory sessionFactory = HibernateConnection.doHibernateConnection();
+        session = sessionFactory.openSession();
+
+        String hql = "SELECT DISTINCT i FROM Invoice i " +
+                "LEFT JOIN FETCH i.details d " +
+                "LEFT JOIN FETCH d.type t " +
+                "LEFT JOIN FETCH i.rent r " +
+                "LEFT JOIN FETCH r.member m " +
+                "LEFT JOIN FETCH r.room room " +
+                "WHERE i.invoiceId = :invoiceId";
+
+        Query<Invoice> query = session.createQuery(hql, Invoice.class);
+        query.setParameter("invoiceId", invoiceId);
+
+        Invoice invoice = query.uniqueResult();
+        
+        if (invoice != null) {
+            // Force initialization of lazy collections
+            invoice.getDetails().size();
+            System.out.println("Retrieved invoice " + invoiceId + " with " + 
+                             invoice.getDetails().size() + " details");
+        }
+
+        return invoice;
+
+    } catch (Exception e) {
+        System.out.println("Error retrieving invoice for edit: " + e.getMessage());
+        e.printStackTrace();
+        return null;
+    } finally {
+        if (session != null) {
+            session.close();
+        }
+    }
+}
+
+/**
+ * ลบ InvoiceDetails ทั้งหมดของ Invoice (ถ้าต้องการใช้)
+ */
+public boolean deleteInvoiceDetails(int invoiceId) {
+    Session session = null;
+    Transaction tx = null;
+    try {
+        SessionFactory sessionFactory = HibernateConnection.doHibernateConnection();
+        session = sessionFactory.openSession();
+        tx = session.beginTransaction();
+
+        String hql = "DELETE FROM InvoiceDetail d WHERE d.invoice.invoiceId = :invoiceId";
+        int deletedCount = session.createQuery(hql)
+                .setParameter("invoiceId", invoiceId)
+                .executeUpdate();
+
+        tx.commit();
+        System.out.println("Deleted " + deletedCount + " invoice details for invoice " + invoiceId);
+        return true;
+
+    } catch (Exception e) {
+        if (tx != null && tx.isActive()) {
+            tx.rollback();
+        }
+        System.out.println("Error deleting invoice details: " + e.getMessage());
+        e.printStackTrace();
+        return false;
+    } finally {
+        if (session != null) {
+            session.close();
+        }
+    }
+}
+
+
+
+
+
+
+// เพิ่ม methods เหล่านี้ใน ThanachokManager.java
+
+/**
+ * ดึงบิลล่าสุดของห้อง เพื่อเอาเลขมิเตอร์มาใช้
+ */
+public Invoice getLatestInvoiceByRoomID(int roomID) {
+    Session session = null;
+    try {
+        SessionFactory sessionFactory = HibernateConnection.doHibernateConnection();
+        session = sessionFactory.openSession();
+
+        String hql = "SELECT DISTINCT i FROM Invoice i " +
+                "LEFT JOIN FETCH i.details d " +
+                "LEFT JOIN FETCH d.type t " +
+                "LEFT JOIN FETCH i.rent r " +
+                "WHERE r.room.roomID = :roomID " +
+                "ORDER BY i.issueDate DESC, i.invoiceId DESC";
+
+        Query<Invoice> query = session.createQuery(hql, Invoice.class);
+        query.setParameter("roomID", roomID);
+        query.setMaxResults(1);
+
+        List<Invoice> results = query.list();
+        
+        if (!results.isEmpty()) {
+            Invoice invoice = results.get(0);
+            System.out.println("Found latest invoice ID: " + invoice.getInvoiceId() + 
+                             " for room " + roomID);
+            return invoice;
+        }
+        
+        System.out.println("No previous invoice found for room " + roomID);
+        return null;
+
+    } catch (Exception e) {
+        System.out.println("Error getting latest invoice: " + e.getMessage());
+        e.printStackTrace();
+        return null;
+    } finally {
+        if (session != null) {
+            session.close();
+        }
+    }
+}
+
+/**
+ * ดึงค่ามิเตอร์จากบิลล่าสุด
+ * @return Map with keys: prevWater, prevElectric, waterRate, electricRate
+ */
+public java.util.Map<String, Integer> getPreviousMeterReadings(int roomID) {
+    java.util.Map<String, Integer> readings = new java.util.HashMap<>();
+    readings.put("prevWater", 0);
+    readings.put("prevElectric", 0);
+    readings.put("waterRate", 18); // ค่า default
+    readings.put("electricRate", 7); // ค่า default
+
+    try {
+        Invoice latestInvoice = getLatestInvoiceByRoomID(roomID);
+        
+        if (latestInvoice != null && latestInvoice.getDetails() != null) {
+            for (InvoiceDetail detail : latestInvoice.getDetails()) {
+                String typeName = detail.getType().getTypeName();
+                
+                if ("ค่าน้ำ".equals(typeName)) {
+                    // เลขครั้งก่อน = เลขครั้งนี้จากบิลก่อนหน้า
+                    readings.put("prevWater", detail.getQuantity());
+                    readings.put("waterRate", detail.getPrice().intValue());
+                    System.out.println("Previous water meter: " + detail.getQuantity() + 
+                                     " @ " + detail.getPrice() + " baht/unit");
+                } 
+                else if ("ค่าไฟฟ้า".equals(typeName)) {
+                    readings.put("prevElectric", detail.getQuantity());
+                    readings.put("electricRate", detail.getPrice().intValue());
+                    System.out.println("Previous electric meter: " + detail.getQuantity() + 
+                                     " @ " + detail.getPrice() + " baht/unit");
+                }
+            }
+        }
+        
+    } catch (Exception e) {
+        System.out.println("Error getting previous meter readings: " + e.getMessage());
+        e.printStackTrace();
+    }
+
+    return readings;
+}
+
+/**
+ * คำนวณเลขมิเตอร์ปัจจุบันจาก usage ที่บันทึกไว้
+ * สำหรับใช้ในหน้าแก้ไข
+ */
+public java.util.Map<String, Integer> calculateCurrentMeterFromUsage(Invoice invoice) {
+    java.util.Map<String, Integer> meters = new java.util.HashMap<>();
+    meters.put("currWater", 0);
+    meters.put("currElectric", 0);
+    
+    try {
+        // ดึงข้อมูลจากบิลก่อนหน้า
+        int roomID = invoice.getRent().getRoom().getRoomID();
+        java.util.Map<String, Integer> prevReadings = getPreviousMeterReadings(roomID);
+        
+        // คำนวณเลขปัจจุบันจาก quantity ที่บันทึกไว้
+        if (invoice.getDetails() != null) {
+            for (InvoiceDetail detail : invoice.getDetails()) {
+                String typeName = detail.getType().getTypeName();
+                
+                if ("ค่าน้ำ".equals(typeName)) {
+                    int prevWater = prevReadings.get("prevWater");
+                    int waterUsage = detail.getQuantity();
+                    meters.put("currWater", prevWater + waterUsage);
+                    System.out.println("Calculated current water: " + (prevWater + waterUsage) + 
+                                     " (prev: " + prevWater + " + usage: " + waterUsage + ")");
+                }
+                else if ("ค่าไฟฟ้า".equals(typeName)) {
+                    int prevElectric = prevReadings.get("prevElectric");
+                    int electricUsage = detail.getQuantity();
+                    meters.put("currElectric", prevElectric + electricUsage);
+                    System.out.println("Calculated current electric: " + (prevElectric + electricUsage) + 
+                                     " (prev: " + prevElectric + " + usage: " + electricUsage + ")");
+                }
+            }
+        }
+        
+    } catch (Exception e) {
+        System.out.println("Error calculating current meter: " + e.getMessage());
+        e.printStackTrace();
+    }
+    
+    return meters;
+}
+
+/**
+ * หาบิลก่อนหน้าของบิลที่กำลังแก้ไข
+ * ใช้สำหรับดึงเลขมิเตอร์ครั้งก่อนในหน้าแก้ไข
+ */
+public Invoice getInvoiceBeforeDate(int roomID, LocalDate currentInvoiceDate) {
+    Session session = null;
+    try {
+        SessionFactory sessionFactory = HibernateConnection.doHibernateConnection();
+        session = sessionFactory.openSession();
+
+        String hql = "SELECT DISTINCT i FROM Invoice i " +
+                "LEFT JOIN FETCH i.details d " +
+                "LEFT JOIN FETCH d.type t " +
+                "LEFT JOIN FETCH i.rent r " +
+                "WHERE r.room.roomID = :roomID " +
+                "AND i.issueDate < :currentDate " +
+                "ORDER BY i.issueDate DESC, i.invoiceId DESC";
+
+        Query<Invoice> query = session.createQuery(hql, Invoice.class);
+        query.setParameter("roomID", roomID);
+        query.setParameter("currentDate", currentInvoiceDate);
+        query.setMaxResults(1);
+
+        List<Invoice> results = query.list();
+        
+        if (!results.isEmpty()) {
+            Invoice invoice = results.get(0);
+            System.out.println("Found previous invoice ID: " + invoice.getInvoiceId() + 
+                             " (date: " + invoice.getIssueDate() + ") for room " + roomID);
+            return invoice;
+        }
+        
+        System.out.println("No invoice before " + currentInvoiceDate + " found for room " + roomID);
+        return null;
+
+    } catch (Exception e) {
+        System.out.println("Error getting invoice before date: " + e.getMessage());
+        e.printStackTrace();
+        return null;
+    } finally {
+        if (session != null) {
+            session.close();
+        }
     }
 }
 
