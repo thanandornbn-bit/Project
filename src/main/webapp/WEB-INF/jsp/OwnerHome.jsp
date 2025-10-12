@@ -902,6 +902,10 @@
                                                     style="margin-left: 5px; font-size: 0.7rem;">${pendingCount}</span>
                                             </c:if>
                                         </a>
+                                        <a href="ListReturnRoom">
+                                            <i class=""></i>
+                                            รายงานการคืนห้อง
+                                        </a>
                                     </div>
 
                                     <div class="search-form">
@@ -914,7 +918,7 @@
                                                 <label for="floor">ชั้น:</label>
                                                 <select name="floor" id="floor">
                                                     <option value="">ทั้งหมด</option>
-                                                    <c:forEach var="i" begin="1" end="9">
+                                                    <c:forEach var="i" begin="1" end="5">
                                                         <option value="${i}" ${param.floor==i ? 'selected' : '' }>ชั้น
                                                             ${i}</option>
                                                     </c:forEach>
@@ -936,11 +940,6 @@
                                                 <i class="fas fa-search"></i>
                                                 ค้นหา
                                             </button>
-
-                                            <button type="button" class="clear-btn" onclick="clearFilters()">
-                                                <i class="fas fa-times"></i>
-                                                ล้างตัวกรอง
-                                            </button>
                                         </form>
                                     </div>
 
@@ -950,16 +949,6 @@
                                                 <i class="fas fa-list"></i>
                                                 รายการห้องพัก
                                             </h2>
-                                            <div class="table-info">
-                                                <c:choose>
-                                                    <c:when test="${not empty param.floor || not empty param.status}">
-                                                        แสดงผลการค้นหา: ${roomList.size()} ห้อง
-                                                    </c:when>
-                                                    <c:otherwise>
-                                                        ห้องทั้งหมด: ${roomList.size()} ห้อง
-                                                    </c:otherwise>
-                                                </c:choose>
-                                            </div>
                                         </div>
 
                                         <c:choose>

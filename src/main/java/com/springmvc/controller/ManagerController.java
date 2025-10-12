@@ -307,6 +307,95 @@ public class ManagerController {
 	}
 
 
+	// คืนห้อง / ยกเลิกการจอง (Manager สามารถทำได้เลยโดยไม่มีเงื่อนไข)
+@RequestMapping(value = "/ManagerReturnRoom", method = RequestMethod.POST)
+public String returnRoom(@RequestParam("rentId") int rentId,
+                         @RequestParam("roomNumber") String roomNumber,
+                         @RequestParam(value = "status", required = false) String status,
+                         RedirectAttributes redirectAttributes) {
+    
+    ThanachokManager tm = new ThanachokManager();
+    
+    // Manager สามารถคืนห้องได้เลย ไม่ต้องเช็คบิลค้างชำระ
+    boolean success = tm.managerreturnRoom(rentId);
+    
+    if (success) {
+        // ข้อความแตกต่างกันตามสถานะ
+        if ("รอดำเนินการ".equals(status)) {
+            redirectAttributes.addFlashAttribute("message", 
+                "✅ ยกเลิกการจองห้อง " + roomNumber + " เรียบร้อยแล้ว\n" +
+                "ห้องพร้อมให้จองใหม่");
+        } else {
+            redirectAttributes.addFlashAttribute("message", 
+                "✅ คืนห้อง " + roomNumber + " เรียบร้อยแล้ว\n" +
+                "ห้องพร้อมให้เช่าใหม่");
+        }
+    } else {
+        redirectAttributes.addFlashAttribute("error", 
+            "❌ เกิดข้อผิดพลาดในการคืนห้อง กรุณาลองใหม่อีกครั้ง");
+    }
+    
+    return "redirect:/OViewReserve";
+}
+
+
+
+// แสดงรายการคำขอคืนห้อง
+@RequestMapping(value = "/ListReturnRoom", method = RequestMethod.GET)
+public ModelAndView listReturnRequests(HttpSession session) {
+    Manager manager = (Manager) session.getAttribute("loginManager");
+    if (manager == null) {
+        return new ModelAndView("redirect:/Login");
+    }
+
+    ThanachokManager tm = new ThanachokManager();
+    List<RentalDeposit> returnRequests = tm.findPendingReturnRequests();
+
+    ModelAndView mav = new ModelAndView("ListReturnRoom");
+    mav.addObject("returnRequests", returnRequests);
+    mav.addObject("requestCount", returnRequests.size());
+    return mav;
+}
+
+// อนุมัติการคืนห้อง
+@RequestMapping(value = "/ApproveReturnRoom", method = RequestMethod.POST)
+public String approveReturnRoom(@RequestParam("rentId") int rentId,
+                                @RequestParam("roomNumber") String roomNumber,
+                                RedirectAttributes redirectAttributes) {
+    
+    ThanachokManager tm = new ThanachokManager();
+    boolean success = tm.approveReturnRoom(rentId);
+    
+    if (success) {
+        redirectAttributes.addFlashAttribute("message", 
+            "✅ อนุมัติการคืนห้อง " + roomNumber + " เรียบร้อยแล้ว\nห้องพร้อมให้เช่าใหม่");
+    } else {
+        redirectAttributes.addFlashAttribute("error", 
+            "❌ เกิดข้อผิดพลาดในการอนุมัติ กรุณาลองใหม่อีกครั้ง");
+    }
+    
+    return "redirect:/ListReturnRoom";
+}
+
+// ยกเลิกคำขอคืนห้อง
+@RequestMapping(value = "/RejectReturnRoom", method = RequestMethod.POST)
+public String rejectReturnRoom(@RequestParam("rentId") int rentId,
+                               @RequestParam("roomNumber") String roomNumber,
+                               RedirectAttributes redirectAttributes) {
+    
+    ThanachokManager tm = new ThanachokManager();
+    boolean success = tm.cancelReturnRequest(rentId);
+    
+    if (success) {
+        redirectAttributes.addFlashAttribute("message", 
+            "❌ ปฏิเสธคำขอคืนห้อง " + roomNumber + " แล้ว");
+    } else {
+        redirectAttributes.addFlashAttribute("error", 
+            "เกิดข้อผิดพลาดในการปฏิเสธคำขอ");
+    }
+    
+    return "redirect:/ListReturnRoom";
+}
 
 
 }

@@ -10,6 +10,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import com.springmvc.model.Manager;
 import com.springmvc.model.Member;
+import com.springmvc.model.RentalDeposit;
 import com.springmvc.model.Room;
 import com.springmvc.model.ThanachokManager;
 

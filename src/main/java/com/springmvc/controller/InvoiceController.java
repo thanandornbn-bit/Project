@@ -130,11 +130,6 @@ public String saveInvoice(HttpServletRequest request,
         int currElectric = Integer.parseInt(request.getParameter("currElectric"));
         double electricRate = Double.parseDouble(request.getParameter("electricRate"));
 
-        System.out.println("=== Save Invoice Request ===");
-        System.out.println("Rent ID: " + rentId);
-        System.out.println("Water: " + prevWater + " -> " + currWater + " (usage: " + (currWater - prevWater) + ")");
-        System.out.println("Electric: " + prevElectric + " -> " + currElectric + " (usage: " + (currElectric - prevElectric) + ")");
-        System.out.println("Total Price: " + totalPrice);
 
         // ตรวจสอบข้อมูล
         ThanachokManager tm = new ThanachokManager();

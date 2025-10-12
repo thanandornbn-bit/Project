@@ -4,8 +4,6 @@
 <%@ taglib prefix="fn" uri="jakarta.tags.functions"%>
 <%@ page session="true"%>
 <%@ page import="com.springmvc.model.Member"%>
-<%@ page import="java.util.*"%>
-<%@ page import="com.springmvc.model.*"%>
 
 <%
 Member loginMember = (Member) session.getAttribute("loginMember");
@@ -20,7 +18,7 @@ if (loginMember == null) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ประวัติการจองห้องพัก - ThanaChok Place</title>
+    <title>ประวัติการจอง - ThanaChok Place</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
         * {
@@ -38,7 +36,6 @@ if (loginMember == null) {
             overflow-x: hidden;
         }
 
-        
         .bg-animation {
             position: fixed;
             top: 0;
@@ -53,10 +50,10 @@ if (loginMember == null) {
             position: absolute;
             width: 100px;
             height: 100px;
-            background: rgba(255, 140, 0, 0.1);
+            background: rgba(155, 89, 182, 0.1);
             border-radius: 50%;
             animation: float 6s ease-in-out infinite;
-            box-shadow: 0 0 30px rgba(255, 140, 0, 0.2);
+            box-shadow: 0 0 30px rgba(155, 89, 182, 0.2);
         }
 
         .floating-shapes:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
@@ -69,36 +66,45 @@ if (loginMember == null) {
             50% { transform: translateY(-20px) rotate(180deg); }
         }
 
-        
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: rgba(155, 89, 182, 0.5);
+            border-radius: 50%;
+            animation: particleFloat 8s linear infinite;
+            box-shadow: 0 0 10px rgba(155, 89, 182, 0.5);
+        }
+
+        @keyframes particleFloat {
+            0% { opacity: 0; transform: translateY(100vh) scale(0); }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { opacity: 0; transform: translateY(-100vh) scale(1); }
+        }
+
         .page-header {
-            background: linear-gradient(135deg, #ff8c00, #ff6b00);
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
             color: white;
             text-align: center;
             padding: 30px 20px;
             position: relative;
             z-index: 10;
-            box-shadow: 0 4px 20px rgba(255, 140, 0, 0.3);
-        }
-
-        .page-header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 2px;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
-            animation: scan 3s linear infinite;
-        }
-
-        @keyframes scan {
-            0% { left: -100%; }
-            100% { left: 100%; }
+            box-shadow: 0 4px 20px rgba(155, 89, 182, 0.3);
         }
 
         .page-header h1 {
             font-size: 2rem;
-            font-weight: bold;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -111,7 +117,6 @@ if (loginMember == null) {
             50% { text-shadow: 0 0 30px rgba(0, 0, 0, 0.5), 0 0 40px rgba(255, 255, 255, 0.3); }
         }
 
-      
         .nav {
             background: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(10px);
@@ -129,7 +134,6 @@ if (loginMember == null) {
             padding: 16px 24px;
             text-decoration: none;
             transition: all 0.3s ease;
-            position: relative;
             font-weight: 500;
         }
 
@@ -139,20 +143,18 @@ if (loginMember == null) {
         }
 
         .nav a.active {
-            background: linear-gradient(135deg, #ff8c00, #ff6b00);
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
             color: white;
         }
 
-        
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 30px auto;
             padding: 0 20px;
             position: relative;
             z-index: 1;
         }
 
-        
         .back-btn {
             display: inline-flex;
             align-items: center;
@@ -165,7 +167,6 @@ if (loginMember == null) {
             text-decoration: none;
             border-radius: 10px;
             transition: all 0.3s ease;
-            font-weight: 500;
         }
 
         .back-btn:hover {
@@ -173,14 +174,13 @@ if (loginMember == null) {
             transform: translateX(-5px);
         }
 
-       
         .welcome-section {
             background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
             padding: 25px;
             border-radius: 15px;
             margin-bottom: 25px;
+            border: 1px solid rgba(155, 89, 182, 0.3);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 140, 0, 0.3);
             animation: slideIn 0.6s ease-out;
         }
 
@@ -190,7 +190,7 @@ if (loginMember == null) {
         }
 
         .welcome-section h3 {
-            color: #ff8c00;
+            color: #9b59b6;
             margin-bottom: 10px;
             font-size: 1.5rem;
             display: flex;
@@ -200,26 +200,27 @@ if (loginMember == null) {
 
         .welcome-section p {
             color: #ccc;
+            font-size: 1rem;
         }
 
-        
+        /* Stats Grid */
         .rental-stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 20px;
             margin-bottom: 25px;
         }
 
         .stat-card {
             background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
-            padding: 25px;
+            padding: 30px;
             border-radius: 15px;
             text-align: center;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             transition: all 0.3s ease;
+            border: 1px solid rgba(155, 89, 182, 0.3);
             position: relative;
             overflow: hidden;
-            border: 1px solid rgba(255, 140, 0, 0.3);
         }
 
         .stat-card::before {
@@ -233,49 +234,45 @@ if (loginMember == null) {
 
         .stat-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 12px 40px rgba(255, 140, 0, 0.3);
+            box-shadow: 0 12px 40px rgba(155, 89, 182, 0.4);
         }
 
-        .stat-card .stat-icon {
-            font-size: 2.5rem;
+        .stat-card.pending-approval::before { background: linear-gradient(90deg, #ffa726, #f57c00); }
+        .stat-card.pending-approval .stat-number,
+        .stat-card.pending-approval .stat-icon { color: #ffa726; }
+
+        .stat-card.completed::before { background: linear-gradient(90deg, #9b59b6, #8e44ad); }
+        .stat-card.completed .stat-number,
+        .stat-card.completed .stat-icon { color: #9b59b6; }
+
+        .stat-icon {
+            font-size: 3rem;
             margin-bottom: 15px;
         }
 
-        .stat-card .stat-number {
-            font-size: 2.5rem;
+        .stat-number {
+            font-size: 3rem;
             font-weight: bold;
-            margin-bottom: 5px;
+            margin-bottom: 10px;
         }
 
-        .stat-card .stat-label {
+        .stat-label {
             color: #999;
-            font-size: 1rem;
+            font-size: 1.1rem;
             font-weight: 500;
         }
 
-        .stat-card.active-rentals::before { background: linear-gradient(90deg, #ff4444, #cc0000); }
-        .stat-card.active-rentals .stat-number,
-        .stat-card.active-rentals .stat-icon { color: #ff4444; }
-
-        .stat-card.total-rentals::before { background: linear-gradient(90deg, #ff8c00, #ff6b00); }
-        .stat-card.total-rentals .stat-number,
-        .stat-card.total-rentals .stat-icon { color: #ff8c00; }
-
-        .stat-card.completed-rentals::before { background: linear-gradient(90deg, #00ff88, #00cc6f); }
-        .stat-card.completed-rentals .stat-number,
-        .stat-card.completed-rentals .stat-icon { color: #00ff88; }
-
-        
+        /* Alert */
         .alert {
             padding: 18px 25px;
             border-radius: 15px;
             margin-bottom: 25px;
-            font-weight: 500;
             display: flex;
             align-items: center;
             gap: 10px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            font-weight: 500;
             animation: slideIn 0.5s ease-out;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
 
         .alert i { font-size: 1.2rem; }
@@ -292,26 +289,61 @@ if (loginMember == null) {
             border: 1px solid rgba(255, 68, 68, 0.5);
         }
 
-        .alert-warning {
-            background: linear-gradient(135deg, #ffa726, #f57c00);
-            color: white;
-            border: 1px solid rgba(255, 167, 38, 0.5);
-        }
-
         .alert-info {
-            background: linear-gradient(135deg, #42a5f5, #1976d2);
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
             color: white;
-            border: 1px solid rgba(66, 165, 245, 0.5);
+            border: 1px solid rgba(155, 89, 182, 0.5);
         }
 
-       
+        /* Section */
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section-header {
+            background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
+            padding: 20px 25px;
+            border-radius: 15px 15px 0 0;
+            border: 1px solid rgba(155, 89, 182, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .section-header h2 {
+            font-size: 1.5rem;
+            color: #9b59b6;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-badge {
+            background: rgba(155, 89, 182, 0.2);
+            color: #9b59b6;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 1rem;
+            border: 1px solid rgba(155, 89, 182, 0.4);
+        }
+
+        /* Table */
         .table-container {
             background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
-            border-radius: 15px;
+            border-radius: 0 0 15px 15px;
             overflow: hidden;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 140, 0, 0.3);
-            animation: slideIn 0.8s ease-out;
+            border: 1px solid rgba(155, 89, 182, 0.3);
+            border-top: none;
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         .record-table {
@@ -320,8 +352,8 @@ if (loginMember == null) {
         }
 
         .record-table th {
-            background: linear-gradient(135deg, #ff8c00, #ff6b00);
-            color: white;
+            background: rgba(155, 89, 182, 0.1);
+            color: #9b59b6;
             padding: 18px 15px;
             text-align: center;
             font-weight: 600;
@@ -333,7 +365,7 @@ if (loginMember == null) {
         .record-table td {
             padding: 16px 15px;
             text-align: center;
-            border-bottom: 1px solid rgba(255, 140, 0, 0.1);
+            border-bottom: 1px solid rgba(155, 89, 182, 0.1);
             color: #ccc;
         }
 
@@ -342,11 +374,11 @@ if (loginMember == null) {
         }
 
         .record-table tbody tr:hover {
-            background: rgba(255, 140, 0, 0.1);
+            background: rgba(155, 89, 182, 0.1);
             transform: scale(1.01);
         }
 
-        
+        /* Status Badge */
         .status-badge {
             padding: 8px 16px;
             border-radius: 20px;
@@ -359,117 +391,42 @@ if (loginMember == null) {
             letter-spacing: 0.5px;
         }
 
-        .status-complete {
-            background: linear-gradient(135deg, #00ff88, #00cc6f);
-            color: #000;
-            box-shadow: 0 4px 10px rgba(0, 255, 136, 0.3);
-        }
-
-        .status-pending {
+        .status-pending-approval {
             background: linear-gradient(135deg, #ffa726, #f57c00);
             color: white;
             box-shadow: 0 4px 10px rgba(255, 167, 38, 0.3);
         }
 
-        .status-waiting {
-            background: linear-gradient(135deg, #ff4444, #cc0000);
-            color: white;
-            box-shadow: 0 4px 10px rgba(255, 68, 68, 0.3);
-        }
-
-        .status-returned {
+        .status-completed {
             background: linear-gradient(135deg, #9b59b6, #8e44ad);
             color: white;
             box-shadow: 0 4px 10px rgba(155, 89, 182, 0.3);
         }
 
-        
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            margin: 3px;
-        }
-
-        .btn-return {
-            background: linear-gradient(135deg, #ff4444, #cc0000);
-            color: white;
-            box-shadow: 0 4px 10px rgba(255, 68, 68, 0.3);
-        }
-
-        .btn-return:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(255, 68, 68, 0.5);
-        }
-
-        .btn-disabled {
-            background: #666;
-            color: #999;
-            cursor: not-allowed;
-        }
-
-        .btn-disabled:hover {
-            transform: none;
-            box-shadow: none;
-        }
-
-        
+        /* No Record */
         .no-record {
             text-align: center;
-            padding: 80px 20px;
-            background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
-            border-radius: 15px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(255, 140, 0, 0.3);
+            padding: 60px 20px;
+            color: #999;
         }
 
-        .no-record .no-record-icon {
-            font-size: 5rem;
-            color: #ff8c00;
-            margin-bottom: 25px;
-            opacity: 0.5;
-        }
-
-        .no-record h3 {
-            color: #ff8c00;
+        .no-record i {
+            font-size: 3rem;
             margin-bottom: 15px;
-            font-size: 1.8rem;
+            opacity: 0.5;
+            color: #9b59b6;
+        }
+
+        .no-record h4 {
+            color: #9b59b6;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
         }
 
         .no-record p {
-            color: #999;
-            font-size: 1.1rem;
-            margin-bottom: 30px;
+            color: #666;
         }
 
-        .no-record .cta-btn {
-            background: linear-gradient(135deg, #ff8c00, #ff6b00);
-            color: white;
-            padding: 15px 30px;
-            border-radius: 10px;
-            text-decoration: none;
-            font-weight: 500;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);
-        }
-
-        .no-record .cta-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 140, 0, 0.5);
-        }
-
-        
         .price {
             font-weight: 600;
             color: #00ff88;
@@ -478,12 +435,12 @@ if (loginMember == null) {
 
         .room-number {
             font-weight: 700;
-            color: #ff8c00;
+            color: #9b59b6;
             font-size: 1.1rem;
         }
 
         .room-description {
-            text-align: left;
+            text-align: center;
             max-width: 200px;
             margin: 0 auto;
             color: #999;
@@ -491,7 +448,7 @@ if (loginMember == null) {
             line-height: 1.4;
         }
 
-       
+        /* Loading */
         .loading {
             display: none;
             position: fixed;
@@ -508,8 +465,8 @@ if (loginMember == null) {
         .spinner {
             width: 60px;
             height: 60px;
-            border: 6px solid rgba(255, 140, 0, 0.3);
-            border-top: 6px solid #ff8c00;
+            border: 6px solid rgba(155, 89, 182, 0.3);
+            border-top: 6px solid #9b59b6;
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -519,7 +476,7 @@ if (loginMember == null) {
             100% { transform: rotate(360deg); }
         }
 
-        
+        /* Toast */
         .toast {
             position: fixed;
             top: 20px;
@@ -532,7 +489,7 @@ if (loginMember == null) {
             display: none;
             animation: slideInRight 0.3s ease;
             max-width: 400px;
-            border: 1px solid rgba(255, 140, 0, 0.3);
+            border: 1px solid rgba(155, 89, 182, 0.3);
             color: white;
         }
 
@@ -544,47 +501,31 @@ if (loginMember == null) {
             to { transform: translateX(0); opacity: 1; }
         }
 
-        
-        .particles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            z-index: 0;
-        }
-
-        .particle {
-            position: absolute;
-            width: 4px;
-            height: 4px;
-            background: rgba(255, 140, 0, 0.5);
-            border-radius: 50%;
-            animation: particleFloat 8s linear infinite;
-            box-shadow: 0 0 10px rgba(255, 140, 0, 0.5);
-        }
-
-        @keyframes particleFloat {
-            0% { opacity: 0; transform: translateY(100vh) scale(0); }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { opacity: 0; transform: translateY(-100vh) scale(1); }
-        }
-
-        
         @media (max-width: 768px) {
-            .page-header h1 { font-size: 1.5rem; }
-            .container { padding: 0 15px; }
-            .record-table { font-size: 0.85rem; }
-            .record-table th, .record-table td { padding: 12px 8px; }
-            .rental-stats { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
-            .stat-card .stat-number { font-size: 2rem; }
-            .stat-card .stat-icon { font-size: 2rem; }
+            .rental-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .record-table {
+                font-size: 0.85rem;
+            }
+            
+            .record-table th,
+            .record-table td {
+                padding: 12px 8px;
+            }
+            
+            .section-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .page-header h1 {
+                font-size: 1.5rem;
+            }
         }
     </style>
 </head>
-
 <body>
     <!-- Animated Background -->
     <div class="bg-animation">
@@ -608,15 +549,16 @@ if (loginMember == null) {
     <!-- Header -->
     <div class="page-header">
         <h1>
-            <i class="fas fa-building"></i>
-            ThanaChok Place - ประวัติการจองห้องพัก
+            <i class="fas fa-history"></i>
+            ประวัติการจองห้องพัก
         </h1>
     </div>
 
     <!-- Navigation -->
     <div class="nav">
         <a href="Homesucess"><i class="fas fa-home"></i> หน้าหลัก</a>
-        <a href="MemberListinvoice"><i class="fas fa-file-invoice"></i> แจ้งหนี้</a>
+        <a href="YourRoom"><i class="fas fa-door-open"></i> ห้องของฉัน</a>
+        <a href="Listinvoice"><i class="fas fa-file-invoice"></i> บิลค่าใช้จ่าย</a>
         <a href="Record" class="active"><i class="fas fa-history"></i> ประวัติการจอง</a>
     </div>
 
@@ -630,60 +572,25 @@ if (loginMember == null) {
         <div class="welcome-section">
             <h3>
                 <i class="fas fa-user-circle"></i>
-                สวัสดี, ${loginMember.firstName} ${loginMember.lastName}
+                ${loginMember.firstName} ${loginMember.lastName}
             </h3>
-            <p>ประวัติการจองห้องพักของคุณ</p>
+            <p>ประวัติการจองและการคืนห้อง</p>
         </div>
 
         <!-- Stats -->
         <div class="rental-stats">
-            <div class="stat-card active-rentals">
-                <div class="stat-icon"><i class="fas fa-home"></i></div>
-                <div class="stat-number">
-                    <c:choose>
-                        <c:when test="${not empty activeRentalCount}">${activeRentalCount}</c:when>
-                        <c:otherwise>0</c:otherwise>
-                    </c:choose>
-                </div>
-                <div class="stat-label">ห้องที่จองอยู่</div>
+            <div class="stat-card pending-approval">
+                <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                <div class="stat-number">${pendingApprovalCount}</div>
+                <div class="stat-label">การจองรอการอนุมัติ</div>
             </div>
 
-            <div class="stat-card total-rentals">
-                <div class="stat-icon"><i class="fas fa-clipboard-list"></i></div>
-                <div class="stat-number">
-                    <c:choose>
-                        <c:when test="${not empty rentalDeposits}">${fn:length(rentalDeposits)}</c:when>
-                        <c:otherwise>0</c:otherwise>
-                    </c:choose>
-                </div>
-                <div class="stat-label">การจองทั้งหมด</div>
-            </div>
-
-            <div class="stat-card completed-rentals">
+            <div class="stat-card completed">
                 <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
-                <div class="stat-number">
-                    <c:set var="completedCount" value="0" />
-                    <c:forEach var="deposit" items="${rentalDeposits}">
-                        <c:if test="${deposit.status == 'คืนห้องแล้ว'}">
-                            <c:set var="completedCount" value="${completedCount + 1}" />
-                        </c:if>
-                    </c:forEach>
-                    ${completedCount}
-                </div>
+                <div class="stat-number">${returnedCount}</div>
                 <div class="stat-label">คืนห้องแล้ว</div>
             </div>
         </div>
-
-        <!-- Info Alert -->
-        <c:if test="${not empty activeRentalCount && activeRentalCount > 0}">
-            <div class="alert alert-info">
-                <i class="fas fa-info-circle"></i>
-                <div>
-                    คุณมีการจองห้องที่ยัง Active อยู่ <strong>${activeRentalCount}</strong> ห้อง 
-                    - คุณต้องคืนห้องเก่าก่อนจึงจะสามารถจองห้องใหม่ได้
-                </div>
-            </div>
-        </c:if>
 
         <!-- Messages -->
         <c:if test="${not empty message}">
@@ -698,132 +605,181 @@ if (loginMember == null) {
             </div>
         </c:if>
 
-        <c:if test="${not empty warning}">
-            <div class="alert alert-warning">
-                <i class="fas fa-exclamation-triangle"></i> ${warning}
+        <!-- Info Alert -->
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i>
+            <div>
+                <strong>หมายเหตุ:</strong> หน้านี้แสดงประวัติการจองและการคืนห้อง 
+                สำหรับห้องที่กำลังเช่าอยู่ ให้ดูที่เมนู <strong>"ห้องของฉัน"</strong>
+            </div>
+        </div>
+
+        <!-- 1. รอการอนุมัติ -->
+        <div class="section">
+            <div class="section-header">
+                <h2>
+                    <i class="fas fa-clock"></i>
+                    การจองที่รอการอนุมัติ
+                </h2>
+                <span class="section-badge">${pendingApprovalCount} รายการ</span>
+            </div>
+            <c:choose>
+                <c:when test="${empty pendingApproval}">
+                    <div class="table-container">
+                        <div class="no-record">
+                            <i class="fas fa-clock"></i>
+                            <h4>ไม่มีการจองที่รอการอนุมัติ</h4>
+                            <p>ไม่มีการจองใหม่ที่รอ Manager อนุมัติในขณะนี้</p>
+                        </div>
+                    </div>
+                </c:when>
+                <c:otherwise>
+                    <div class="table-container">
+                        <table class="record-table">
+                            <thead>
+                                <tr>
+                                    <th><i class="fas fa-door-open"></i> หมายเลขห้อง</th>
+                                    <th><i class="fas fa-info-circle"></i> รายละเอียด</th>
+                                    <th><i class="fas fa-tag"></i> ประเภทห้อง</th>
+                                    <th><i class="fas fa-money-bill-wave"></i> ค่ามัดจำ</th>
+                                    <th><i class="fas fa-calendar"></i> วันที่จอง</th>
+                                    <th><i class="fas fa-tags"></i> สถานะ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <c:forEach var="rental" items="${pendingApproval}">
+                                    <tr>
+                                        <td class="room-number">
+                                            <i class="fas fa-door-closed"></i>
+                                            ${rental.rent.room.roomNumber}
+                                        </td>
+                                        <td>
+                                            <div class="room-description">
+                                                ${rental.rent.room.description}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span style="color: #9b59b6; font-weight: 500;">
+                                                ${rental.rent.room.roomtype}
+                                            </span>
+                                        </td>
+                                        <td class="price">
+                                            <i class="fas fa-coins"></i>
+                                            <fmt:formatNumber value="${rental.totalPrice}" type="currency" 
+                                                            currencySymbol="฿" groupingUsed="true"/>
+                                        </td>
+                                        <td>
+                                            <i class="fas fa-calendar-alt"></i>
+                                            <fmt:formatDate value="${rental.paymentDate}" pattern="dd/MM/yyyy"/>
+                                        </td>
+                                        <td>
+                                            <span class="status-badge status-pending-approval">
+                                                <i class="fas fa-clock"></i> รอการอนุมัติ
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </c:forEach>
+                            </tbody>
+                        </table>
+                    </div>
+                </c:otherwise>
+            </c:choose>
+        </div>
+
+        <!-- 2. คืนห้องแล้ว -->
+        <div class="section">
+            <div class="section-header">
+                <h2>
+                    <i class="fas fa-check-circle"></i>
+                    ประวัติที่คืนห้องแล้ว
+                </h2>
+                <span class="section-badge">${returnedCount} รายการ</span>
+            </div>
+            <c:choose>
+                <c:when test="${empty returnedRentals}">
+                    <div class="table-container">
+                        <div class="no-record">
+                            <i class="fas fa-history"></i>
+                            <h4>ยังไม่มีประวัติการคืนห้อง</h4>
+                            <p>ประวัติจะแสดงหลังจากคุณคืนห้องและได้รับการอนุมัติจาก Manager</p>
+                        </div>
+                    </div>
+                </c:when>
+                <c:otherwise>
+                    <div class="table-container">
+                        <table class="record-table">
+                            <thead>
+                                <tr>
+                                    <th><i class="fas fa-door-open"></i> หมายเลขห้อง</th>
+                                    <th><i class="fas fa-info-circle"></i> รายละเอียด</th>
+                                    <th><i class="fas fa-tag"></i> ประเภทห้อง</th>
+                                    <th><i class="fas fa-money-bill-wave"></i> ค่ามัดจำ</th>
+                                    <th><i class="fas fa-calendar-plus"></i> วันที่เช่า</th>
+                                    <th><i class="fas fa-calendar-check"></i> วันที่คืน</th>
+                                    <th><i class="fas fa-tags"></i> สถานะ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <c:forEach var="rental" items="${returnedRentals}">
+                                    <tr>
+                                        <td class="room-number">
+                                            <i class="fas fa-door-closed"></i>
+                                            ${rental.rent.room.roomNumber}
+                                        </td>
+                                        <td>
+                                            <div class="room-description">
+                                                ${rental.rent.room.description}
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span style="color: #9b59b6; font-weight: 500;">
+                                                ${rental.rent.room.roomtype}
+                                            </span>
+                                        </td>
+                                        <td class="price">
+                                            <i class="fas fa-coins"></i>
+                                            <fmt:formatNumber value="${rental.totalPrice}" type="currency" 
+                                                            currencySymbol="฿" groupingUsed="true"/>
+                                        </td>
+                                        <td>
+                                            <i class="fas fa-calendar-alt"></i>
+                                            <fmt:formatDate value="${rental.paymentDate}" pattern="dd/MM/yyyy"/>
+                                        </td>
+                                        <td>
+                                            <i class="fas fa-calendar-check"></i>
+                                            <c:choose>
+                                                <c:when test="${not empty rental.deadlineDate}">
+                                                    <fmt:formatDate value="${rental.deadlineDate}" pattern="dd/MM/yyyy"/>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <span style="color: #999;">-</span>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </td>
+                                        <td>
+                                            <span class="status-badge status-completed">
+                                                <i class="fas fa-check-double"></i> คืนห้องแล้ว
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </c:forEach>
+                            </tbody>
+                        </table>
+                    </div>
+                </c:otherwise>
+            </c:choose>
+        </div>
+
+        <!-- Summary Info -->
+        <c:if test="${not empty returnedRentals}">
+            <div class="alert alert-success" style="margin-top: 25px;">
+                <i class="fas fa-clipboard-check"></i>
+                <div>
+                    <strong>สรุป:</strong> คุณเคยเช่าห้องพักทั้งหมด <strong>${returnedCount}</strong> ห้อง 
+                    และคืนห้องเรียบร้อยแล้วทั้งหมด
+                </div>
             </div>
         </c:if>
-
-        <!-- Records -->
-        <c:choose>
-            <c:when test="${empty rentalDeposits}">
-                <div class="no-record">
-                    <div class="no-record-icon"><i class="fas fa-home"></i></div>
-                    <h3>ไม่มีประวัติการจอง</h3>
-                    <p>คุณยังไม่เคยจองห้องพักกับเรา ลองเริ่มค้นหาห้องที่เหมาะกับคุณ</p>
-                    <a href="Homesucess" class="cta-btn">
-                        <i class="fas fa-search"></i> เริ่มค้นหาห้องพัก
-                    </a>
-                </div>
-            </c:when>
-            <c:otherwise>
-                <div class="table-container">
-                    <table class="record-table">
-                        <thead>
-                            <tr>
-                                <th><i class="fas fa-door-open"></i> หมายเลขห้อง</th>
-                                <th><i class="fas fa-user"></i> ชื่อผู้จอง</th>
-                                <th><i class="fas fa-info-circle"></i> รายละเอียด</th>
-                                <th><i class="fas fa-money-bill-wave"></i> จำนวนเงิน</th>
-                                <th><i class="fas fa-calendar"></i> วันหมดอายุ</th>
-                                <th><i class="fas fa-tags"></i> สถานะ</th>
-                                <th><i class="fas fa-cogs"></i> การดำเนินการ</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <c:forEach var="rentalDeposit" items="${rentalDeposits}">
-                                <tr>
-                                    <td class="room-number">${rentalDeposit.rent.room.roomNumber}</td>
-                                    <td>${rentalDeposit.rent.member.firstName} ${rentalDeposit.rent.member.lastName}</td>
-                                    <td>
-                                        <div class="room-description">
-                                            ${rentalDeposit.rent.room.description}
-                                        </div>
-                                    </td>
-                                    <td class="price">
-                                        <fmt:formatNumber value="${rentalDeposit.totalPrice}" type="currency" 
-                                                        currencySymbol="฿" groupingUsed="true"/>
-                                    </td>
-                                    <td>
-                                        <i class="fas fa-calendar"></i>
-                                        <fmt:formatDate value="${rentalDeposit.deadlineDate}" pattern="dd/MM/yyyy"/>
-                                    </td>
-                                    <td>
-                                        <c:choose>
-                                            <c:when test="${rentalDeposit.status == 'เสร็จสมบูรณ์'}">
-                                                <span class="status-badge status-complete">
-                                                    <i class="fas fa-check-circle"></i> เสร็จสมบูรณ์
-                                                </span>
-                                            </c:when>
-                                            <c:when test="${rentalDeposit.status == 'รอการอนุมัติ'}">
-                                                <span class="status-badge status-pending">
-                                                    <i class="fas fa-clock"></i> รอการอนุมัติ
-                                                </span>
-                                            </c:when>
-                                            <c:when test="${rentalDeposit.status == 'รอดำเนินการ'}">
-                                                <span class="status-badge status-waiting">
-                                                    <i class="fas fa-hourglass-half"></i> รอดำเนินการ
-                                                </span>
-                                            </c:when>
-                                            <c:when test="${rentalDeposit.status == 'คืนห้องแล้ว'}">
-                                                <span class="status-badge status-returned">
-                                                    <i class="fas fa-home"></i> คืนห้องแล้ว
-                                                </span>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <span class="status-badge status-waiting">
-                                                    <i class="fas fa-question-circle"></i> ${rentalDeposit.status}
-                                                </span>
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </td>
-                                    <td>
-                                        <c:choose>
-                                            <c:when test="${rentalDeposit.status == 'เสร็จสมบูรณ์'}">
-                                                <c:choose>
-                                                    <c:when test="${rentalDeposit.hasUnpaidInvoices}">
-                                                        <button class="btn btn-disabled" 
-                                                                title="ไม่สามารถคืนห้องได้ เนื่องจากมีค่าใช้จ่ายค้างชำระ">
-                                                            <i class="fas fa-ban"></i> คืนห้อง (มีหนี้ค้าง)
-                                                        </button>
-                                                    </c:when>
-                                                    <c:otherwise>
-                                                        <button class="btn btn-return" 
-                                                                onclick="confirmReturnRoom('${rentalDeposit.rent.rentID}', '${rentalDeposit.rent.room.roomNumber}')"
-                                                                title="คืนห้องและรับเงินมัดจำคืน">
-                                                            <i class="fas fa-sign-out-alt"></i> คืนห้อง
-                                                        </button>
-                                                    </c:otherwise>
-                                                </c:choose>
-                                            </c:when>
-                                            <c:when test="${rentalDeposit.status == 'คืนห้องแล้ว'}">
-                                                <span style="color: #9b59b6; font-weight: 500;">
-                                                    <i class="fas fa-check"></i> เสร็จสิ้น
-                                                </span>
-                                            </c:when>
-                                            <c:otherwise>
-                                                <span style="color: #ffa726; font-weight: 500;">
-                                                    <i class="fas fa-hourglass-half"></i> รออนุมัติ
-                                                </span>
-                                            </c:otherwise>
-                                        </c:choose>
-                                    </td>
-                                </tr>
-                            </c:forEach>
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- Help Info -->
-                <div class="alert alert-info" style="margin-top: 25px;">
-                    <i class="fas fa-lightbulb"></i>
-                    <div>
-                        <strong>คำแนะนำ:</strong> คุณสามารถจองห้องใหม่ได้เฉพาะเมื่อคืนห้องเก่าเรียบร้อยแล้วเท่านั้น<br>
-                        <small>* กรุณาชำระค่าใช้จ่ายทั้งหมดก่อนทำการคืนห้อง</small>
-                    </div>
-                </div>
-            </c:otherwise>
-        </c:choose>
     </div>
 
     <script>
@@ -838,27 +794,6 @@ if (loginMember == null) {
             setTimeout(() => {
                 toast.style.display = 'none';
             }, 5000);
-        }
-
-        function confirmReturnRoom(rentId, roomNumber) {
-            const confirmMessage = `คุณต้องการคืนห้อง ${roomNumber} ใช่หรือไม่?\n\n` +
-                `หลังจากคืนห้องแล้ว:\n` +
-                `✓ คุณจะได้รับเงินมัดจำคืน\n` +
-                `✓ สามารถจองห้องใหม่ได้\n` +
-                `✗ ไม่สามารถเข้าพักในห้องนี้ได้อีก\n\n` +
-                `กรุณาตรวจสอบให้แน่ใจว่าได้ชำระค่าใช้จ่ายทั้งหมดแล้ว`;
-                
-            if (confirm(confirmMessage)) {
-                document.getElementById('loading').style.display = 'flex';
-                
-                const buttons = document.querySelectorAll('.btn-return');
-                buttons.forEach(btn => {
-                    btn.disabled = true;
-                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> กำลังดำเนินการ...';
-                });
-                
-                window.location.href = 'ReturnRoom?rentId=' + rentId;
-            }
         }
 
         function createParticles() {
@@ -885,10 +820,6 @@ if (loginMember == null) {
             <c:if test="${not empty error}">
                 setTimeout(() => showToast("${error}", "error"), 500);
             </c:if>
-            
-            <c:if test="${not empty warning}">
-                setTimeout(() => showToast("${warning}", "error"), 500);
-            </c:if>
 
             setTimeout(() => {
                 document.getElementById('loading').style.display = 'none';
@@ -902,16 +833,21 @@ if (loginMember == null) {
             }, 100);
         });
 
-        let isSubmitting = false;
-        
-        function preventDoubleSubmit() {
-            if (isSubmitting) return false;
-            isSubmitting = true;
-            return true;
-        }
+        // Add animation to table rows
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1 });
 
-        window.addEventListener('pageshow', function() {
-            isSubmitting = false;
+        document.querySelectorAll('tbody tr').forEach(row => {
+            row.style.opacity = '0';
+            row.style.transform = 'translateY(20px)';
+            row.style.transition = 'all 0.5s ease';
+            observer.observe(row);
         });
     </script>
 </body>

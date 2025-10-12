@@ -736,6 +736,16 @@ if (loginManager == null) {
                                                             อนุมัติ
                                                         </button>
                                                     </form>
+                                                    <form action="ManagerReturnRoom" method="post" style="display: inline;">
+            <input type="hidden" name="rentId" value="${rent.rentID}" />
+            <input type="hidden" name="roomNumber" value="${rent.room.roomNumber}" />
+            <input type="hidden" name="status" value="รอดำเนินการ" />
+            <button type="submit" class="action-btn btn-return" 
+                    onclick="return confirmReturn('${rent.room.roomNumber}', '${rent.member.firstName} ${rent.member.lastName}', 'รอดำเนินการ')">
+                <i class="fas fa-times-circle"></i>
+                ยกเลิกการจอง
+            </button>
+        </form>
                                                 </div>
                                             </td>
                                         </tr>
@@ -781,7 +791,18 @@ if (loginManager == null) {
                                                             เพิ่มบิล
                                                         </a>
                                                     </c:if>
+                                                    <form action="ManagerReturnRoom" method="post" style="display: inline;">
+            <input type="hidden" name="rentId" value="${rent.rentID}" />
+            <input type="hidden" name="roomNumber" value="${rent.room.roomNumber}" />
+            <input type="hidden" name="status" value="เสร็จสมบูรณ์" />
+            <button type="submit" class="action-btn btn-return" 
+                    onclick="return confirmReturn('${rent.room.roomNumber}', '${rent.member.firstName} ${rent.member.lastName}', 'เสร็จสมบูรณ์')">
+                <i class="fas fa-door-open"></i>
+                คืนห้อง
+            </button>
+        </form>
                                                 </div>
+                                             </form>   
                                             </td>
                                         </tr>
                                     </c:if>
@@ -937,6 +958,31 @@ if (loginManager == null) {
                 showToast("${error}", "error");
             }, 500);
         </c:if>
+
+        // Confirmation for returning room - Manager สามารถคืนห้องได้เลยโดยไม่มีเงื่อนไข
+function confirmReturn(roomNumber, memberName, status) {
+    let message = '';
+    
+    if (status === 'รอดำเนินการ') {
+        message = `⚠️ คุณต้องการยกเลิกการจองห้อง ${roomNumber}\n` +
+                  `ของคุณ ${memberName} ใช่หรือไม่?\n\n` +
+                  `หลังจากยกเลิกแล้ว:\n` +
+                  `✓ ห้องจะกลับเป็นสถานะ "ว่าง"\n` +
+                  `✓ สามารถให้ผู้อื่นจองได้ใหม่\n` +
+                  `✓ ไม่สามารถเรียกคืนได้`;
+    } else {
+        message = `⚠️ คุณต้องการคืนห้อง ${roomNumber}\n` +
+                  `ของคุณ ${memberName} ใช่หรือไม่?\n\n` +
+                  `หลังจากคืนห้องแล้ว:\n` +
+                  `✓ ห้องจะกลับเป็นสถานะ "ว่าง"\n` +
+                  `✓ สามารถให้ผู้อื่นจองได้ใหม่\n` +
+                  `✓ ไม่สามารถเรียกคืนได้\n\n` +
+                  `📝 หมายเหตุ: Manager สามารถคืนห้องได้ทันที\n` +
+                  `    แม้จะยังมีบิลค้างชำระ`;
+    }
+    
+    return confirm(message);
+}
     </script>
 </body>
 </html>

@@ -558,6 +558,8 @@ if (loginManager == null) {
                         <form action="SaveInvoice" method="post" id="invoiceForm">
                             <input type="hidden" name="rentId" value="${rent.rentID}" />
                             <input type="hidden" id="roomPrice" name="roomPrice" value="${room.roomPrice}" />
+                            <input type="hidden" name="issueDate" value="${today}" />
+    <input type="hidden" name="dueDate" value="${dueDate}" />
 
                             <!-- Utilities Section -->
 <div class="form-section">

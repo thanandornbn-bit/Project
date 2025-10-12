@@ -353,83 +353,111 @@ public class HomeController {
         return mav;
     }
 
-    @RequestMapping(value = "/Record", method = RequestMethod.GET)
-    public ModelAndView showRecord(HttpSession session) {
-        Member loginMember = (Member) session.getAttribute("loginMember");
-        if (loginMember == null) {
-            return new ModelAndView("redirect:/Login");
-        }
-
-        ThanachokManager manager = new ThanachokManager();
-
-        // ดึงเฉพาะการจองที่ยังไม่ได้คืนห้อง (สถานะไม่ใช่ "คืนห้องแล้ว")
-        List<RentalDeposit> rentalDeposits = manager.findActiveDepositsByMember(loginMember);
-
-        // ตรวจสอบสถานะบิลสำหรับแต่ละการจอง
-        for (RentalDeposit deposit : rentalDeposits) {
-            if ("เสร็จสมบูรณ์".equals(deposit.getStatus())) {
-                // ตรวจสอบว่ามีบิลค้างชำระหรือไม่
-                boolean hasUnpaidInvoices = manager.hasUnpaidInvoices(deposit.getRent().getRentID());
-                deposit.setHasUnpaidInvoices(hasUnpaidInvoices);
-            }
-        }
-
-        // นับจำนวนการจองที่ active
-        int activeRentalCount = manager.countMemberActiveRentals(loginMember);
-
-        ModelAndView mav = new ModelAndView("Record");
-        mav.addObject("rentalDeposits", rentalDeposits);
-        mav.addObject("loginMember", loginMember);
-        mav.addObject("activeRentalCount", activeRentalCount);
-        return mav;
+    // หน้าแสดงห้องที่กำลังเช่าอยู่
+@RequestMapping(value = "/YourRoom", method = RequestMethod.GET)
+public ModelAndView showYourRoom(HttpSession session) {
+    Member loginMember = (Member) session.getAttribute("loginMember");
+    if (loginMember == null) {
+        return new ModelAndView("redirect:/Login");
     }
+
+    ThanachokManager manager = new ThanachokManager();
+
+    // ดึงห้องที่กำลังเช่าอยู่ทั้งหมด (รวมสถานะ "รอคืนห้อง")
+    List<RentalDeposit> currentRentals = manager.findCurrentRentalsByMember(loginMember);
+
+    ModelAndView mav = new ModelAndView("YourRoom");
+    mav.addObject("currentRentals", currentRentals);
+    mav.addObject("loginMember", loginMember);
+    mav.addObject("rentalCount", currentRentals.size());
+    
+    return mav;
+}
+
+@RequestMapping(value = "/Record", method = RequestMethod.GET)
+public ModelAndView showRecord(HttpSession session) {
+    Member loginMember = (Member) session.getAttribute("loginMember");
+    if (loginMember == null) {
+        return new ModelAndView("redirect:/Login");
+    }
+
+    ThanachokManager manager = new ThanachokManager();
+
+    // ดึงข้อมูลทั้งหมด
+    List<RentalDeposit> allDeposits = manager.findAllDepositsByMemberForRecord(loginMember);
+
+    // แบ่งกลุ่มตามสถานะ - เอาเฉพาะ 2 กลุ่ม
+    List<RentalDeposit> pendingApproval = new ArrayList<>();  // รอดำเนินการ
+    List<RentalDeposit> completed = new ArrayList<>();         // คืนห้องแล้ว
+
+    for (RentalDeposit deposit : allDeposits) {
+        String status = deposit.getStatus();
+        if ("รอดำเนินการ".equals(status)) {
+            pendingApproval.add(deposit);
+        } else if ("คืนห้องแล้ว".equals(status)) {
+            completed.add(deposit);
+        }
+        // ไม่เอา "รอคืนห้อง" และ "เสร็จสมบูรณ์" มาแสดงในหน้า Record
+    }
+
+    ModelAndView mav = new ModelAndView("Record");
+    mav.addObject("pendingApproval", pendingApproval);
+    mav.addObject("returnedRentals", completed);
+    mav.addObject("loginMember", loginMember);
+    
+    // นับจำนวนแต่ละกลุ่ม
+    mav.addObject("pendingApprovalCount", pendingApproval.size());
+    mav.addObject("returnedCount", completed.size());
+    
+    return mav;
+}
 
     @RequestMapping(value = "/ReturnRoom", method = RequestMethod.GET)
-    public ModelAndView returnRoom(@RequestParam("rentId") int rentId, HttpSession session) {
-        Member loginMember = (Member) session.getAttribute("loginMember");
-        if (loginMember == null) {
-            return new ModelAndView("redirect:/Login");
-        }
-
-        try {
-            ThanachokManager manager = new ThanachokManager();
-
-            // ตรวจสอบว่า rent นี้เป็นของ member ที่ login หรือไม่
-            Rent rent = manager.findRentById(rentId);
-            if (rent == null || rent.getMember().getMemberID() != loginMember.getMemberID()) {
-                ModelAndView mav = new ModelAndView("redirect:/Record");
-                mav.addObject("error", "ไม่พบข้อมูลการจองหรือไม่มีสิทธิ์เข้าถึง");
-                return mav;
-            }
-
-            // ตรวจสอบสถานะบิลค้างชำระ
-            boolean hasUnpaidInvoices = manager.hasUnpaidInvoices(rentId);
-            if (hasUnpaidInvoices) {
-                ModelAndView mav = new ModelAndView("redirect:/Record");
-                mav.addObject("error", "ไม่สามารถคืนห้องได้ เนื่องจากมีค่าใช้จ่ายค้างชำระ กรุณาชำระบิลให้ครบถ้วนก่อน");
-                return mav;
-            }
-
-            // ดำเนินการคืนห้อง
-            boolean success = manager.returnRoom(rentId);
-
-            ModelAndView mav = new ModelAndView("redirect:/Record");
-            if (success) {
-                mav.addObject("message", "คืนห้องเรียบร้อยแล้ว ห้อง " + rent.getRoom().getRoomNumber()
-                        + " ได้ถูกเปลี่ยนสถานะเป็นว่างแล้ว");
-            } else {
-                mav.addObject("error", "เกิดข้อผิดพลาดในการคืนห้อง กรุณาลองใหม่อีกครั้ง");
-            }
-
-            return mav;
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            ModelAndView mav = new ModelAndView("redirect:/Record");
-            mav.addObject("error", "เกิดข้อผิดพลาดในระบบ: " + e.getMessage());
-            return mav;
-        }
+public ModelAndView returnRoom(@RequestParam("rentId") int rentId, HttpSession session) {
+    Member loginMember = (Member) session.getAttribute("loginMember");
+    if (loginMember == null) {
+        return new ModelAndView("redirect:/Login");
     }
+
+    try {
+        ThanachokManager manager = new ThanachokManager();
+
+        // ตรวจสอบว่า rent นี้เป็นของ member ที่ login หรือไม่
+        Rent rent = manager.findRentById(rentId);
+        if (rent == null || rent.getMember().getMemberID() != loginMember.getMemberID()) {
+            ModelAndView mav = new ModelAndView("redirect:/YourRoom");
+            mav.addObject("error", "ไม่พบข้อมูลการจองหรือไม่มีสิทธิ์เข้าถึง");
+            return mav;
+        }
+
+        // ตรวจสอบสถานะบิลค้างชำระ
+        boolean hasUnpaidInvoices = manager.hasUnpaidInvoices(rentId);
+        if (hasUnpaidInvoices) {
+            ModelAndView mav = new ModelAndView("redirect:/YourRoom");
+            mav.addObject("error", "ไม่สามารถส่งคำขอคืนห้องได้ เนื่องจากมีค่าใช้จ่ายค้างชำระ กรุณาชำระบิลให้ครบถ้วนก่อน");
+            return mav;
+        }
+
+        // ส่งคำขอคืนห้อง (ไม่ใช่คืนทันที)
+        boolean success = manager.requestReturnRoom(rentId);
+
+        ModelAndView mav = new ModelAndView("redirect:/YourRoom");
+        if (success) {
+            mav.addObject("message", "ส่งคำขอคืนห้อง " + rent.getRoom().getRoomNumber() + 
+                " เรียบร้อยแล้ว รอ Manager อนุมัติ");
+        } else {
+            mav.addObject("error", "เกิดข้อผิดพลาดในการส่งคำขอ กรุณาลองใหม่อีกครั้ง");
+        }
+
+        return mav;
+
+    } catch (Exception e) {
+        e.printStackTrace();
+        ModelAndView mav = new ModelAndView("redirect:/YourRoom");
+        mav.addObject("error", "เกิดข้อผิดพลาดในระบบ: " + e.getMessage());
+        return mav;
+    }
+}
 
     @RequestMapping(value = "/Listinvoice", method = RequestMethod.GET)
     public ModelAndView listInvoices(HttpSession session) {
