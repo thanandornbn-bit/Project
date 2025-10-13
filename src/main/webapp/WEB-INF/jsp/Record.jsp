@@ -80,10 +80,10 @@ if (loginMember == null) {
             position: absolute;
             width: 4px;
             height: 4px;
-            background: rgba(155, 89, 182, 0.5);
+            background:  rgba(255, 140, 0, 0.5);
             border-radius: 50%;
             animation: particleFloat 8s linear infinite;
-            box-shadow: 0 0 10px rgba(155, 89, 182, 0.5);
+            box-shadow: 0 0 10px  rgba(255, 140, 0, 0.5);
         }
 
         @keyframes particleFloat {
@@ -94,13 +94,13 @@ if (loginMember == null) {
         }
 
         .page-header {
-            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            background: linear-gradient(135deg, #ff8c00, #ff8c00);
             color: white;
             text-align: center;
             padding: 30px 20px;
             position: relative;
             z-index: 10;
-            box-shadow: 0 4px 20px rgba(155, 89, 182, 0.3);
+            box-shadow: 0 4px 20px rgba(168, 92, 40, 0.3);
         }
 
         .page-header h1 {
@@ -143,7 +143,7 @@ if (loginMember == null) {
         }
 
         .nav a.active {
-            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            background: linear-gradient(135deg, #ff8c00, #ff8c00);
             color: white;
         }
 
@@ -179,7 +179,7 @@ if (loginMember == null) {
             padding: 25px;
             border-radius: 15px;
             margin-bottom: 25px;
-            border: 1px solid rgba(155, 89, 182, 0.3);
+            border: 1px solid rgba(158, 71, 0, 0.466);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             animation: slideIn 0.6s ease-out;
         }
@@ -190,7 +190,7 @@ if (loginMember == null) {
         }
 
         .welcome-section h3 {
-            color: #9b59b6;
+            color: #ff8c00;
             margin-bottom: 10px;
             font-size: 1.5rem;
             display: flex;
@@ -218,7 +218,7 @@ if (loginMember == null) {
             text-align: center;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             transition: all 0.3s ease;
-            border: 1px solid rgba(155, 89, 182, 0.3);
+            border: 1px solid rgba(167, 120, 76, 0.3);
             position: relative;
             overflow: hidden;
         }
@@ -234,16 +234,16 @@ if (loginMember == null) {
 
         .stat-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 12px 40px rgba(155, 89, 182, 0.4);
+            box-shadow: 0 12px 40px rgba(167, 120, 76, 0.3);
         }
 
         .stat-card.pending-approval::before { background: linear-gradient(90deg, #ffa726, #f57c00); }
         .stat-card.pending-approval .stat-number,
         .stat-card.pending-approval .stat-icon { color: #ffa726; }
 
-        .stat-card.completed::before { background: linear-gradient(90deg, #9b59b6, #8e44ad); }
+        .stat-card.completed::before { background: linear-gradient(90deg, #ff8c00, #ff8c00); }
         .stat-card.completed .stat-number,
-        .stat-card.completed .stat-icon { color: #9b59b6; }
+        .stat-card.completed .stat-icon { color: #ff8c00; }
 
         .stat-icon {
             font-size: 3rem;
@@ -290,9 +290,9 @@ if (loginMember == null) {
         }
 
         .alert-info {
-            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            background: linear-gradient(135deg, #b67321, #fd8b00);
             color: white;
-            border: 1px solid rgba(155, 89, 182, 0.5);
+            border: 1px solid rgba(180, 128, 78, 0.5);
         }
 
         /* Section */
@@ -304,7 +304,7 @@ if (loginMember == null) {
             background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
             padding: 20px 25px;
             border-radius: 15px 15px 0 0;
-            border: 1px solid rgba(155, 89, 182, 0.3);
+            border: 1px solid rgba(255, 115, 0, 0.3);
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -314,20 +314,20 @@ if (loginMember == null) {
 
         .section-header h2 {
             font-size: 1.5rem;
-            color: #9b59b6;
+            color: #ff8c00;
             display: flex;
             align-items: center;
             gap: 10px;
         }
 
         .section-badge {
-            background: rgba(155, 89, 182, 0.2);
-            color: #9b59b6;
+            background: rgba(255, 123, 0, 0.274);
+            color: #ff8c00;
             padding: 8px 20px;
             border-radius: 20px;
             font-weight: bold;
             font-size: 1rem;
-            border: 1px solid rgba(155, 89, 182, 0.4);
+            border: 1px solid rgba(255, 94, 0, 0.4);
         }
 
         /* Table */
@@ -336,7 +336,7 @@ if (loginMember == null) {
             border-radius: 0 0 15px 15px;
             overflow: hidden;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(155, 89, 182, 0.3);
+            border: 1px solid rgba(255, 136, 0, 0.3);
             border-top: none;
             animation: fadeIn 0.8s ease-out;
         }
@@ -352,8 +352,8 @@ if (loginMember == null) {
         }
 
         .record-table th {
-            background: rgba(155, 89, 182, 0.1);
-            color: #9b59b6;
+            background: rgba(255, 115, 0, 0.192);
+            color: #ff8c00;
             padding: 18px 15px;
             text-align: center;
             font-weight: 600;
@@ -365,7 +365,7 @@ if (loginMember == null) {
         .record-table td {
             padding: 16px 15px;
             text-align: center;
-            border-bottom: 1px solid rgba(155, 89, 182, 0.1);
+            border-bottom: 1px solid rgba(255, 123, 0, 0.233);
             color: #ccc;
         }
 
@@ -374,7 +374,7 @@ if (loginMember == null) {
         }
 
         .record-table tbody tr:hover {
-            background: rgba(155, 89, 182, 0.1);
+            background: rgba(255, 123, 0, 0.219);
             transform: scale(1.01);
         }
 
@@ -398,9 +398,9 @@ if (loginMember == null) {
         }
 
         .status-completed {
-            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            background: linear-gradient(135deg, #a16b27, #ff8c00);
             color: white;
-            box-shadow: 0 4px 10px rgba(155, 89, 182, 0.3);
+            box-shadow: 0 4px 10px rgba(255, 102, 0, 0.3);
         }
 
         /* No Record */
@@ -414,11 +414,11 @@ if (loginMember == null) {
             font-size: 3rem;
             margin-bottom: 15px;
             opacity: 0.5;
-            color: #9b59b6;
+            color: #ff8c00;
         }
 
         .no-record h4 {
-            color: #9b59b6;
+            color: #ff8c00;
             margin-bottom: 10px;
             font-size: 1.2rem;
         }
@@ -435,7 +435,7 @@ if (loginMember == null) {
 
         .room-number {
             font-weight: 700;
-            color: #9b59b6;
+            color: #ff8c00;
             font-size: 1.1rem;
         }
 
@@ -465,8 +465,8 @@ if (loginMember == null) {
         .spinner {
             width: 60px;
             height: 60px;
-            border: 6px solid rgba(155, 89, 182, 0.3);
-            border-top: 6px solid #9b59b6;
+            border: 6px solid rgba(236, 95, 0, 0.3);
+            border-top: 6px solid #ff8c00;
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
@@ -489,7 +489,7 @@ if (loginMember == null) {
             display: none;
             animation: slideInRight 0.3s ease;
             max-width: 400px;
-            border: 1px solid rgba(155, 89, 182, 0.3);
+            border: 1px solid rgba(255, 102, 0, 0.3);
             color: white;
         }
 

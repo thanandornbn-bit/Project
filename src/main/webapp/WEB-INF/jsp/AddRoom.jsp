@@ -413,7 +413,7 @@
                                        required
                                        placeholder="เช่น 101, 102, 103" 
                                        pattern="[0-9]{3,4}"
-                                       maxlength="4">
+                                       maxlength="3">
                             </div>
 
                             <div class="form-group">
@@ -423,7 +423,6 @@
                                 </label>
                                 <select id="roomtype" name="roomtype" class="form-control" required>
                                     <option value="แอร์">ห้องแอร์</option>
-                                    <option value="พัดลม">ห้องพัดลม</option>
                                 </select>
                             </div>
                         </div>
@@ -478,7 +477,6 @@
                                 </label>
                                 <select id="roomStatus" name="roomStatus" class="form-control" required>
                                     <option value="ว่าง" selected>ว่าง</option>
-                                    <option value="ไม่ว่าง">ไม่ว่าง</option>
                                 </select>
                             </div>
                         </div>

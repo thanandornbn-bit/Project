@@ -503,8 +503,8 @@
     <!-- Navigation -->
     <div class="nav">
         <a href="Homesucess"><i class="fas fa-home"></i> หน้าหลัก</a>
-        <a href="YourRoom" class="active"><i class="fas fa-door-open"></i> ห้องของฉัน</a>
-        <a href="Listinvoice"><i class="fas fa-file-invoice"></i> บิลค่าใช้จ่าย</a>
+        <a href="YourRoom" ><i class="fas fa-door-open"></i> ห้องของฉัน</a>
+        <a href="Listinvoice" class="active"><i class="fas fa-file-invoice"></i> บิลค่าใช้จ่าย</a>
         <a href="Record"><i class="fas fa-history"></i> ประวัติการจอง</a>
     </div>
 

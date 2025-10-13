@@ -120,30 +120,30 @@ if (loginManager == null) {
         }
 
         .nav {
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            padding: 15px;
             display: flex;
+            justify-content: center;
             gap: 15px;
-            margin-bottom: 25px;
             flex-wrap: wrap;
         }
 
         .nav a {
-            padding: 12px 25px;
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 10px;
             background: rgba(255, 140, 0, 0.1);
             border: 1px solid rgba(255, 140, 0, 0.3);
-            color: #ff8c00;
-            text-decoration: none;
-            border-radius: 10px;
             transition: all 0.3s ease;
             display: flex;
             align-items: center;
             gap: 8px;
-            font-weight: 500;
         }
 
         .nav a:hover, .nav a.active {
-            background: rgba(255, 140, 0, 0.2);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 140, 0, 0.2);
+            background: linear-gradient(135deg, #ff8c00, #ff6b00);
         }
 
         .back-btn {
@@ -566,24 +566,12 @@ if (loginManager == null) {
         </div>
 
         <div class="nav">
-            <a href="OwnerHome">
-                <i class="fas fa-home"></i>
-                หน้าหลัก
-            </a>
-            <a href="AddRoom">
-                <i class="fas fa-plus-circle"></i>
-                เพิ่มห้องพัก
-            </a>
-            <a href="OViewReserve" class="active">
-                <i class="fas fa-chart-bar"></i>
-                ดูรายการจอง
-            </a>
-        </div>
-
-        <a href="OwnerHome" class="back-btn">
-            <i class="fas fa-arrow-left"></i> 
-            กลับหน้าหลัก
-        </a>
+        <a href="OwnerHome"><i class="fas fa-home"></i> หน้าหลัก</a>
+        <a href="OViewReserve" class="active"><i class="fas fa-list"></i> รายการจอง</a>
+        <a href="ListReturnRoom" ><i class="fas fa-clipboard-check"></i> คำขอคืนห้อง</a>
+        <a href="AddRoom"><i class="fas fa-plus"></i> เพิ่มห้อง</a>
+        
+    </div>
 
         <!-- สถิติการจอง -->
         <div class="stats-container">

@@ -546,6 +546,9 @@
 
         <!-- Role Selection -->
         <div class="role-selection" id="roleSelection">
+            <button class="back-btn" onclick="window.location.href='./'">
+    <i class="fas fa-arrow-left"></i>
+</button>
             <h2 class="role-title">เลือกประเภทผู้ใช้งาน</h2>
             <div class="role-buttons">
                 <button class="role-btn member" onclick="showLogin('Member')">

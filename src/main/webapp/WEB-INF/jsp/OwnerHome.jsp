@@ -315,43 +315,31 @@
 
                                 
                                     .nav {
-                                        background: rgba(0, 0, 0, 0.6);
-                                        backdrop-filter: blur(10px);
-                                        border-radius: 15px;
-                                        padding: 15px;
-                                        margin-bottom: 25px;
-                                        display: flex;
-                                        gap: 10px;
-                                        border: 1px solid rgba(255, 140, 0, 0.3);
-                                        flex-wrap: wrap;
-                                    }
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(10px);
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
 
                                     .nav a {
-                                        flex: 1;
-                                        min-width: 150px;
-                                        padding: 15px 25px;
-                                        background: rgba(255, 140, 0, 0.1);
-                                        border: 1px solid rgba(255, 140, 0, 0.3);
-                                        color: white;
-                                        text-decoration: none;
-                                        border-radius: 10px;
-                                        transition: all 0.3s ease;
-                                        display: flex;
-                                        align-items: center;
-                                        justify-content: center;
-                                        gap: 8px;
-                                        font-weight: 500;
-                                    }
+            color: white;
+            text-decoration: none;
+            padding: 12px 24px;
+            border-radius: 10px;
+            background: rgba(255, 140, 0, 0.1);
+            border: 1px solid rgba(255, 140, 0, 0.3);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
 
-                                    .nav a:hover {
-                                        background: rgba(255, 140, 0, 0.2);
-                                        transform: translateY(-2px);
-                                    }
-
-                                    .nav a.active {
-                                        background: linear-gradient(135deg, #ff8c00, #ff6b00);
-                                        border-color: transparent;
-                                    }
+                                    .nav a:hover, .nav a.active {
+            background: linear-gradient(135deg, #ff8c00, #ff6b00);
+        }
 
                                    
                                     .search-form {
@@ -730,9 +718,6 @@
                                             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
                                         }
 
-                                        .nav {
-                                            flex-direction: column;
-                                        }
 
                                         .nav a {
                                             min-width: 100%;
@@ -886,27 +871,11 @@
                                     </div>
 
                                     <div class="nav">
-                                        <a href="OwnerHome" class="active">
-                                            <i class="fas fa-home"></i>
-                                            หน้าหลัก
-                                        </a>
-                                        <a href="AddRoom">
-                                            <i class="fas fa-plus-circle"></i>
-                                            เพิ่มห้องพัก
-                                        </a>
-                                        <a href="OViewReserve">
-                                            <i class="fas fa-chart-bar"></i>
-                                            จัดการการจอง
-                                            <c:if test="${pendingCount > 0}">
-                                                <span class="admin-badge"
-                                                    style="margin-left: 5px; font-size: 0.7rem;">${pendingCount}</span>
-                                            </c:if>
-                                        </a>
-                                        <a href="ListReturnRoom">
-                                            <i class=""></i>
-                                            รายงานการคืนห้อง
-                                        </a>
-                                    </div>
+        <a href="OwnerHome" class="active"><i class="fas fa-home"></i> หน้าหลัก</a>
+        <a href="OViewReserve"><i class="fas fa-list"></i> รายการจอง</a>
+        <a href="ListReturnRoom" ><i class="fas fa-clipboard-check"></i> คำขอคืนห้อง</a>
+        <a href="AddRoom"><i class="fas fa-plus"></i> เพิ่มห้อง</a>
+    </div>
 
                                     <div class="search-form">
                                         <h3>
