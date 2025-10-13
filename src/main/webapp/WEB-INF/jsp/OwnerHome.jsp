@@ -89,7 +89,7 @@
                                         }
                                     }
 
-                                    
+
                                     .particles {
                                         position: fixed;
                                         top: 0;
@@ -138,7 +138,7 @@
                                         z-index: 1;
                                     }
 
-                                  
+
                                     .header {
                                         background: linear-gradient(135deg, #ff8c00, #ff6b00);
                                         color: white;
@@ -168,7 +168,7 @@
                                         }
                                     }
 
-                                   
+
                                     .top-bar {
                                         display: flex;
                                         justify-content: space-between;
@@ -219,7 +219,7 @@
                                         transform: translateY(-2px);
                                     }
 
-                                   
+
                                     .stats-container {
                                         display: grid;
                                         grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -313,35 +313,36 @@
                                         color: #42a5f5;
                                     }
 
-                                
+
                                     .nav {
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(10px);
-            padding: 15px;
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
+                                        background: rgba(0, 0, 0, 0.6);
+                                        backdrop-filter: blur(10px);
+                                        padding: 15px;
+                                        display: flex;
+                                        justify-content: center;
+                                        gap: 15px;
+                                        flex-wrap: wrap;
+                                    }
 
                                     .nav a {
-            color: white;
-            text-decoration: none;
-            padding: 12px 24px;
-            border-radius: 10px;
-            background: rgba(255, 140, 0, 0.1);
-            border: 1px solid rgba(255, 140, 0, 0.3);
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+                                        color: white;
+                                        text-decoration: none;
+                                        padding: 12px 24px;
+                                        border-radius: 10px;
+                                        background: rgba(255, 140, 0, 0.1);
+                                        border: 1px solid rgba(255, 140, 0, 0.3);
+                                        transition: all 0.3s ease;
+                                        display: flex;
+                                        align-items: center;
+                                        gap: 8px;
+                                    }
 
-                                    .nav a:hover, .nav a.active {
-            background: linear-gradient(135deg, #ff8c00, #ff6b00);
-        }
+                                    .nav a:hover,
+                                    .nav a.active {
+                                        background: linear-gradient(135deg, #ff8c00, #ff6b00);
+                                    }
 
-                                   
+
                                     .search-form {
                                         background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
                                         padding: 30px;
@@ -432,7 +433,7 @@
                                         color: white;
                                     }
 
-                                
+
                                     .table-container {
                                         background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
                                         border-radius: 15px;
@@ -513,7 +514,7 @@
                                         font-size: 1.05rem;
                                     }
 
-                                  
+
                                     .status-badge {
                                         padding: 6px 16px;
                                         border-radius: 20px;
@@ -550,7 +551,7 @@
                                         color: #ffa726;
                                     }
 
-                                    
+
                                     .action-buttons {
                                         display: flex;
                                         gap: 8px;
@@ -608,7 +609,7 @@
                                         box-shadow: 0 4px 15px rgba(255, 140, 0, 0.4);
                                     }
 
-                                  
+
                                     .empty-state {
                                         text-align: center;
                                         padding: 60px 20px;
@@ -632,7 +633,7 @@
                                         font-size: 1.1rem;
                                     }
 
-                                    
+
                                     .loading {
                                         display: none;
                                         position: fixed;
@@ -701,7 +702,7 @@
                                         }
                                     }
 
-                                   
+
                                     @media (max-width: 768px) {
                                         .header {
                                             font-size: 1.8rem;
@@ -871,11 +872,11 @@
                                     </div>
 
                                     <div class="nav">
-        <a href="OwnerHome" class="active"><i class="fas fa-home"></i> หน้าหลัก</a>
-        <a href="OViewReserve"><i class="fas fa-list"></i> รายการจอง</a>
-        <a href="ListReturnRoom" ><i class="fas fa-clipboard-check"></i> คำขอคืนห้อง</a>
-        <a href="AddRoom"><i class="fas fa-plus"></i> เพิ่มห้อง</a>
-    </div>
+                                        <a href="OwnerHome" class="active"><i class="fas fa-home"></i> หน้าหลัก</a>
+                                        <a href="OViewReserve"><i class="fas fa-list"></i> รายการจอง</a>
+                                        <a href="ListReturnRoom"><i class="fas fa-clipboard-check"></i> คำขอคืนห้อง</a>
+                                        <a href="AddRoom"><i class="fas fa-plus"></i> เพิ่มห้อง</a>
+                                    </div>
 
                                     <div class="search-form">
                                         <h3>
@@ -937,7 +938,7 @@
                                                         <tr>
                                                             <th><i class="fas fa-door-open"></i> หมายเลขห้อง</th>
                                                             <th><i class="fas fa-home"></i> ประเภทห้อง</th>
-                                                            <th><i class="fas fa-money-bill-wave"></i> ราคา</th>
+                                                           <th><i class="fas fa-money-bill-wave"></i> ราคา</th>
                                                             <th><i class="fas fa-info-circle"></i> สถานะ</th>
                                                             <th><i class="fas fa-cogs"></i> จัดการ</th>
                                                         </tr>
@@ -1061,10 +1062,6 @@
                                     }
 
                                     function confirmDelete(roomID, roomNumber) {
-                                        // Debug
-                                        console.log("roomID:", roomID);
-                                        console.log("roomNumber:", roomNumber);
-                                        console.log("Type of roomID:", typeof roomID);
 
                                         // ตรวจสอบความถูกต้องของ roomID
                                         if (!roomID || roomID === '' || roomID === 'undefined' || roomID === 'null') {

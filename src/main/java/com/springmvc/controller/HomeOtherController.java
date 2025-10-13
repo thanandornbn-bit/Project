@@ -19,16 +19,16 @@ import jakarta.servlet.http.HttpSession;
 
 @Controller
 public class HomeOtherController {
-	
+
 	@RequestMapping(value = "/", method = RequestMethod.GET)
 	public ModelAndView Home() {
-	    ThanachokManager manager = new ThanachokManager();
-	    List<Room> roomList = manager.getAllrooms();
-	    ModelAndView mav = new ModelAndView("Home"); 
-	    mav.addObject("roomList", roomList);
-	    return mav;
+		ThanachokManager manager = new ThanachokManager();
+		List<Room> roomList = manager.getAllrooms();
+		ModelAndView mav = new ModelAndView("Home");
+		mav.addObject("roomList", roomList);
+		return mav;
 	}
-	
+
 	@RequestMapping(value = "/Register", method = RequestMethod.GET)
 	public String Register() {
 		return "Register";
@@ -38,7 +38,7 @@ public class HomeOtherController {
 	public String Login() {
 		return "Login";
 	}
-	
+
 	@RequestMapping(value = "/Register", method = RequestMethod.POST)
 	public ModelAndView registerMember(HttpServletRequest request, HttpSession session) {
 		ThanachokManager manager = new ThanachokManager();
@@ -132,21 +132,20 @@ public class HomeOtherController {
 			Member member = manager.findMemberByEmailAndPassword(email, password);
 			if (member != null) {
 				session.setAttribute("loginMember", member);
-				return new ModelAndView("redirect:/Homesucess"); 
+				return new ModelAndView("redirect:/Homesucess");
 			} else {
 				return new ModelAndView("Login", "error_message", "Email หรือรหัสผ่านของ Member ไม่ถูกต้อง");
 			}
 		}
 	}
-	
-	
+
 	@RequestMapping(value = "/roomDetail", method = RequestMethod.GET)
 	public ModelAndView roomDetail(@RequestParam("id") int roomID) {
-	    ThanachokManager manager = new ThanachokManager();
-	    Room room = manager.findRoomById(roomID); 
-	    ModelAndView mav = new ModelAndView("ODetailRoom");
-	    mav.addObject("room", room);
-	    return mav;
+		ThanachokManager manager = new ThanachokManager();
+		Room room = manager.findRoomById(roomID);
+		ModelAndView mav = new ModelAndView("ODetailRoom");
+		mav.addObject("room", room);
+		return mav;
 	}
 
 }

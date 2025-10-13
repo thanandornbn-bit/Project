@@ -31,49 +31,58 @@ import com.springmvc.model.ThanachokManager;
 public class ManagerController {
 
 	@RequestMapping(value = "/OwnerHome", method = RequestMethod.GET)
-	public ModelAndView showOwnerRooms(HttpSession session,
-			@RequestParam(value = "floor", required = false) String floor,
-			@RequestParam(value = "status", required = false) String status) {
+public ModelAndView showOwnerRooms(HttpSession session,
+        @RequestParam(value = "floor", required = false) String floor,
+        @RequestParam(value = "status", required = false) String status) {
 
-		Manager manager = (Manager) session.getAttribute("loginManager");
-		if (manager == null) {
-			return new ModelAndView("redirect:/Login");
-		}
+    Manager manager = (Manager) session.getAttribute("loginManager");
+    if (manager == null) {
+        return new ModelAndView("redirect:/Login");
+    }
 
-		ThanachokManager tm = new ThanachokManager();
-		List<Room> roomList = tm.findRoomsByFloorAndStatus(floor, status);
+    ThanachokManager tm = new ThanachokManager();
+    
+    // เรียกใช้ method ที่แก้ไขแล้ว - จะดึงทั้งหมดถ้าไม่มี parameter
+    List<Room> roomList = tm.findRoomsByFloorAndStatus(floor, status);
 
-		//เพิ่มข้อมูลสถานะการอนุมัติสำหรับแต่ละห้อง
-		Map<Integer, Boolean> roomApprovalStatus = new HashMap<>();
-		Map<Integer, String> roomDepositStatus = new HashMap<>();
+    System.out.println("===== DEBUG: OwnerHome =====");
+    System.out.println("Floor filter: " + floor);
+    System.out.println("Status filter: " + status);
+    System.out.println("Total rooms found: " + roomList.size());
+    
+    // เพิ่มข้อมูลสถานะการอนุมัติสำหรับแต่ละห้อง
+    Map<Integer, Boolean> roomApprovalStatus = new HashMap<>();
+    Map<Integer, String> roomDepositStatus = new HashMap<>();
 
-		for (Room room : roomList) {
-			if ("ไม่ว่าง".equals(room.getRoomStatus())) {
-				// ตรวจสอบว่าห้องนี้ได้รับการอนุมัติแล้วหรือไม่
-				boolean isApproved = tm.isRoomApproved(room.getRoomID());
-				roomApprovalStatus.put(room.getRoomID(), isApproved);
+    for (Room room : roomList) {
+        System.out.println("Room: " + room.getRoomNumber() + " - Status: " + room.getRoomStatus());
+        
+        if ("ไม่ว่าง".equals(room.getRoomStatus())) {
+            boolean isApproved = tm.isRoomApproved(room.getRoomID());
+            roomApprovalStatus.put(room.getRoomID(), isApproved);
 
-				// ดึงสถานะของ RentalDeposit
-				RentalDeposit deposit = tm.getRentalDepositByRoomID(room.getRoomID());
-				if (deposit != null) {
-					roomDepositStatus.put(room.getRoomID(), deposit.getStatus());
-				} else {
-					roomDepositStatus.put(room.getRoomID(), "ไม่มีข้อมูล");
-				}
-			} else {
-				roomApprovalStatus.put(room.getRoomID(), false);
-				roomDepositStatus.put(room.getRoomID(), "ว่าง");
-			}
-		}
+            RentalDeposit deposit = tm.getRentalDepositByRoomID(room.getRoomID());
+            if (deposit != null) {
+                roomDepositStatus.put(room.getRoomID(), deposit.getStatus());
+            } else {
+                roomDepositStatus.put(room.getRoomID(), "ไม่มีข้อมูล");
+            }
+        } else {
+            roomApprovalStatus.put(room.getRoomID(), false);
+            roomDepositStatus.put(room.getRoomID(), "ว่าง");
+        }
+    }
 
-		ModelAndView mav = new ModelAndView("OwnerHome");
-		mav.addObject("roomList", roomList);
-		mav.addObject("roomApprovalStatus", roomApprovalStatus);
-		mav.addObject("roomDepositStatus", roomDepositStatus);
-		mav.addObject("floor", floor == null ? "" : floor);
-		mav.addObject("status", status == null ? "" : status);
-		return mav;
-	}
+    ModelAndView mav = new ModelAndView("OwnerHome");
+    mav.addObject("roomList", roomList);
+    mav.addObject("roomApprovalStatus", roomApprovalStatus);
+    mav.addObject("roomDepositStatus", roomDepositStatus);
+    mav.addObject("floor", floor == null ? "" : floor);
+    mav.addObject("status", status == null ? "" : status);
+    
+    System.out.println("===== END DEBUG =====");
+    return mav;
+}
 
 	//แสดงฟอร์มเพิ่มห้อง
 	@RequestMapping(value = "/AddRoom", method = RequestMethod.GET)
@@ -320,7 +329,6 @@ public String returnRoom(@RequestParam("rentId") int rentId,
     boolean success = tm.managerreturnRoom(rentId);
     
     if (success) {
-        // ข้อความแตกต่างกันตามสถานะ
         if ("รอดำเนินการ".equals(status)) {
             redirectAttributes.addFlashAttribute("message", 
                 "✅ ยกเลิกการจองห้อง " + roomNumber + " เรียบร้อยแล้ว\n" +
