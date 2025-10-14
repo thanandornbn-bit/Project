@@ -44,11 +44,6 @@ public ModelAndView showOwnerRooms(HttpSession session,
     
     // เรียกใช้ method ที่แก้ไขแล้ว - จะดึงทั้งหมดถ้าไม่มี parameter
     List<Room> roomList = tm.findRoomsByFloorAndStatus(floor, status);
-
-    System.out.println("===== DEBUG: OwnerHome =====");
-    System.out.println("Floor filter: " + floor);
-    System.out.println("Status filter: " + status);
-    System.out.println("Total rooms found: " + roomList.size());
     
     // เพิ่มข้อมูลสถานะการอนุมัติสำหรับแต่ละห้อง
     Map<Integer, Boolean> roomApprovalStatus = new HashMap<>();

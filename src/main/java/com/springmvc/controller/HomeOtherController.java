@@ -124,7 +124,7 @@ public class HomeOtherController {
 			Manager m = manager.findManagerByEmailAndPassword(email, password);
 			if (m != null) {
 				session.setAttribute("loginManager", m);
-				return new ModelAndView("OwnerHome");
+				return new ModelAndView("redirect:/OwnerHome");
 			} else {
 				return new ModelAndView("Login", "error_message", "Email หรือรหัสผ่านของ Manager ไม่ถูกต้อง");
 			}
