@@ -993,94 +993,96 @@
                                                                             class="fas ${room.roomStatus == 'ว่าง' ? 'fa-check-circle' : 'fa-times-circle'}"></i>
                                                                         ${room.roomStatus}
                                                                     </span>
+                                                                    
                                                                     <c:if test="${room.roomStatus == 'ไม่ว่าง'}">
-                                                                        <br>
-                                                                        <small
-                                                                            class="deposit-status ${roomDepositStatus[room.roomID] == 'เสร็จสมบูรณ์' ? 'approved' : 'pending'}">
-                                                                            <i
-                                                                                class="fas ${roomDepositStatus[room.roomID] == 'เสร็จสมบูรณ์' ? 'fa-check-circle' : 'fa-clock'}"></i>
-                                                                            ${roomDepositStatus[room.roomID]}
-                                                                        </small>
+                                                                        <c:choose>
+                                                                            <c:when test="${roomDepositStatus[room.roomID] == 'รอคืนห้อง'}">
+                                                                                <br>
+                                                                                <small class="deposit-status pending" style="color: #ff4444;">
+                                                                                    <i class="fas fa-door-open"></i>
+                                                                                    รอคืนห้อง
+                                                                                </small>
+                                                                            </c:when>
+                                                                            <c:when test="${roomDepositStatus[room.roomID] == 'รอดำเนินการ'}">
+                                                                                <br>
+                                                                                <small class="deposit-status pending">
+                                                                                    <i class="fas fa-clock"></i>
+                                                                                    รอดำเนินการ
+                                                                                </small>
+                                                                            </c:when>
+                                                                            <c:when test="${roomDepositStatus[room.roomID] == 'เสร็จสมบูรณ์'}">
+                                                                                <br>
+                                                                                <small class="deposit-status approved">
+                                                                                    <i class="fas fa-check-circle"></i>
+                                                                                    เสร็จสมบูรณ์
+                                                                                </small>
+                                                                            </c:when>
+                                                                        </c:choose>
                                                                     </c:if>
                                                                 </td>
                                                                 <td>
-                                                                    <div class="action-buttons">
-                                                                        <c:if test="${room.roomStatus == 'ไม่ว่าง'}">
-                                                                            <c:choose>
-                                                                                <c:when
-                                                                                    test="${roomApprovalStatus[room.roomID] == true}">
-                                                                                    <a href="ManagerAddInvoice?roomID=${room.roomID}"
-                                                                                        class="action-btn btn-add"
-                                                                                        title="เพิ่มใบแจ้งหนี้สำหรับห้อง ${room.roomNumber}">
-                                                                                        <i class="fas fa-plus"></i>
-                                                                                        เพิ่มบิล
-                                                                                    </a>
-                                                                                    <a href="EditInvoice?roomID=${room.roomID}"
-                                                                                        class="action-btn btn-edit-invoice"
-                                                                                        title="แก้ไขใบแจ้งหนี้ห้อง ${room.roomNumber}">
-                                                                                        <i
-                                                                                            class="fas fa-file-invoice"></i>
-                                                                                        แก้ไขบิล
-                                                                                    </a>
-                                                                                </c:when>
-                                                                                <c:otherwise>
-                                                                                    <button
-                                                                                        class="action-btn btn-disabled"
-                                                                                        disabled
-                                                                                        title="ต้องอนุมัติการจองก่อนจึงจะสามารถเพิ่มบิลได้">
-                                                                                        <i class="fas fa-ban"></i>
-                                                                                        รอการอนุมัติ
-                                                                                    </button>
-                                                                                    <c:choose>
-                                                                                        <c:when test="${roomDepositStatus[room.roomID] == 'รอคืนห้อง'}">
-                                                                                            <a href="ListReturnRoom"
-                                                                                                class="action-btn btn-view"
-                                                                                                title="มีคำขอคืนห้อง ${pendingReturnCount} รายการรอดำเนินการ">
-                                                                                                <i class="fas fa-exclamation-circle"></i>
-                                                                                                ดูรายการการคืนห้อง
-                                                                                            </a>
-                                                                                        </c:when>
-                                                                                        <c:when test="${roomDepositStatus[room.roomID] == 'รอดำเนินการ'}">
-                                                                                            <a href="OViewReserve"
-                                                                                                class="action-btn btn-view"
-                                                                                                title="ไปที่หน้าจัดการการจองเพื่ออนุมัติ">
-                                                                                                <i class="fas fa-clipboard-check"></i>
-                                                                                                อนุมัติการจอง
-                                                                                            </a>
-                                                                                        </c:when>
-                                                                                        <c:otherwise>
-                                                                                            <a href="OViewReserve"
-                                                                                                class="action-btn btn-view"
-                                                                                                title="ไปที่หน้าจัดการการจองเพื่ออนุมัติ">
-                                                                                                <i class="fas fa-clipboard-check"></i>
-                                                                                                อนุมัติการจอง
-                                                                                            </a>
-                                                                                        </c:otherwise>
-                                                                                    </c:choose>
-                                                                                </c:otherwise>
-                                                                            </c:choose>
-                                                                        </c:if>
+                                                    <div class="action-buttons">
+                                                        <c:if test="${room.roomStatus == 'ไม่ว่าง'}">
+                                                            <c:choose>
+                                                                <c:when test="${roomApprovalStatus[room.roomID] == true}">
+                                                                    <a href="ManagerAddInvoice?roomID=${room.roomID}"
+                                                                        class="action-btn btn-add"
+                                                                        title="เพิ่มใบแจ้งหนี้สำหรับห้อง ${room.roomNumber}">
+                                                                        <i class="fas fa-plus"></i>
+                                                                        เพิ่มบิล
+                                                                    </a>
+                                                                    <a href="EditInvoice?roomID=${room.roomID}"
+                                                                        class="action-btn btn-edit-invoice"
+                                                                        title="แก้ไขใบแจ้งหนี้ห้อง ${room.roomNumber}">
+                                                                        <i class="fas fa-file-invoice"></i>
+                                                                        แก้ไขบิล
+                                                                    </a>
+                                                                </c:when>
+                                                                <c:otherwise>
+                                                                    <button class="action-btn btn-disabled" disabled
+                                                                        title="ต้องอนุมัติการจองก่อนจึงจะสามารถเพิ่มบิลได้">
+                                                                        <i class="fas fa-ban"></i>
+                                                                        รอการอนุมัติ
+                                                                    </button>
+                                                                    <c:choose>
+                                                                        <c:when test="${roomDepositStatus[room.roomID] == 'รอคืนห้อง'}">
+                                                                            <a href="ListReturnRoom"
+                                                                                class="action-btn btn-view"
+                                                                                style="background: linear-gradient(135deg, #9c27b0, #7b1fa2); color: white;"
+                                                                                title="มีคำขอคืนห้องรอดำเนินการ">
+                                                                                <i class="fas fa-door-open"></i>
+                                                                                อนุมัติการคืนห้อง
+                                                                            </a>
+                                                                        </c:when>
+                                                                        <c:when test="${roomDepositStatus[room.roomID] == 'รอดำเนินการ'}">
+                                                                            <a href="OViewReserve"
+                                                                                class="action-btn btn-view"
+                                                                                title="ไปที่หน้าจัดการการจองเพื่ออนุมัติ">
+                                                                                <i class="fas fa-clipboard-check"></i>
+                                                                                อนุมัติการจอง
+                                                                            </a>
+                                                                        </c:when>
+                                                                    </c:choose>
+                                                                </c:otherwise>
+                                                            </c:choose>
+                                                        </c:if>
 
-                                                                        <a href="editRoom?id=${room.roomID}"
-                                                                            class="action-btn btn-edit"
-                                                                            title="แก้ไขข้อมูลห้อง ${room.roomNumber}">
-                                                                            <i class="fas fa-edit"></i>
-                                                                            แก้ไขข้อมูล
-                                                                        </a>
+                                                        <a href="editRoom?id=${room.roomID}"
+                                                            class="action-btn btn-edit"
+                                                            title="แก้ไขข้อมูลห้อง ${room.roomNumber}">
+                                                            <i class="fas fa-edit"></i>
+                                                            แก้ไขข้อมูล
+                                                        </a>
 
-                                                                        <c:if test="${room.roomStatus == 'ว่าง'}">
-                                                                            <!-- Debug: แสดง roomID -->
-                                                                            <input type="hidden" value="${room.roomID}"
-                                                                                id="roomID_${room.roomID}">
-
-                                                                            <button class="action-btn btn-delete"
-                                                                                onclick="confirmDelete(${room.roomID}, '${room.roomNumber}')"
-                                                                                title="ลบห้อง ${room.roomNumber}">
-                                                                                <i class="fas fa-trash"></i>
-                                                                                ลบ
-                                                                            </button>
-                                                                        </c:if>
-                                                                    </div>
+                                                        <c:if test="${room.roomStatus == 'ว่าง'}">
+                                                            <button class="action-btn btn-delete"
+                                                                onclick="confirmDelete(${room.roomID}, '${room.roomNumber}')"
+                                                                title="ลบห้อง ${room.roomNumber}">
+                                                                <i class="fas fa-trash"></i>
+                                                                ลบ
+                                                            </button>
+                                                        </c:if>
+                                                    </div>
                                                                 </td>
                                                             </tr>
                                                         </c:forEach>

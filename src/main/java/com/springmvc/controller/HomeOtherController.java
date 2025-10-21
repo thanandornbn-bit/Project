@@ -20,12 +20,16 @@ import jakarta.servlet.http.HttpSession;
 @Controller
 public class HomeOtherController {
 
-	@RequestMapping(value = "/", method = RequestMethod.GET)
-	public ModelAndView Home() {
+	@RequestMapping(value = { "/", "/Home" }, method = RequestMethod.GET)
+	public ModelAndView Home(
+			@RequestParam(value = "floor", required = false) String floor,
+			@RequestParam(value = "status", required = false) String status) {
 		ThanachokManager manager = new ThanachokManager();
-		List<Room> roomList = manager.getAllrooms();
+		List<Room> roomList = manager.findRoomsByFloorAndStatus(floor, status);
 		ModelAndView mav = new ModelAndView("Home");
 		mav.addObject("roomList", roomList);
+		mav.addObject("floor", floor);
+		mav.addObject("status", status);
 		return mav;
 	}
 

@@ -569,12 +569,12 @@
                 <i class="fas fa-search"></i> 
                 ค้นหาห้องพัก
             </h3>
-            <form method="get" action="Homesucess" id="searchForm">
+            <form method="get" action="Home" id="searchForm">
                 <div class="form-group">
                     <label for="floor">ชั้น:</label>
                     <select name="floor" id="floor">
                         <option value="">ทั้งหมด</option>
-                        <c:forEach var="i" begin="1" end="9">
+                        <c:forEach var="i" begin="1" end="5">
                             <option value="${i}" ${param.floor == i ? 'selected' : ''}>ชั้น ${i}</option>
                         </c:forEach>
                     </select>
