@@ -313,6 +313,28 @@ response.sendRedirect("Login"); return; } %>
         cursor: not-allowed;
       }
 
+      select.form-control {
+        cursor: pointer;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ff8c00' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 15px center;
+        background-size: 20px;
+        padding-right: 45px;
+      }
+
+      select.form-control option {
+        background: #2d2d2d;
+        color: #fff;
+        padding: 10px;
+      }
+
+      select.form-control:hover {
+        border-color: #ff8c00;
+      }
+
       .utility-section {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -843,9 +865,15 @@ response.sendRedirect("Login"); return; } %>
                         name="statusId"
                         id="statusSelect"
                         class="form-control"
+                        disabled
+                        style="
+                          background: rgba(0, 0, 0, 0.6);
+                          cursor: not-allowed;
+                        "
                       >
-                        <option value="0">ยังไม่ได้ชำระ</option>
+                        <option value="0" selected>ยังไม่ได้ชำระ</option>
                       </select>
+                      <input type="hidden" name="statusId" value="0" />
                     </div>
                   </div>
                 </div>

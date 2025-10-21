@@ -840,9 +840,9 @@ response.sendRedirect("Login"); return; } %>
                       <td>
                         <i class="fas fa-calendar-check"></i>
                         <c:choose>
-                          <c:when test="${not empty rental.deadlineDate}">
+                          <c:when test="${not empty rental.rent.returnDate}">
                             <fmt:formatDate
-                              value="${rental.deadlineDate}"
+                              value="${rental.rent.returnDate}"
                               pattern="dd/MM/yyyy"
                             />
                           </c:when>

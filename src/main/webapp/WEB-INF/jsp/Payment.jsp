@@ -606,7 +606,7 @@ sdf.format(today); %>
             <div class="detail-row">
               <span class="detail-label">ค่ามัดจำ:</span>
               <span class="deposit-amount">
-                <i class="fas fa-coins"></i> 500 บาท
+                <i class="fas fa-coins"></i> ${room.roomDeposit} บาท
               </span>
             </div>
           </div>
@@ -629,14 +629,14 @@ sdf.format(today); %>
             </h3>
             <div class="qr-code-container">
               <img
-                src="https://promptpay.io/0635803516/1.png"
+                src="https://promptpay.io/0635803516/${room.roomDeposit}.png"
                 alt="QR Code PromptPay"
               />
             </div>
             <div class="qr-info">
               <p><strong>หมายเลข PromptPay:</strong> 063-580-3516</p>
               <p><strong>ชื่อบัญชี:</strong> ThanaChok Place</p>
-              <p><strong>จำนวนเงิน:</strong> 500 บาท</p>
+              <p><strong>จำนวนเงิน:</strong> ${room.roomDeposit} บาท</p>
             </div>
           </div>
 
@@ -648,8 +648,12 @@ sdf.format(today); %>
             </h3>
 
             <input type="hidden" name="roomID" value="${room.roomID}" />
-            <input type="hidden" name="depositAmount" value="500" />
-            <input type="hidden" name="price" value="500" />
+            <input
+              type="hidden"
+              name="depositAmount"
+              value="${room.roomDeposit}"
+            />
+            <input type="hidden" name="price" value="${room.roomDeposit}" />
             <input type="hidden" name="deadline" />
 
             <div class="form-group">

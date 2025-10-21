@@ -862,41 +862,6 @@ session.getAttribute("loginMember"); boolean isLoggedIn = (loginMember != null);
             </div>
           </div>
 
-          <!-- WiFi Section -->
-          <div class="wifi-section">
-            <div class="wifi-header">
-              <i class="fas fa-wifi"></i>
-              อินเทอร์เน็ต Wi-Fi
-            </div>
-            <div class="wifi-controls">
-              <div>
-                <select
-                  id="Routerwifi"
-                  name="Routerwifi"
-                  class="wifi-select"
-                  onchange="updateWifiPrice()"
-                >
-                  <option value="เอา">ต้องการ Wi-Fi</option>
-                  <option value="ไม่เอา">ไม่ต้องการ Wi-Fi</option>
-                </select>
-              </div>
-              <div class="wifi-price" id="wifiPrice">
-                <i class="fas fa-tag"></i> ฿200/เดือน
-              </div>
-            </div>
-          </div>
-
-          <!-- Notice -->
-          <div class="notice">
-            <div class="notice-icon">
-              <i class="fas fa-lightbulb"></i>
-            </div>
-            <div>
-              <strong>หมายเหตุ:</strong> ค่าบริการ Wi-Fi
-              สามารถเลือกได้ตามความต้องการ และสามารถเปลี่ยนแปลงได้ในภายหลัง
-            </div>
-          </div>
-
           <!-- Action Buttons -->
           <div class="action-buttons">
             <button

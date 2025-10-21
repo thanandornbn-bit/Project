@@ -501,6 +501,19 @@ response.sendRedirect("Login"); return; } %>
         transform: translateY(-2px);
       }
 
+      .btn-reject {
+        background: rgba(255, 68, 68, 0.2);
+        color: #ff4444;
+        border: 2px solid #ff4444;
+      }
+
+      .btn-reject:hover {
+        background: linear-gradient(135deg, #ff4444, #cc0000);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(255, 68, 68, 0.5);
+      }
+
       .loading {
         display: none;
         position: fixed;
@@ -832,6 +845,26 @@ response.sendRedirect("Login"); return; } %>
                           อนุมัติการจอง
                         </button>
                       </form>
+
+                      <form
+                        action="RejectRentalDeposit"
+                        method="post"
+                        style="display: inline"
+                      >
+                        <input
+                          type="hidden"
+                          name="depositId"
+                          value="${rent.rentalDeposit.depositID}"
+                        />
+                        <button
+                          type="submit"
+                          class="btn btn-reject"
+                          onclick="return confirmReject('${rent.room.roomNumber}', '${rent.member.firstName} ${rent.member.lastName}')"
+                        >
+                          <i class="fas fa-times"></i>
+                          ปฏิเสธการจอง
+                        </button>
+                      </form>
                     </c:when>
                     <c:when
                       test="${rent.rentalDeposit.status == 'เสร็จสมบูรณ์'}"
@@ -898,7 +931,17 @@ response.sendRedirect("Login"); return; } %>
       };
 
       function confirmApproval(roomNumber, memberName) {
-        const message = `คุณต้องการอนุมัติการจองห้อง ${roomNumber}\nของ ${memberName} ใช่หรือไม่?\n\nหลังจากอนุมัติแล้ว:\n✓ สามารถเพิ่มบิลให้ห้องนี้ได้\n✓ ผู้เช่าสามารถเข้าพักได้\n✓ ไม่สามารถยกเลิกได้`;
+        const message = `คุณต้องการอนุมัติการจองห้องนี้ใช่หรือไม่?`;
+
+        if (confirm(message)) {
+          document.getElementById("loading").style.display = "flex";
+          return true;
+        }
+        return false;
+      }
+
+      function confirmReject(roomNumber, memberName) {
+        const message = `คุณต้องการปฏิเสธการจองห้องนี้ใช่หรือไม่?`;
 
         if (confirm(message)) {
           document.getElementById("loading").style.display = "flex";

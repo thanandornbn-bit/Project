@@ -410,6 +410,19 @@ if (loginManager == null) {
             box-shadow: 0 5px 15px rgba(255, 140, 0, 0.3);
         }
 
+        .btn-return {
+            background: rgba(255, 68, 68, 0.2);
+            color: #ff4444;
+            border: 2px solid #ff4444;
+        }
+
+        .btn-return:hover {
+            background: linear-gradient(135deg, #ff4444, #cc0000);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 68, 68, 0.3);
+        }
+
         .btn-disabled {
             background: rgba(100, 100, 100, 0.2);
             color: #666;
@@ -716,23 +729,12 @@ if (loginManager == null) {
                                                             ดูรายละเอียด
                                                         </button>
                                                     </form>
-                                                    <form action="ConfirmRentalDeposit" method="post" style="display: inline;">
-                                                        <input type="hidden" name="depositId" value="${rent.rentalDeposit.depositID}" />
-                                                        <button type="submit" class="action-btn btn-approve" 
-                                                                onclick="return confirmApproval('${rent.room.roomNumber}', '${rent.member.firstName} ${rent.member.lastName}')">
-                                                            <i class="fas fa-check"></i>
-                                                            อนุมัติ
-                                                        </button>
-                                                    </form>
+                                                    
                                                     <form action="ManagerReturnRoom" method="post" style="display: inline;">
             <input type="hidden" name="rentId" value="${rent.rentID}" />
             <input type="hidden" name="roomNumber" value="${rent.room.roomNumber}" />
             <input type="hidden" name="status" value="รอดำเนินการ" />
-            <button type="submit" class="action-btn btn-return" 
-                    onclick="return confirmReturn('${rent.room.roomNumber}', '${rent.member.firstName} ${rent.member.lastName}', 'รอดำเนินการ')">
-                <i class="fas fa-times-circle"></i>
-                ยกเลิกการจอง
-            </button>
+            
         </form>
                                                 </div>
                                             </td>
@@ -869,9 +871,22 @@ if (loginManager == null) {
             document.getElementById('loading').style.display = 'flex';
         }
 
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+
         // Add loading to forms
         document.querySelectorAll('form').forEach(form => {
-            form.addEventListener('submit', function() {
+            form.addEventListener('submit', function(e) {
+                // If it's a return form and confirmation is needed
+                if (form.action.includes('ManagerReturnRoom')) {
+                    const roomNumber = form.querySelector('input[name="roomNumber"]').value;
+                    const status = form.querySelector('input[name="status"]').value;
+                    if (!confirmReturn(roomNumber, '', status)) {
+                        e.preventDefault();
+                        return;
+                    }
+                }
                 showLoading();
             });
         });

@@ -798,7 +798,6 @@ import="com.springmvc.model.*"%> <%@ taglib prefix="c" uri="jakarta.tags.core"%>
           </button>
         </form>
 
-        <!-- Form Footer -->
         <div class="form-footer">
           <p class="login-text">มีบัญชีผู้ใช้แล้ว?</p>
           <a href="Login" class="login-link">

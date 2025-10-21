@@ -821,10 +821,13 @@ if (loginMember == null) {
                                     </div>
                                     <div class="info-row">
                                         <span class="info-label">
-                                            <i class="fas fa-calendar"></i> วันที่เช่า
+                                            <i class="fas fa-calendar"></i> วันที่เริ่มเช่า
                                         </span>
                                         <span class="info-value">
-                                            <fmt:formatDate value="${rental.paymentDate}" pattern="dd/MM/yyyy"/>
+                                            
+                                            <fmt:formatDate value="${rental.rent.rentDate}" pattern="yyyy" var="yearCE"/>
+                                            <c:set var="yearBE" value="${yearCE}"/>
+                                            <fmt:formatDate value="${rental.rent.rentDate}" pattern="dd/MM/"/>${yearBE}
                                         </span>
                                     </div>
                                     <div class="info-row">
@@ -880,7 +883,7 @@ if (loginMember == null) {
                                         </c:when>
                                         <c:otherwise>
                                             <button class="btn btn-return" 
-                                                    onclick="confirmReturnRoom('${rental.rent.rentID}', '${rental.rent.room.roomNumber}')">
+                                                    onclick="confirmReturnRoom(${rental.rent.rentID}, '${rental.rent.room.roomNumber}')">
                                                 <i class="fas fa-sign-out-alt"></i> ขอคืนห้อง
                                             </button>
                                         </c:otherwise>
@@ -923,12 +926,8 @@ if (loginMember == null) {
 
         // Confirm Return Room
         function confirmReturnRoom(rentId, roomNumber) {
-            const confirmMessage = `คุณต้องการส่งคำขอคืนห้อง ${roomNumber} ใช่หรือไม่?\n\n` +
-                `หลังจากส่งคำขอแล้ว:\n` +
-                `✓ Manager จะได้รับคำขอของคุณ\n` +
-                `✓ รอ Manager ตรวจสอบและอนุมัติ (1-2 วันทำการ)\n` +
-                `✓ เมื่ออนุมัติแล้วจะได้รับเงินมัดจำคืน\n\n` +
-                `⚠️ กรุณาตรวจสอบให้แน่ใจว่าได้ชำระค่าใช้จ่ายทั้งหมดแล้ว`;
+            // แสดง confirm dialog สำหรับการส่งคำขอคืนห้อง
+            const confirmMessage = `คุณต้องการส่งคำขอคืนห้อง ${roomNumber} ใช่หรือไม่?\n\n`;
                 
             if (confirm(confirmMessage)) {
                 document.getElementById('loading').style.display = 'flex';

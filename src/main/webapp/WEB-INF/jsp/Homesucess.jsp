@@ -604,6 +604,78 @@
             border-left: 4px solid #ff4444;
         }
 
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
+            margin: 15% auto;
+            padding: 30px;
+            border: 2px solid #ff4444;
+            border-radius: 15px;
+            width: 80%;
+            max-width: 500px;
+            position: relative;
+            box-shadow: 0 0 30px rgba(255, 68, 68, 0.3);
+            text-align: center;
+            animation: modalSlideDown 0.5s ease-out;
+        }
+
+        @keyframes modalSlideDown {
+            from {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            margin-bottom: 20px;
+        }
+
+        .modal-header i {
+            font-size: 3rem;
+            color: #ff4444;
+            margin-bottom: 15px;
+        }
+
+        .modal-body {
+            color: #fff;
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        .modal-footer .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: linear-gradient(45deg, #ff4444, #cc0000);
+            color: white;
+        }
+
+        .modal-footer .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 68, 68, 0.4);
+        }
+
         @keyframes slideInRight {
             from {
                 transform: translateX(100%);
@@ -693,6 +765,25 @@
     <!-- Loading Animation -->
     <div class="loading" id="loading">
         <div class="spinner"></div>
+    </div>
+
+    <!-- Modal Alert -->
+    <div id="alertModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h2 style="color: #ff4444;">แจ้งเตือน</h2>
+            </div>
+            <div class="modal-body">
+                <p id="modalMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal()">
+                    <i class="fas fa-times"></i>
+                    ปิด
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- Toast Notification -->
@@ -826,6 +917,9 @@
                             </tr>
                         </thead>
                         <tbody>
+                            <!-- Hidden fields for authentication -->
+                            <input type="hidden" id="isLoggedIn" value="${not empty loginMember}">
+                            
                             <c:forEach var="room" items="${roomList}">
                                 <tr>
                                     <td class="room-number">${room.roomNumber}</td>
@@ -838,13 +932,26 @@
                                         </span>
                                     </td>
                                     <td>
-                                        <button class="view-btn" 
-                                                data-room-id="${room.roomID}"
-                                                data-room-status="${room.roomStatus}"
-                                                data-room-number="${room.roomNumber}"
-                                                onclick="handleViewRoom(this)">
+                                        <button 
+                                            class="view-btn" 
+                                            data-room-id="${room.roomID}"
+                                            data-room-status="${room.roomStatus}"
+                                            data-room-number="${room.roomNumber}"
+                                            onclick="handleViewRoom(this)"
+                                        >
                                             <i class="fas fa-eye"></i>
                                             ดูรายละเอียด
+                                        </button>
+                                        <button 
+                                            class="view-btn" 
+                                            style="margin-left: 10px; background: linear-gradient(45deg, #00ff88, #00cc6f);"
+                                            data-room-id="${room.roomID}"
+                                            data-room-status="${room.roomStatus}"
+                                            data-room-number="${room.roomNumber}"
+                                            onclick="handleViewRoom(this)"
+                                        >
+                                            <i class="fas fa-calendar-check"></i>
+                                            จองห้องพัก
                                         </button>
                                     </td>
                                 </tr>
@@ -862,6 +969,51 @@
     
     // ข้อมูลเริ่มต้นจาก server
     const serverActiveRentalCount = ${not empty activeRentalCount ? activeRentalCount : 0};
+
+    async function handleReserve(button) {
+        // ดึงข้อมูลจาก data attributes ของปุ่ม
+        const roomID = button.getAttribute('data-room-id');
+        const roomStatus = button.getAttribute('data-room-status');
+        const roomNumber = button.getAttribute('data-room-number');
+        
+        // ตรวจสอบการล็อกอิน
+        const isLoggedIn = document.getElementById('isLoggedIn').value === 'true';
+        if (!isLoggedIn) {
+            showToast("กรุณาเข้าสู่ระบบก่อนทำการจองห้องพัก", "error");
+            window.location.href = "Login";
+            return;
+        }
+
+        // ตรวจสอบสถานะห้อง
+        if (roomStatus !== "ว่าง") {
+            showToast(`ห้อง ${roomNumber} ไม่ว่าง ไม่สามารถจองได้`, "error");
+            return;
+        }
+
+        const loading = document.getElementById("loading");
+        loading.classList.add("active");
+
+        try {
+            // ตรวจสอบการจองที่มีอยู่
+            const response = await fetch('checkActiveRental');
+            const rentalData = await response.json();
+            
+            if (rentalData.hasActiveRental) {
+                const roomList = rentalData.activeRooms ? 
+                    rentalData.activeRooms.join(', ') : 'ห้องที่คุณจองไว้';
+                showToast(`คุณมีการจองห้อง ${roomList} อยู่แล้ว กรุณาคืนห้องเก่าก่อนจองห้องใหม่`, "error");
+                loading.classList.remove("active");
+                return;
+            }
+
+            // ไปยังหน้า Payment พร้อมส่ง room ID
+            window.location.href = `Payment?id=${roomID}`;
+        } catch (error) {
+            console.error("Error:", error);
+            showToast("เกิดข้อผิดพลาดในการจองห้อง", "error");
+            loading.classList.remove("active");
+        }
+    }
     
     // ฟังก์ชันแสดง Toast
     function showToast(message, type = 'success') {
@@ -875,6 +1027,18 @@
         setTimeout(() => {
             toast.style.display = 'none';
         }, 5000);
+    }
+
+    // Modal functions
+    function showModal(message) {
+        document.getElementById('modalMessage').innerHTML = message;
+        document.getElementById('alertModal').style.display = 'block';
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+        document.getElementById('alertModal').style.display = 'none';
+        document.body.style.overflow = 'auto';
     }
 
     // ตรวจสอบการจองที่ active ของผู้ใช้
@@ -930,27 +1094,28 @@
         
         viewButtons.forEach(button => {
             const roomStatus = button.getAttribute('data-room-status');
+            const isBookButton = button.innerHTML.includes('จองห้องพัก');
             
             if (roomStatus !== 'ว่าง') {
-                button.disabled = true;
-                button.innerHTML = '<i class="fas fa-times-circle"></i> ห้องไม่ว่าง';
-                button.title = 'ห้องนี้ไม่ว่างแล้ว';
-                button.style.background = '#555';
+                if (isBookButton) {
+                    button.style.display = 'none'; // ซ่อนปุ่มจองถ้าห้องไม่ว่าง
+                } else {
+                    button.innerHTML = '<i class="fas fa-times-circle"></i> ห้องไม่ว่าง';
+                    button.title = 'ห้องนี้ไม่ว่างแล้ว';
+                    button.style.background = '#555';
+                }
                 return;
             }
             
-            if (hasActiveRental) {
-                button.disabled = true;
-                button.innerHTML = '<i class="fas fa-ban"></i> ไม่สามารถจองได้';
-                const roomList = data.activeRooms ? data.activeRooms.join(', ') : 'ห้องที่จองไว้';
-                button.title = `คุณมีห้องจองอยู่แล้ว: ${roomList}\nกรุณาคืนห้องเก่าก่อนจองห้องใหม่`;
-                button.style.background = 'linear-gradient(45deg, #ff4444, #cc0000)';
+            // สำหรับห้องที่ว่าง ให้แสดงปุ่มปกติ
+            if (isBookButton) {
+                button.innerHTML = '<i class="fas fa-calendar-check"></i> จองห้องพัก';
+                button.style.background = 'linear-gradient(45deg, #00ff88, #00cc6f)';
             } else {
-                button.disabled = false;
                 button.innerHTML = '<i class="fas fa-eye"></i> ดูรายละเอียด';
-                button.title = 'คลิกเพื่อดูรายละเอียดและจองห้อง';
                 button.style.background = 'linear-gradient(45deg, #ff8c00, #ff6b00)';
             }
+            button.title = 'คลิกเพื่อดูรายละเอียดและจองห้อง';
         });
     }
 
@@ -959,32 +1124,59 @@
         const roomID = button.getAttribute('data-room-id');
         const roomStatus = button.getAttribute('data-room-status');
         const roomNumber = button.getAttribute('data-room-number');
-        
-        if (button.disabled) {
-            if (roomStatus !== 'ว่าง') {
-                showToast(`❌ ห้อง ${roomNumber} ไม่ว่างแล้ว`, 'error');
-            } else if (userActiveRentalData && userActiveRentalData.hasActiveRental) {
-                const roomList = userActiveRentalData.activeRooms ? 
-                    userActiveRentalData.activeRooms.join(', ') : 'ห้องที่คุณจองไว้';
-                showToast(`⚠️ คุณมีการจองห้อง ${roomList} อยู่แล้ว กรุณาคืนห้องเก่าก่อนจองห้องใหม่`, 'error');
-            }
-            return;
-        }
+        const isBookButton = button.innerHTML.includes('จองห้องพัก');
 
+        // ตรวจสอบสถานะห้อง
         if (roomStatus !== "ว่าง") {
             showToast(`❌ ห้อง ${roomNumber} ไม่ว่างแล้ว`, "error");
-            return;
+            return false;
         }
 
+        // ตรวจสอบการจองที่ active
         if (userActiveRentalData && userActiveRentalData.hasActiveRental) {
             const roomList = userActiveRentalData.activeRooms ? 
                 userActiveRentalData.activeRooms.join(', ') : 'ห้องที่คุณจองไว้';
-            showToast(`⚠️ คุณมีการจองห้อง ${roomList} อยู่แล้ว กรุณาคืนห้องเก่าก่อนจองห้องใหม่`, "error");
-            return;
+            
+            let modalMessage = '';
+            if (isBookButton) {
+                modalMessage = `
+                    <div style="text-align: center;">
+                        <i class="fas fa-exclamation-circle" style="font-size: 3rem; color: #ff4444; margin-bottom: 20px;"></i>
+                        <h3 style="color: #ff8c00; margin-bottom: 15px;">ไม่สามารถจองห้องได้</h3>
+                        <div style="margin: 15px 0; padding: 10px; background: rgba(255, 68, 68, 0.1); border-radius: 8px;">
+                            <p>คุณมีการจองห้อง <strong style="color: #ff8c00;">${rent.roomNumber}</strong> อยู่แล้ว</p>
+                        </div>
+                        <p style="margin-top: 15px; color: #ff4444;">
+                            กรุณาคืนห้องเก่าในหน้า <a href="YourRoom" style="color: #ff8c00; text-decoration: none; font-weight: bold;">"ห้องของฉัน"</a> ก่อนจองห้องใหม่
+                        </p>
+                    </div>
+                `;
+            } else {
+                modalMessage = `
+                    <div style="text-align: center;">
+                        <i class="fas fa-info-circle" style="font-size: 3rem; color: #ff8c00; margin-bottom: 20px;"></i>
+                        <h3 style="color: #ff8c00; margin-bottom: 15px;">ไม่สามารถดูรายละเอียดห้องได้</h3>
+                        <div style="margin: 15px 0; padding: 10px; background: rgba(255, 140, 0, 0.1); border-radius: 8px;">
+                            <p>เนื่องจากคุณมีการจองห้อง <strong style="color: #ff8c00;">${rent.roomNumber}</strong> อยู่แล้ว</p>
+                        </div>
+                        <p style="margin-top: 15px;">
+                            กรุณาจัดการห้องที่จองไว้ในหน้า <a href="YourRoom" style="color: #ff8c00; text-decoration: none; font-weight: bold;">"ห้องของฉัน"</a> ก่อน
+                        </p>
+                    </div>
+                `;
+            }
+            showModal(modalMessage);
+            return false;
         }
 
-        document.getElementById('loading').style.display = 'flex';
-        window.location.href = 'roomDetail?id=' + roomID;
+        // ถ้าไม่มีการจองอยู่ นำทางไปยังหน้าที่เหมาะสม
+        if (isBookButton) {
+            window.location.href = 'Payment?id=' + roomID;
+        } else {
+            document.getElementById('loading').style.display = 'flex';
+            window.location.href = 'roomDetail?id=' + roomID;
+        }
+        return false;
     }
 
     // ตรวจสอบสถานะเริ่มต้นของปุ่มเมื่อโหลดหน้า
@@ -999,7 +1191,7 @@
             const messageDiv = document.getElementById('activeRentalMessage');
             messageDiv.innerHTML = `
                 <strong>⚠️ คุณมีการจองห้องอยู่แล้ว ${serverActiveRentalCount} ห้อง</strong><br>
-                <small><i class="fas fa-info-circle"></i> กรุณาคืนห้องเก่าในหน้า "ประวัติการจอง" ก่อนจองห้องใหม่</small>
+                
             `;
             alertDiv.classList.add('show');
         }
@@ -1008,18 +1200,26 @@
         
         viewButtons.forEach(button => {
             const roomStatus = button.getAttribute('data-room-status');
+            const isBookButton = button.innerHTML.includes('จองห้องพัก');
             
             if (roomStatus !== 'ว่าง') {
-                button.disabled = true;
-                button.innerHTML = '<i class="fas fa-times-circle"></i> ห้องไม่ว่าง';
-                button.title = 'ห้องนี้ไม่ว่างแล้ว';
-                button.style.background = '#555';
-            }
-            else if (serverActiveRentalCount > 0) {
-                button.disabled = true;
-                button.innerHTML = '<i class="fas fa-ban"></i> ไม่สามารถจองได้';
-                button.title = 'คุณมีห้องจองอยู่แล้ว กรุณาคืนห้องเก่าก่อน';
-                button.style.background = 'linear-gradient(45deg, #ff4444, #cc0000)';
+                if (isBookButton) {
+                    button.style.display = 'none'; // ซ่อนปุ่มจองถ้าห้องไม่ว่าง
+                } else {
+                    button.innerHTML = '<i class="fas fa-times-circle"></i> ห้องไม่ว่าง';
+                    button.title = 'ห้องนี้ไม่ว่างแล้ว';
+                    button.style.background = '#555';
+                }
+            } else {
+                // สำหรับห้องที่ว่าง ให้แสดงปุ่มปกติ
+                if (isBookButton) {
+                    button.innerHTML = '<i class="fas fa-calendar-check"></i> จองห้องพัก';
+                    button.style.background = 'linear-gradient(45deg, #00ff88, #00cc6f)';
+                } else {
+                    button.innerHTML = '<i class="fas fa-eye"></i> ดูรายละเอียด';
+                    button.style.background = 'linear-gradient(45deg, #ff8c00, #ff6b00)';
+                }
+                button.title = 'คลิกเพื่อดูรายละเอียดและจองห้อง';
             }
         });
     }

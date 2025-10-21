@@ -75,7 +75,6 @@ if (loginManager == null) {
         .nav a:hover, .nav a.active {
             background: linear-gradient(135deg, #ff8c00, #ff6b00);
         }
-        
 
         .container {
             max-width: 1400px;
@@ -233,32 +232,41 @@ if (loginManager == null) {
             font-size: 1.8rem;
         }
 
+        .no-requests p {
+            color: #999;
+            font-size: 1.1rem;
+        }
+
         @media (max-width: 768px) {
+            .page-header h1 {
+                font-size: 1.5rem;
+            }
+
+            .nav a {
+                padding: 10px 16px;
+                font-size: 0.9rem;
+            }
+
+            .stat-number {
+                font-size: 2.5rem;
+            }
+
             .requests-grid {
                 grid-template-columns: 1fr;
             }
-        }
 
-        .back-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 25px;
-            padding: 12px 25px;
-            background: rgba(255, 140, 0, 0.1);
-            border: 1px solid rgba(255, 140, 0, 0.3);
-            color: #ff8c00;
-            text-decoration: none;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-            font-weight: 500;
-        }
+            .room-number {
+                font-size: 1.5rem;
+            }
 
-        .back-btn:hover {
-            background: rgba(255, 140, 0, 0.2);
-            transform: translateX(-5px);
-        }
+            .actions {
+                flex-direction: column;
+            }
 
+            .btn {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -275,7 +283,6 @@ if (loginManager == null) {
         <a href="ListReturnRoom" class="active"><i class="fas fa-clipboard-check"></i> คำขอคืนห้อง</a>
         <a href="AddRoom"><i class="fas fa-plus"></i> เพิ่มห้อง</a>
     </div>
-    
 
     <div class="container">
         <div class="stat-card">

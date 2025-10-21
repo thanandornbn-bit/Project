@@ -30,12 +30,15 @@ public class Room {
 	@Column(length = 255, nullable = false)
 	private String roomStatus;
 
+	@Column(length = 255, nullable = false)
+	private String roomDeposit;
+
 	public Room() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 
-	public Room(int roomID, String description, String roomtype, String roomNumber, String roomPrice, String roomStatus) {
+	public Room(int roomID, String description, String roomtype, String roomNumber, String roomPrice, String roomStatus, String roomDeposit) {
 		super();
 		this.roomID = roomID;
 		this.description = description;
@@ -43,6 +46,7 @@ public class Room {
 		this.roomNumber = roomNumber;
 		this.roomPrice = roomPrice;
 		this.roomStatus = roomStatus;
+		this.roomDeposit = roomDeposit;
 	}
 
 	public int getRoomID() {
@@ -92,5 +96,13 @@ public class Room {
 	public void setRoomStatus(String roomStatus) {
 		this.roomStatus = roomStatus;
 	}
+
+	public String getRoomDeposit() {
+		return roomDeposit;
+	}
+
+	public void setRoomDeposit(String roomDeposit) {
+		this.roomDeposit = roomDeposit;
+	}	
 
 }

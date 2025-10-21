@@ -12,6 +12,8 @@ import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import net.bytebuddy.asm.Advice.Return;
+
 import java.util.Date;
 
 @Entity
@@ -31,6 +33,9 @@ public class Rent {
     @Temporal(TemporalType.DATE)
     private Date rentDate;
 
+    @Temporal(TemporalType.DATE)
+    private Date returnDate;
+
     @OneToOne(mappedBy = "rent", cascade = CascadeType.ALL)
     private RentalDeposit rentalDeposit;
 
@@ -41,13 +46,14 @@ public class Rent {
         super();
     }
 
-    public Rent(int rentID, Member member, Room room, Date rentDate, RentalDeposit rentalDeposit) {
+    public Rent(int rentID, Member member, Room room, Date rentDate, RentalDeposit rentalDeposit, Date returnDate) {
         super();
         this.rentID = rentID;
         this.member = member;
         this.room = room;
         this.rentDate = rentDate;
         this.rentalDeposit = rentalDeposit;
+        this.returnDate = returnDate;
     }
 
     public int getRentID() {
@@ -72,6 +78,14 @@ public class Rent {
 
     public void setRoom(Room room) {
         this.room = room;
+    }
+
+    public Date getReturnDate() {
+        return rentDate;
+    }
+
+    public void setReturnDate(Date returntDate) {
+        this.returnDate = returntDate;
     }
 
     public Date getRentDate() {

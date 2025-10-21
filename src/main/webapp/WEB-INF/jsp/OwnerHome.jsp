@@ -342,6 +342,40 @@
                                         background: linear-gradient(135deg, #ff8c00, #ff6b00);
                                     }
 
+                                    .nav a.return-notification {
+                                        background: linear-gradient(135deg, #ff4444, #cc0000);
+                                        border: 2px solid #ff6666;
+                                        animation: pulse 2s ease-in-out infinite;
+                                        position: relative;
+                                        font-weight: 600;
+                                    }
+
+                                    .nav a.return-notification:hover {
+                                        background: linear-gradient(135deg, #ff6666, #ff4444);
+                                        transform: translateY(-2px);
+                                    }
+
+                                    .notification-badge {
+                                        background: white;
+                                        color: #ff4444;
+                                        border-radius: 50%;
+                                        padding: 2px 8px;
+                                        font-size: 0.75rem;
+                                        font-weight: bold;
+                                        margin-left: 8px;
+                                        animation: bounce 1s ease-in-out infinite;
+                                    }
+
+                                    @keyframes pulse {
+                                        0%, 100% { opacity: 1; box-shadow: 0 0 10px rgba(255, 68, 68, 0.3); }
+                                        50% { opacity: 0.9; box-shadow: 0 0 20px rgba(255, 68, 68, 0.6); }
+                                    }
+
+                                    @keyframes bounce {
+                                        0%, 100% { transform: scale(1); }
+                                        50% { transform: scale(1.1); }
+                                    }
+
 
                                     .search-form {
                                         background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
@@ -997,13 +1031,32 @@
                                                                                         <i class="fas fa-ban"></i>
                                                                                         รอการอนุมัติ
                                                                                     </button>
-                                                                                    <a href="OViewReserve"
-                                                                                        class="action-btn btn-view"
-                                                                                        title="ไปที่หน้าจัดการการจองเพื่ออนุมัติ">
-                                                                                        <i
-                                                                                            class="fas fa-clipboard-check"></i>
-                                                                                        อนุมัติการจอง
-                                                                                    </a>
+                                                                                    <c:choose>
+                                                                                        <c:when test="${roomDepositStatus[room.roomID] == 'รอคืนห้อง'}">
+                                                                                            <a href="ListReturnRoom"
+                                                                                                class="action-btn btn-view"
+                                                                                                title="มีคำขอคืนห้อง ${pendingReturnCount} รายการรอดำเนินการ">
+                                                                                                <i class="fas fa-exclamation-circle"></i>
+                                                                                                ดูรายการการคืนห้อง
+                                                                                            </a>
+                                                                                        </c:when>
+                                                                                        <c:when test="${roomDepositStatus[room.roomID] == 'รอดำเนินการ'}">
+                                                                                            <a href="OViewReserve"
+                                                                                                class="action-btn btn-view"
+                                                                                                title="ไปที่หน้าจัดการการจองเพื่ออนุมัติ">
+                                                                                                <i class="fas fa-clipboard-check"></i>
+                                                                                                อนุมัติการจอง
+                                                                                            </a>
+                                                                                        </c:when>
+                                                                                        <c:otherwise>
+                                                                                            <a href="OViewReserve"
+                                                                                                class="action-btn btn-view"
+                                                                                                title="ไปที่หน้าจัดการการจองเพื่ออนุมัติ">
+                                                                                                <i class="fas fa-clipboard-check"></i>
+                                                                                                อนุมัติการจอง
+                                                                                            </a>
+                                                                                        </c:otherwise>
+                                                                                    </c:choose>
                                                                                 </c:otherwise>
                                                                             </c:choose>
                                                                         </c:if>

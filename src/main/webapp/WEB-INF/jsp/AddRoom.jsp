@@ -1,7 +1,5 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
-pageEncoding="UTF-8" %> <%@ page import="java.util.*" %> <%@ page
-import="com.springmvc.model.*" %> <%@ taglib prefix="c" uri="jakarta.tags.core"
-%> <%@ page import="Css.*" %>
+pageEncoding="UTF-8"%> <%@ taglib prefix="c" uri="jakarta.tags.core"%>
 <!DOCTYPE html>
 <html lang="th">
   <head>
@@ -267,16 +265,6 @@ import="com.springmvc.model.*" %> <%@ taglib prefix="c" uri="jakarta.tags.core"
         cursor: pointer;
       }
 
-      .form-control.valid {
-        border-color: #00ff88;
-        background: rgba(0, 255, 136, 0.05);
-      }
-
-      .form-control.invalid {
-        border-color: #ff4444;
-        background: rgba(255, 68, 68, 0.05);
-      }
-
       .btn-group {
         display: flex;
         gap: 15px;
@@ -324,38 +312,6 @@ import="com.springmvc.model.*" %> <%@ taglib prefix="c" uri="jakarta.tags.core"
         transform: translateY(-2px);
       }
 
-      .btn.loading {
-        pointer-events: none;
-        opacity: 0.8;
-      }
-
-      .loading-spinner {
-        display: none;
-        width: 20px;
-        height: 20px;
-        border: 2px solid rgba(0, 0, 0, 0.3);
-        border-top: 2px solid #000;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-      }
-
-      .btn.loading .loading-spinner {
-        display: block;
-      }
-
-      .btn.loading .btn-text {
-        display: none;
-      }
-
-      @keyframes spin {
-        0% {
-          transform: rotate(0deg);
-        }
-        100% {
-          transform: rotate(360deg);
-        }
-      }
-
       .loading-overlay {
         display: none;
         position: fixed;
@@ -376,6 +332,15 @@ import="com.springmvc.model.*" %> <%@ taglib prefix="c" uri="jakarta.tags.core"
         border-top: 6px solid #ff8c00;
         border-radius: 50%;
         animation: spin 1s linear infinite;
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
       }
 
       @media (max-width: 768px) {
@@ -481,14 +446,15 @@ import="com.springmvc.model.*" %> <%@ taglib prefix="c" uri="jakarta.tags.core"
                     <i class="fas fa-home"></i>
                     ประเภทห้อง
                   </label>
-                  <select
+                  <input
+                    type="text"
                     id="roomtype"
                     name="roomtype"
                     class="form-control"
-                    required
-                  >
-                    <option value="แอร์">ห้องแอร์</option>
-                  </select>
+                    value="ห้องแอร์"
+                    readonly
+                    style="background: rgba(0, 0, 0, 0.6)"
+                  />
                 </div>
               </div>
             </div>
@@ -544,26 +510,41 @@ import="com.springmvc.model.*" %> <%@ taglib prefix="c" uri="jakarta.tags.core"
                     <i class="fas fa-flag"></i>
                     สถานะห้อง
                   </label>
-                  <select
+                  <input
+                    type="text"
                     id="roomStatus"
                     name="roomStatus"
                     class="form-control"
-                    required
-                  >
-                    <option value="ว่าง" selected>ว่าง</option>
-                  </select>
+                    value="ว่าง"
+                    readonly
+                    style="background: rgba(0, 0, 0, 0.6)"
+                  />
                 </div>
               </div>
+            </div>
+
+            <div class="form-group">
+              <label for="roomDeposit">
+                <i class="fas fa-money-bill-wave"></i>
+                ราคามัดจำห้อง (บาท)
+              </label>
+              <input
+                type="number"
+                id="roomDeposit"
+                name="roomDeposit"
+                class="form-control"
+                required
+                placeholder="กรุณากรอกค่ามัดจำห้อง"
+                min="500"
+                value="500"
+              />
             </div>
 
             <!-- Buttons -->
             <div class="btn-group">
               <button type="submit" class="btn btn-primary" id="submitBtn">
-                <span class="btn-text">
-                  <i class="fas fa-save"></i>
-                  บันทึกห้องพัก
-                </span>
-                <div class="loading-spinner"></div>
+                <i class="fas fa-save"></i>
+                บันทึกห้องพัก
               </button>
 
               <a href="OwnerHome" class="btn btn-secondary">
@@ -577,83 +558,50 @@ import="com.springmvc.model.*" %> <%@ taglib prefix="c" uri="jakarta.tags.core"
     </div>
 
     <script>
-      // Validation functions
-      const validators = {
-        roomNumber: (value) => /^[0-9]{3,4}$/.test(value),
-        roomtype: (value) => value !== "",
-        description: (value) => value.length >= 10,
-        roomPrice: (value) => {
-          const price = parseInt(value);
-          return price >= 1000 && price <= 50000;
-        },
-        roomStatus: (value) => value !== "",
-      };
-
-      function validateField(field, validationFunc) {
-        const value = field.value.trim();
-        const isValid = validationFunc(value);
-        const validIcon = document.getElementById(field.id + "Valid");
-        const invalidIcon = document.getElementById(field.id + "Invalid");
-
-        if (value === "") {
-          field.classList.remove("valid", "invalid");
-          if (validIcon) validIcon.classList.remove("show");
-          if (invalidIcon) invalidIcon.classList.remove("show");
-          return null;
-        }
-
-        if (isValid) {
-          field.classList.add("valid");
-          field.classList.remove("invalid");
-          if (validIcon) validIcon.classList.add("show");
-          if (invalidIcon) invalidIcon.classList.remove("show");
-        } else {
-          field.classList.add("invalid");
-          field.classList.remove("valid");
-          if (invalidIcon) invalidIcon.classList.add("show");
-          if (validIcon) validIcon.classList.remove("show");
-        }
-
-        return isValid;
-      }
-
+      // Form validation and submission
       document.addEventListener("DOMContentLoaded", function () {
-        Object.keys(validators).forEach((fieldId) => {
-          const field = document.getElementById(fieldId);
-          if (field) {
-            field.addEventListener("input", function () {
-              validateField(this, validators[fieldId]);
-            });
+        const form = document.getElementById("addRoomForm");
+        const submitBtn = document.getElementById("submitBtn");
 
-            field.addEventListener("change", function () {
-              validateField(this, validators[fieldId]);
-            });
+        form.addEventListener("submit", function (e) {
+          const roomNumber = document.getElementById("roomNumber").value;
+          const description = document.getElementById("description").value;
+          const roomPrice = parseInt(
+            document.getElementById("roomPrice").value
+          );
+          const roomDeposit = parseInt(
+            document.getElementById("roomDeposit").value
+          );
+
+          if (!roomNumber || roomNumber.length < 3) {
+            e.preventDefault();
+            alert("กรุณากรอกหมายเลขห้อง (3-4 หลัก)");
+            return;
           }
+
+          if (!description || description.length < 10) {
+            e.preventDefault();
+            alert("กรุณากรอกรายละเอียดห้องอย่างน้อย 10 ตัวอักษร");
+            return;
+          }
+
+          if (!roomPrice || roomPrice < 1000 || roomPrice > 50000) {
+            e.preventDefault();
+            alert("กรุณากรอกราคาห้อง (1,000 - 50,000 บาท)");
+            return;
+          }
+
+          if (!roomDeposit || roomDeposit < 500) {
+            e.preventDefault();
+            alert("กรุณากรอกค่ามัดจำอย่างน้อย 500 บาท");
+            return;
+          }
+
+          submitBtn.disabled = true;
+          document.getElementById("loadingOverlay").style.display = "flex";
         });
 
-        document
-          .getElementById("addRoomForm")
-          .addEventListener("submit", function (e) {
-            const submitBtn = document.getElementById("submitBtn");
-
-            let allValid = true;
-            Object.keys(validators).forEach((fieldId) => {
-              const field = document.getElementById(fieldId);
-              if (field && !validateField(field, validators[fieldId])) {
-                allValid = false;
-              }
-            });
-
-            if (!allValid) {
-              e.preventDefault();
-              alert("กรุณากรอกข้อมูลให้ถูกต้องครบถ้วน");
-              return;
-            }
-
-            submitBtn.classList.add("loading");
-            submitBtn.disabled = true;
-          });
-
+        // Focus first input
         document.getElementById("roomNumber").focus();
       });
 
@@ -680,46 +628,34 @@ import="com.springmvc.model.*" %> <%@ taglib prefix="c" uri="jakarta.tags.core"
           }
         });
 
-      function createParticles() {
-        const particles = document.getElementById("particles");
-        const particleCount = 25;
+      document
+        .getElementById("roomDeposit")
+        .addEventListener("input", function (e) {
+          let value = parseInt(e.target.value);
+          if (value < 500) {
+            e.target.style.borderColor = "#ff6b6b";
+          } else {
+            e.target.style.borderColor = "#4ecdc4";
+          }
+        });
 
-        for (let i = 0; i < particleCount; i++) {
-          const particle = document.createElement("div");
-          particle.className = "particle";
-          particle.style.left = Math.random() * 100 + "%";
-          particle.style.animationDelay = Math.random() * 12 + "s";
-          particle.style.animationDuration = Math.random() * 3 + 9 + "s";
-          particles.appendChild(particle);
-        }
-      }
+      // Input formatting - room number (only numbers, max 4 digits)
+      document
+        .getElementById("roomNumber")
+        .addEventListener("input", function (e) {
+          let value = e.target.value.replace(/\D/g, "");
+          if (value.length > 4) value = value.slice(0, 4);
+          e.target.value = value;
+        });
 
+      // Page load animation
       window.addEventListener("load", function () {
-        createParticles();
-
         document.body.style.opacity = "0";
         document.body.style.transition = "opacity 0.5s ease-in-out";
-
-        setTimeout(function () {
+        setTimeout(() => {
           document.body.style.opacity = "1";
         }, 100);
       });
-
-      setTimeout(function () {
-        const successMessage = document.getElementById("successMessage");
-        const errorMessage = document.getElementById("errorMessage");
-
-        [successMessage, errorMessage].forEach((msg) => {
-          if (msg && msg.textContent.trim()) {
-            setTimeout(function () {
-              msg.style.opacity = "0";
-              setTimeout(function () {
-                msg.style.display = "none";
-              }, 300);
-            }, 5000);
-          }
-        });
-      }, 100);
     </script>
   </body>
 </html>

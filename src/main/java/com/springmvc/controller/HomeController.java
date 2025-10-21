@@ -426,6 +426,18 @@ public class HomeController {
                 mav.addObject("error", "ไม่พบข้อมูลการจองหรือไม่มีสิทธิ์เข้าถึง");
                 return mav;
             }
+            
+            // ตรวจสอบระยะเวลาเช่า 6 เดือน
+            Date rentDate = rent.getRentDate();
+            Date currentDate = new Date();
+            long diffInMillies = currentDate.getTime() - rentDate.getTime();
+            long diffInMonths = diffInMillies / (24L * 60 * 60 * 1000 * 30);
+            
+            if (diffInMonths < 6) {
+                ModelAndView mav = new ModelAndView("redirect:/YourRoom");
+                mav.addObject("error", "ไม่สามารถคืนห้องได้ เนื่องจากต้องเช่าอย่างน้อย 6 เดือน (เหลืออีก " + (6 - diffInMonths) + " เดือน)");
+                return mav;
+            }
 
             // ตรวจสอบสถานะบิลค้างชำระ
             boolean hasUnpaidInvoices = manager.hasUnpaidInvoices(rentId);
