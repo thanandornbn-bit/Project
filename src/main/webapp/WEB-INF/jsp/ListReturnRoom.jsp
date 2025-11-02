@@ -1,390 +1,593 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ taglib prefix="c" uri="jakarta.tags.core"%>
-<%@ taglib prefix="fmt" uri="jakarta.tags.fmt"%>
-<%@ page session="true"%>
-<%@ page import="com.springmvc.model.Manager"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
+    <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+        <%@ taglib prefix="fmt" uri="jakarta.tags.fmt" %>
+            <%@ page session="true" %>
+                <%@ page import="com.springmvc.model.Manager" %>
 
-<%
-Manager loginManager = (Manager) session.getAttribute("loginManager");
-if (loginManager == null) {
-    response.sendRedirect("Login");
-    return;
-}
-%>
+                    <% Manager loginManager=(Manager) session.getAttribute("loginManager"); if (loginManager==null) {
+                        response.sendRedirect("Login"); return; } %>
 
-<!DOCTYPE html>
-<html lang="th">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>รายการคำขอคืนห้อง - ThanaChok Place</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+                        <!DOCTYPE html>
+                        <html lang="th">
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
-            min-height: 100vh;
-            color: #fff;
-        }
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                            <title>รายการคำขอคืนห้อง - ThanaChok Place</title>
+                            <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+                                rel="stylesheet">
+                            <link
+                                href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap"
+                                rel="stylesheet">
+                            <style>
+                                :root {
+                                    --bg: #FFFFFF;
+                                    --muted-bg: #F0F7FF;
+                                    --primary: #5CA9E9;
+                                    --primary-dark: #4A90E2;
+                                    --primary-light: #7BC4FF;
+                                    --accent: #E3F2FD;
+                                    --text: #1E3A5F;
+                                    --text-light: #FFFFFF;
+                                    --muted-text: #5B7A9D;
+                                    --bg-secondary: #F8FCFF;
+                                    --border: #D1E8FF;
+                                    --card-border: #D1E8FF;
+                                    --hover-bg: #E8F4FF;
+                                    --shadow: rgba(92, 169, 233, 0.15);
+                                    --success: #4CAF50;
+                                    --warning: #FF9800;
+                                    --danger: #F44336;
+                                }
 
-        .page-header {
-            background: linear-gradient(135deg, #ff8c00, #ff6b00);
-            color: white;
-            text-align: center;
-            padding: 30px 20px;
-            box-shadow: 0 4px 20px rgba(255, 140, 0, 0.3);
-        }
+                                * {
+                                    margin: 0;
+                                    padding: 0;
+                                    box-sizing: border-box;
+                                }
 
-        .page-header h1 {
-            font-size: 2rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-        }
+                                body {
+                                    font-family: 'Sarabun', sans-serif;
+                                    background: #F5F7FA;
+                                    min-height: 100vh;
+                                    color: var(--text);
+                                }
 
-        .nav {
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(10px);
-            padding: 15px;
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
+                                .page-container {
+                                    width: 100%;
+                                    min-height: 100vh;
+                                    display: flex;
+                                    flex-direction: column;
+                                }
 
-        .nav a {
-            color: white;
-            text-decoration: none;
-            padding: 12px 24px;
-            border-radius: 10px;
-            background: rgba(255, 140, 0, 0.1);
-            border: 1px solid rgba(255, 140, 0, 0.3);
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
+                                .header {
+                                    background: var(--bg);
+                                    padding: 18px 48px;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: space-between;
+                                    border-bottom: 2px solid var(--accent);
+                                    position: sticky;
+                                    top: 0;
+                                    z-index: 50;
+                                    box-shadow: 0 2px 8px rgba(74, 144, 226, 0.08);
+                                }
 
-        .nav a:hover, .nav a.active {
-            background: linear-gradient(135deg, #ff8c00, #ff6b00);
-        }
+                                .header h1 {
+                                    font-size: 2.5rem;
+                                    color: var(--primary);
+                                    font-weight: 700;
+                                    display: flex;
+                                    align-items: center;
+                                    gap: 12px;
+                                }
 
-        .container {
-            max-width: 1400px;
-            margin: 30px auto;
-            padding: 0 20px;
-        }
+                                .nav-menu {
+                                    display: flex;
+                                    gap: 28px;
+                                    align-items: center;
+                                }
 
-        .stat-card {
-            background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
-            padding: 30px;
-            border-radius: 15px;
-            text-align: center;
-            border: 2px solid rgba(255, 140, 0, 0.3);
-            margin-bottom: 30px;
-        }
+                                .nav-link {
+                                    color: var(--muted-text);
+                                    text-decoration: none;
+                                    font-weight: 600;
+                                    padding: 8px 12px;
+                                    border-radius: 8px;
+                                    transition: all 0.3s ease;
+                                }
 
-        .stat-number {
-            font-size: 3rem;
-            font-weight: bold;
-            color: #ff8c00;
-        }
+                                .nav-link.active {
+                                    color: var(--primary);
+                                    background: var(--accent);
+                                }
 
-        .stat-label {
-            color: #999;
-            font-size: 1.1rem;
-            margin-top: 10px;
-        }
+                                .nav-link:hover {
+                                    color: var(--primary);
+                                    background: var(--hover-bg);
+                                }
 
-        .alert {
-            padding: 18px 25px;
-            border-radius: 15px;
-            margin-bottom: 25px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+                                .user-section {
+                                    display: flex;
+                                    gap: 16px;
+                                    align-items: center;
+                                }
 
-        .alert-success {
-            background: linear-gradient(135deg, #00ff88, #00cc6f);
-            color: #000;
-        }
+                                .user-info {
+                                    display: flex;
+                                    align-items: center;
+                                    gap: 10px;
+                                    color: var(--muted-text);
+                                    font-weight: 600;
+                                    padding: 10px 16px;
+                                    background: var(--accent);
+                                    border-radius: 10px;
+                                }
 
-        .alert-danger {
-            background: linear-gradient(135deg, #ff4444, #cc0000);
-            color: white;
-        }
+                                .user-info i {
+                                    color: var(--primary);
+                                    font-size: 1.2rem;
+                                }
 
-        .requests-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-            gap: 25px;
-        }
+                                .logout-btn {
+                                    background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+                                    color: white;
+                                    border: none;
+                                    padding: 10px 20px;
+                                    border-radius: 10px;
+                                    font-weight: 700;
+                                    font-family: 'Sarabun', sans-serif;
+                                    cursor: pointer;
+                                    transition: all 0.3s ease;
+                                    display: flex;
+                                    align-items: center;
+                                    gap: 8px;
+                                    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+                                }
 
-        .request-card {
-            background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
-            border-radius: 15px;
-            overflow: hidden;
-            border: 2px solid rgba(255, 140, 0, 0.3);
-            transition: all 0.3s ease;
-        }
+                                .logout-btn:hover {
+                                    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
+                                    transform: translateY(-2px);
+                                }
 
-        .request-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(255, 140, 0, 0.3);
-        }
+                                .container {
+                                    width: 100%;
+                                    padding: 40px 48px;
+                                    flex: 1;
+                                }
 
-        .request-header {
-            background: linear-gradient(135deg, #ff8c00, #ff6b00);
-            padding: 20px;
-        }
+                                .page-title {
+                                    font-size: 2rem;
+                                    font-weight: 700;
+                                    margin-bottom: 30px;
+                                    display: flex;
+                                    align-items: center;
+                                    gap: 12px;
+                                    color: var(--primary);
+                                }
 
-        .room-number {
-            font-size: 1.8rem;
-            font-weight: bold;
-        }
+                                .stat-card {
+                                    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+                                    padding: 30px;
+                                    border-radius: 16px;
+                                    text-align: center;
+                                    margin-bottom: 30px;
+                                    box-shadow: 0 8px 24px var(--shadow);
+                                }
 
-        .request-body {
-            padding: 25px;
-        }
+                                .stat-number {
+                                    font-size: 3rem;
+                                    font-weight: 700;
+                                    color: white;
+                                    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+                                }
 
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px solid rgba(255, 140, 0, 0.1);
-        }
+                                .stat-label {
+                                    color: rgba(255, 255, 255, 0.9);
+                                    font-size: 1.1rem;
+                                    margin-top: 10px;
+                                    font-weight: 500;
+                                }
 
-        .info-label {
-            color: #999;
-        }
+                                .alert {
+                                    padding: 18px 25px;
+                                    border-radius: 12px;
+                                    margin-bottom: 25px;
+                                    display: flex;
+                                    align-items: center;
+                                    gap: 10px;
+                                    font-weight: 500;
+                                }
 
-        .info-value {
-            color: #fff;
-            font-weight: 600;
-        }
+                                .alert-success {
+                                    background: rgba(76, 175, 80, 0.1);
+                                    color: var(--success);
+                                    border: 2px solid var(--success);
+                                }
 
-        .actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-        }
+                                .alert-danger {
+                                    background: rgba(244, 67, 54, 0.1);
+                                    color: var(--danger);
+                                    border: 2px solid var(--danger);
+                                }
 
-        .btn {
-            flex: 1;
-            padding: 12px 20px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-        }
+                                .requests-grid {
+                                    display: flex;
+                                    flex-wrap: wrap;
+                                    gap: 20px;
+                                }
 
-        .btn-approve {
-            background: linear-gradient(135deg, #00ff88, #00cc6f);
-            color: #000;
-        }
+                                .request-card {
+                                    background: white;
+                                    border-radius: 12px;
+                                    overflow: hidden;
+                                    border: 1px solid var(--border);
+                                    transition: all 0.3s ease;
+                                    flex: 0 0 calc(20% - 16px);
+                                    max-width: calc(20% - 16px);
+                                    box-shadow: 0 2px 6px rgba(92, 169, 233, 0.08);
+                                    aspect-ratio: 1 / 1;
+                                    display: flex;
+                                    flex-direction: column;
+                                }
 
-        .btn-approve:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.5);
-        }
+                                .request-card:hover {
+                                    transform: translateY(-2px);
+                                    box-shadow: 0 6px 16px rgba(92, 169, 233, 0.15);
+                                    border-color: var(--primary);
+                                }
 
-        .btn-reject {
-            background: linear-gradient(135deg, #ff4444, #cc0000);
-            color: white;
-        }
+                                .request-header {
+                                    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+                                    padding: 14px;
+                                    text-align: center;
+                                    border-bottom: 2px solid var(--primary-dark);
+                                }
 
-        .btn-reject:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 68, 68, 0.5);
-        }
+                                .room-number {
+                                    font-size: 1.8rem;
+                                    font-weight: 700;
+                                    color: white;
+                                    margin: 0;
+                                    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+                                }
 
-        .no-requests {
-            text-align: center;
-            padding: 80px 20px;
-            background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
-            border-radius: 15px;
-            border: 1px solid rgba(255, 140, 0, 0.3);
-        }
+                                .request-body {
+                                    padding: 12px;
+                                    background: var(--bg);
+                                    flex: 1;
+                                    display: flex;
+                                    flex-direction: column;
+                                    justify-content: space-between;
+                                }
 
-        .no-requests i {
-            font-size: 5rem;
-            color: #ff8c00;
-            margin-bottom: 25px;
-            opacity: 0.5;
-        }
+                                .info-row {
+                                    display: flex;
+                                    align-items: center;
+                                    gap: 8px;
+                                    padding: 6px 0;
+                                    border-bottom: 1px solid var(--accent);
+                                }
 
-        .no-requests h3 {
-            color: #ff8c00;
-            margin-bottom: 15px;
-            font-size: 1.8rem;
-        }
+                                .info-row:last-of-type {
+                                    border-bottom: none;
+                                }
 
-        .no-requests p {
-            color: #999;
-            font-size: 1.1rem;
-        }
+                                .info-row i {
+                                    color: var(--primary);
+                                    width: 16px;
+                                    text-align: center;
+                                    font-size: 0.85rem;
+                                }
 
-        @media (max-width: 768px) {
-            .page-header h1 {
-                font-size: 1.5rem;
-            }
+                                .info-label {
+                                    font-weight: 600;
+                                    color: var(--muted-text);
+                                    min-width: 65px;
+                                    font-size: 0.8rem;
+                                }
 
-            .nav a {
-                padding: 10px 16px;
-                font-size: 0.9rem;
-            }
+                                .info-value {
+                                    color: var(--text);
+                                    font-weight: 500;
+                                    flex: 1;
+                                    font-size: 0.8rem;
+                                }
 
-            .stat-number {
-                font-size: 2.5rem;
-            }
+                                .actions {
+                                    padding: 10px;
+                                    background: var(--muted-bg);
+                                    border-top: 1px solid var(--accent);
+                                    display: flex;
+                                    gap: 6px;
+                                    justify-content: center;
+                                }
 
-            .requests-grid {
-                grid-template-columns: 1fr;
-            }
+                                .btn {
+                                    flex: 1;
+                                    padding: 8px 12px;
+                                    border: none;
+                                    border-radius: 8px;
+                                    cursor: pointer;
+                                    font-size: 0.75rem;
+                                    font-weight: 600;
+                                    font-family: 'Sarabun', sans-serif;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    gap: 5px;
+                                    transition: all 0.3s ease;
+                                    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+                                }
 
-            .room-number {
-                font-size: 1.5rem;
-            }
+                                .btn-approve {
+                                    background: linear-gradient(135deg, var(--success) 0%, #43a047 100%);
+                                    color: white;
+                                }
 
-            .actions {
-                flex-direction: column;
-            }
+                                .btn-approve:hover {
+                                    transform: translateY(-2px);
+                                    box-shadow: 0 6px 16px rgba(76, 175, 80, 0.3);
+                                }
 
-            .btn {
-                width: 100%;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="page-header">
-        <h1>
-            <i class="fas fa-clipboard-check"></i>
-            รายการคำขอคืนห้อง
-        </h1>
-    </div>
+                                .btn-reject {
+                                    background: linear-gradient(135deg, var(--danger) 0%, #e53935 100%);
+                                    color: white;
+                                }
 
-    <div class="nav">
-        <a href="OwnerHome"><i class="fas fa-home"></i> หน้าหลัก</a>
-        <a href="OViewReserve"><i class="fas fa-list"></i> รายการจอง</a>
-        <a href="ListReturnRoom" class="active"><i class="fas fa-clipboard-check"></i> คำขอคืนห้อง</a>
-        <a href="AddRoom"><i class="fas fa-plus"></i> เพิ่มห้อง</a>
-    </div>
+                                .btn-reject:hover {
+                                    transform: translateY(-2px);
+                                    box-shadow: 0 6px 16px rgba(244, 67, 54, 0.3);
+                                }
 
-    <div class="container">
-        <div class="stat-card">
-            <div class="stat-number">${requestCount}</div>
-            <div class="stat-label">คำขอรอการอนุมัติ</div>
-        </div>
+                                .no-requests {
+                                    text-align: center;
+                                    padding: 80px 20px;
+                                    background: white;
+                                    border-radius: 16px;
+                                    border: 2px solid var(--border);
+                                    box-shadow: 0 4px 12px rgba(92, 169, 233, 0.08);
+                                }
 
-        <c:if test="${not empty message}">
-            <div class="alert alert-success">
-                <i class="fas fa-check-circle"></i> ${message}
-            </div>
-        </c:if>
+                                .no-requests i {
+                                    font-size: 5rem;
+                                    color: var(--accent);
+                                    margin-bottom: 25px;
+                                }
 
-        <c:if test="${not empty error}">
-            <div class="alert alert-danger">
-                <i class="fas fa-exclamation-circle"></i> ${error}
-            </div>
-        </c:if>
+                                .no-requests h3 {
+                                    color: var(--primary);
+                                    margin-bottom: 15px;
+                                    font-size: 1.8rem;
+                                    font-weight: 700;
+                                }
 
-        <c:choose>
-            <c:when test="${empty returnRequests}">
-                <div class="no-requests">
-                    <i class="fas fa-clipboard-check"></i>
-                    <h3>ไม่มีคำขอคืนห้อง</h3>
-                    <p>ไม่มีคำขอคืนห้องที่รอการอนุมัติในขณะนี้</p>
-                </div>
-            </c:when>
-            <c:otherwise>
-                <div class="requests-grid">
-                    <c:forEach var="request" items="${returnRequests}">
-                        <div class="request-card">
-                            <div class="request-header">
-                                <div class="room-number">
-                                    <i class="fas fa-door-open"></i>
-                                    ห้อง ${request.rent.room.roomNumber}
+                                .no-requests p {
+                                    color: var(--muted-text);
+                                    font-size: 1.1rem;
+                                }
+
+                                @media (max-width: 1400px) {
+                                    .request-card {
+                                        flex: 0 0 calc(25% - 15px);
+                                        max-width: calc(25% - 15px);
+                                    }
+                                }
+
+                                @media (max-width: 1100px) {
+                                    .request-card {
+                                        flex: 0 0 calc(33.333% - 14px);
+                                        max-width: calc(33.333% - 14px);
+                                    }
+                                }
+
+                                @media (max-width: 800px) {
+                                    .request-card {
+                                        flex: 0 0 calc(50% - 10px);
+                                        max-width: calc(50% - 10px);
+                                    }
+                                }
+
+                                @media (max-width: 768px) {
+                                    .header {
+                                        padding: 15px 20px;
+                                        flex-direction: column;
+                                        gap: 15px;
+                                    }
+
+                                    .header h1 {
+                                        font-size: 1.8rem;
+                                    }
+
+                                    .nav-menu {
+                                        width: 100%;
+                                        justify-content: center;
+                                        flex-wrap: wrap;
+                                    }
+
+                                    .user-section {
+                                        width: 100%;
+                                        justify-content: center;
+                                    }
+
+                                    .container {
+                                        padding: 20px;
+                                    }
+
+                                    .stat-number {
+                                        font-size: 2.5rem;
+                                    }
+                                }
+
+                                @media (max-width: 500px) {
+                                    .request-card {
+                                        flex: 0 0 100%;
+                                        max-width: 100%;
+                                    }
+                                }
+                            </style>
+                        </head>
+
+                        <body>
+                            <div class="page-container">
+                                <!-- Header -->
+                                <div class="header">
+                                    <h1>
+                                        <i class="fas fa-building"></i>
+                                        ThanaChok Place
+                                    </h1>
+                                    <nav class="nav-menu">
+                                        <a href="OwnerHome" class="nav-link">
+                                            <i class="fas fa-home"></i> หน้าหลัก
+                                        </a>
+                                        <a href="OViewReserve" class="nav-link">
+                                            <i class="fas fa-list"></i> รายการเช่า
+                                        </a>
+                                        <a href="ListReservations" class="nav-link">
+                                            <i class="fas fa-clipboard-list"></i> รายการจอง
+                                        </a>
+                                        <a href="ListReturnRoom" class="nav-link active">
+                                            <i class="fas fa-clipboard-check"></i> คำขอคืนห้อง
+                                        </a>
+                                        <a href="AddRoom" class="nav-link">
+                                            <i class="fas fa-plus"></i> เพิ่มห้อง
+                                        </a>
+                                    </nav>
+                                    <div class="user-section">
+                                        <div class="user-info">
+                                            <i class="fas fa-user-circle"></i>
+                                            <span>Manager@gmail.com</span>
+                                        </div>
+                                        <form action="Logout" method="post" style="display: inline;">
+                                            <button type="submit" class="logout-btn">
+                                                <i class="fas fa-sign-out-alt"></i> ออกจากระบบ
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+
+                                <div class="container">
+                                    <h2 class="page-title">
+                                        <i class="fas fa-clipboard-check"></i>
+                                        รายการคำขอคืนห้อง
+                                    </h2>
+                                    <div class="stat-card">
+                                        <div class="stat-number">${requestCount}</div>
+                                        <div class="stat-label">คำขอรอการอนุมัติ</div>
+                                    </div>
+
+                                    <c:if test="${not empty message}">
+                                        <div class="alert alert-success">
+                                            <i class="fas fa-check-circle"></i> ${message}
+                                        </div>
+                                    </c:if>
+
+                                    <c:if test="${not empty error}">
+                                        <div class="alert alert-danger">
+                                            <i class="fas fa-exclamation-circle"></i> ${error}
+                                        </div>
+                                    </c:if>
+
+                                    <c:choose>
+                                        <c:when test="${empty returnRequests}">
+                                            <div class="no-requests">
+                                                <i class="fas fa-clipboard-check"></i>
+                                                <h3>ไม่มีคำขอคืนห้อง</h3>
+                                                <p>ไม่มีคำขอคืนห้องที่รอการอนุมัติในขณะนี้</p>
+                                            </div>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <div class="requests-grid">
+                                                <c:forEach var="request" items="${returnRequests}">
+                                                    <div class="request-card">
+                                                        <div class="request-header">
+                                                            <div class="room-number">
+                                                                ห้อง ${request.room.roomNumber}
+                                                            </div>
+                                                        </div>
+                                                        <div class="request-body">
+                                                            <div>
+                                                                <div class="info-row">
+                                                                    <i class="fas fa-user"></i>
+                                                                    <span class="info-label">ผู้เช่า:</span>
+                                                                    <span class="info-value">
+                                                                        ${request.member.firstName}
+                                                                    </span>
+                                                                </div>
+                                                                <div class="info-row">
+                                                                    <i class="fas fa-phone"></i>
+                                                                    <span class="info-label">เบอร์:</span>
+                                                                    <span class="info-value">
+                                                                        ${request.member.phoneNumber}
+                                                                    </span>
+                                                                </div>
+                                                                <div class="info-row">
+                                                                    <i class="fas fa-home"></i>
+                                                                    <span class="info-label">ประเภท:</span>
+                                                                    <span class="info-value">
+                                                                        ${request.room.roomtype}
+                                                                    </span>
+                                                                </div>
+                                                                <div class="info-row">
+                                                                    <i class="fas fa-calendar"></i>
+                                                                    <span class="info-label">วันที่เช่า:</span>
+                                                                    <span class="info-value">
+                                                                        <fmt:formatDate value="${request.rentDate}"
+                                                                            pattern="dd/MM/yyyy" />
+                                                                    </span>
+                                                                </div>
+                                                                <div class="info-row">
+                                                                    <i class="fas fa-calendar-check"></i>
+                                                                    <span class="info-label">ขอคืนเมื่อ:</span>
+                                                                    <span class="info-value"
+                                                                        style="color: var(--warning); font-weight: 600;">
+                                                                        <fmt:formatDate value="${request.returnDate}"
+                                                                            pattern="dd/MM/yyyy HH:mm" />
+                                                                    </span>
+                                                                </div>
+                                                                <div class="info-row">
+                                                                    <i class="fas fa-money-bill-wave"></i>
+                                                                    <span class="info-label">มัดจำ:</span>
+                                                                    <span class="info-value"
+                                                                        style="color: var(--success); font-weight: 700;">
+                                                                        ฿
+                                                                        <fmt:formatNumber value="${request.totalPrice}"
+                                                                            groupingUsed="true" />
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="actions">
+                                                            <form action="ApproveReturnRoom" method="post"
+                                                                style="flex: 1;">
+                                                                <input type="hidden" name="rentId"
+                                                                    value="${request.rentID}">
+                                                                <input type="hidden" name="roomNumber"
+                                                                    value="${request.room.roomNumber}">
+                                                                <button type="submit" class="btn btn-approve"
+                                                                    onclick="return confirm('ยืนยันการอนุมัติคืนห้อง ${request.room.roomNumber}?')">
+                                                                    <i class="fas fa-check"></i> อนุมัติ
+                                                                </button>
+                                                            </form>
+                                                            <form action="RejectReturnRoom" method="post"
+                                                                style="flex: 1;">
+                                                                <input type="hidden" name="rentId"
+                                                                    value="${request.rentID}">
+                                                                <input type="hidden" name="roomNumber"
+                                                                    value="${request.room.roomNumber}">
+                                                                <button type="submit" class="btn btn-reject"
+                                                                    onclick="return confirm('ยืนยันการปฏิเสธคำขอคืนห้อง ${request.room.roomNumber}?')">
+                                                                    <i class="fas fa-times"></i> ปฏิเสธ
+                                                                </button>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </c:forEach>
+                                            </div>
+                                        </c:otherwise>
+                                    </c:choose>
                                 </div>
                             </div>
-                            <div class="request-body">
-                                <div class="info-row">
-                                    <span class="info-label">
-                                        <i class="fas fa-user"></i> ผู้เช่า
-                                    </span>
-                                    <span class="info-value">
-                                        ${request.rent.member.firstName} ${request.rent.member.lastName}
-                                    </span>
-                                </div>
-                                <div class="info-row">
-                                    <span class="info-label">
-                                        <i class="fas fa-phone"></i> เบอร์โทร
-                                    </span>
-                                    <span class="info-value">
-                                        ${request.rent.member.phoneNumber}
-                                    </span>
-                                </div>
-                                <div class="info-row">
-                                    <span class="info-label">
-                                        <i class="fas fa-home"></i> ประเภทห้อง
-                                    </span>
-                                    <span class="info-value">
-                                        ${request.rent.room.roomtype}
-                                    </span>
-                                </div>
-                                <div class="info-row">
-                                    <span class="info-label">
-                                        <i class="fas fa-calendar"></i> วันที่เช่า
-                                    </span>
-                                    <span class="info-value">
-                                        <fmt:formatDate value="${request.paymentDate}" pattern="dd/MM/yyyy"/>
-                                    </span>
-                                </div>
-                                <div class="info-row">
-                                    <span class="info-label">
-                                        <i class="fas fa-money-bill-wave"></i> ค่ามัดจำ
-                                    </span>
-                                    <span class="info-value" style="color: #00ff88;">
-                                        ฿<fmt:formatNumber value="${request.totalPrice}" groupingUsed="true"/>
-                                    </span>
-                                </div>
-                                <div class="actions">
-                                    <form action="ApproveReturnRoom" method="post" style="flex: 1;">
-                                        <input type="hidden" name="rentId" value="${request.rent.rentID}">
-                                        <input type="hidden" name="roomNumber" value="${request.rent.room.roomNumber}">
-                                        <button type="submit" class="btn btn-approve" 
-                                                onclick="return confirm('ยืนยันการอนุมัติคืนห้อง ${request.rent.room.roomNumber}?')">
-                                            <i class="fas fa-check"></i> อนุมัติ
-                                        </button>
-                                    </form>
-                                    <form action="RejectReturnRoom" method="post" style="flex: 1;">
-                                        <input type="hidden" name="rentId" value="${request.rent.rentID}">
-                                        <input type="hidden" name="roomNumber" value="${request.rent.room.roomNumber}">
-                                        <button type="submit" class="btn btn-reject"
-                                                onclick="return confirm('ยืนยันการปฏิเสธคำขอคืนห้อง ${request.rent.room.roomNumber}?')">
-                                            <i class="fas fa-times"></i> ปฏิเสธ
-                                        </button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </c:forEach>
-                </div>
-            </c:otherwise>
-        </c:choose>
-    </div>
-</body>
-</html>
+                        </body>
+
+                        </html>

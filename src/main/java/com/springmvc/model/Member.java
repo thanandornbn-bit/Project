@@ -1,11 +1,6 @@
 package com.springmvc.model;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Table(name = "member")
@@ -13,38 +8,29 @@ public class Member {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "memberID", unique = true)
 	private int memberID;
 
-	@Column(length = 255, nullable = false)
+	@Column(name = "email", length = 255)
 	private String email;
 
-	@Column(length = 255, nullable = false)
+	@Column(name = "firstName", length = 255)
 	private String firstName;
 
-	@Column(length = 255, nullable = false)
+	@Column(name = "lastName", length = 255)
 	private String lastName;
 
-	@Column(length = 255, nullable = false)
+	@Column(name = "password", length = 255)
 	private String password;
 
-	@Column(length = 255, nullable = false)
+	@Column(name = "phoneNumber", length = 255)
 	private String phoneNumber;
 
+	// Default constructor
 	public Member() {
-		super();
-		// TODO Auto-generated constructor stub
 	}
 
-	public Member(int memberID, String email, String firstName, String lastName, String password, String phoneNumber) {
-		super();
-		this.memberID = memberID;
-		this.email = email;
-		this.firstName = firstName;
-		this.lastName = lastName;
-		this.password = password;
-		this.phoneNumber = phoneNumber;
-	}
-
+	// Getter & Setter
 	public int getMemberID() {
 		return memberID;
 	}
@@ -90,6 +76,15 @@ public class Member {
 	}
 
 	public void setPhoneNumber(String phoneNumber) {
+		this.phoneNumber = phoneNumber;
+	}
+
+	public Member(int memberID, String email, String firstName, String lastName, String password, String phoneNumber) {
+		this.memberID = memberID;
+		this.email = email;
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.password = password;
 		this.phoneNumber = phoneNumber;
 	}
 

@@ -23,7 +23,7 @@ import com.springmvc.model.Invoice;
 import com.springmvc.model.InvoiceDetail;
 import com.springmvc.model.Member;
 import com.springmvc.model.Rent;
-import com.springmvc.model.RentalDeposit;
+import com.springmvc.model.Reserve;
 import com.springmvc.model.Room;
 import com.springmvc.model.ThanachokManager;
 
@@ -49,15 +49,39 @@ public class HomeController {
         List<Room> roomList = manager.findRoomsByFloorAndStatus(floor, status);
 
         // เพิ่มการตรวจสอบว่ามีการจอง active หรือไม่
-        List<RentalDeposit> activeRentals = manager.findActiveDepositsByMember(member);
+        List<Rent> activeRentals = manager.findActiveDepositsByMember(member);
         int activeRentalCount = activeRentals.size();
+
+        // ดึงข้อมูลการจองทุกสถานะที่ยังใช้งานอยู่
+        List<Reserve> memberReserves = manager.findReservesByMember(member);
+        int approvedReservesCount = 0;
+        int totalActiveReservesCount = 0; // นับทุกสถานะที่ยังใช้งาน
+
+        for (Reserve reserve : memberReserves) {
+            String reserveStatus = reserve.getStatus();
+            // นับการจองที่ยังใช้งานอยู่ (ยกเว้นปฏิเสธและยกเลิก)
+            if ("รอการอนุมัติ".equals(reserveStatus) ||
+                    "อนุมัติแล้ว".equals(reserveStatus) ||
+                    "ชำระค่ามัดจำแล้ว".equals(reserveStatus)) {
+                totalActiveReservesCount++;
+            }
+
+            // นับเฉพาะที่อนุมัติแล้วเพื่อแสดง badge
+            if ("อนุมัติแล้ว".equals(reserveStatus)) {
+                approvedReservesCount++;
+            }
+        }
+
+        // รวมจำนวนการเช่าและการจอง active
+        int totalActiveCount = activeRentalCount + totalActiveReservesCount;
 
         ModelAndView mav = new ModelAndView("Homesucess");
         mav.addObject("roomList", roomList);
         mav.addObject("floor", floor);
         mav.addObject("status", status);
-        mav.addObject("activeRentalCount", activeRentalCount);
+        mav.addObject("activeRentalCount", totalActiveCount); // ส่งจำนวนรวม
         mav.addObject("activeRentals", activeRentals);
+        mav.addObject("approvedReservesCount", approvedReservesCount);
         return mav;
     }
 
@@ -101,9 +125,28 @@ public class HomeController {
                 return "redirect:/Homesucess";
             }
 
-            if (!"ว่าง".equals(room.getRoomStatus())) {
+            // ค้นหา Reserve ของ Member และ Room นี้ (รอการอนุมัติหรืออนุมัติแล้ว)
+            List<Reserve> memberReserves = thanachokManager.findReservesByMember(loginMember);
+            Reserve targetReserve = null;
+            for (Reserve reserve : memberReserves) {
+                if (reserve.getRoom().getRoomID() == roomID &&
+                        ("รอการอนุมัติ".equals(reserve.getStatus()) || "อนุมัติแล้ว".equals(reserve.getStatus()))) {
+                    targetReserve = reserve;
+                    break;
+                }
+            }
+
+            // ตรวจสอบว่าพบการจองของ Member หรือไม่
+            if (targetReserve == null) {
                 redirectAttributes.addFlashAttribute("errorMessage",
-                        "ห้อง " + room.getRoomNumber() + " ไม่ว่างแล้ว กรุณาเลือกห้องอื่น");
+                        "ไม่พบการจองสำหรับห้องนี้ กรุณาทำการจองห้องก่อน");
+                return "redirect:/Homesucess";
+            }
+
+            // ตรวจสอบว่าห้องไม่ได้ถูกจองโดยคนอื่นในระหว่างนี้
+            if (!"ว่าง".equals(room.getRoomStatus()) && !"ไม่ว่าง".equals(room.getRoomStatus())) {
+                redirectAttributes.addFlashAttribute("errorMessage",
+                        "ห้อง " + room.getRoomNumber() + " ไม่สามารถจองได้ในขณะนี้");
                 return "redirect:/Homesucess";
             }
 
@@ -125,53 +168,57 @@ public class HomeController {
                 uploadPath.mkdirs();
 
             // สร้างชื่อไฟล์ใหม่แบบเรียงลำดับ
-            String[] existingFiles = uploadPath.list((dir, name) -> name.matches("slipet\\d+\\.\\w+"));
+            String[] existingFiles = uploadPath.list((_dir, name) -> name.matches("slipet\\d+\\.\\w+"));
             int nextNumber = existingFiles != null ? existingFiles.length + 1 : 1;
             String newFileName = String.format("slipet%02d%s", nextNumber, extension);
 
             File dest = new File(uploadPath, newFileName);
             paymentSlip.transferTo(dest);
 
-            // สร้างการจองห้อง
-            Rent rent = new Rent();
-            rent.setMember(loginMember);
-            rent.setRoom(room);
-            rent.setRentDate(paymentDate);
-
-            // บันทึกการจองก่อน
-            boolean rentSaved = thanachokManager.saveRent(rent);
-            if (!rentSaved) {
-                redirectAttributes.addFlashAttribute("errorMessage", "ไม่สามารถบันทึกการจองได้");
-                return "redirect:/Homesucess";
+            // ตรวจสอบว่าได้จ่ายค่ามัดจำสำหรับห้องนี้ไปแล้วหรือยัง
+            List<Rent> existingRents = thanachokManager.findRentsByMemberAndRoom(loginMember, room);
+            for (Rent existingRent : existingRents) {
+                if ("ชำระแล้ว".equals(existingRent.getStatus()) ||
+                        "เสร็จสมบูรณ์".equals(existingRent.getStatus()) ||
+                        "รอคืนห้อง".equals(existingRent.getStatus())) {
+                    redirectAttributes.addFlashAttribute("errorMessage",
+                            "คุณได้จ่ายค่ามัดจำสำหรับห้องนี้ไปแล้ว ไม่สามารถจ่ายซ้ำได้");
+                    return "redirect:/YourRoom";
+                }
             }
 
-            // สร้างการชำระเงิน
-            RentalDeposit deposit = new RentalDeposit();
-            deposit.setRent(rent);
-            deposit.setTransferAccountName(transferAccountName);
-            deposit.setPaymentDate(paymentDate);
+            // อัปเดตสถานะ Reserve เป็น "ชำระแล้ว" เพื่อติดตามสถานะ
+            targetReserve.setStatus("ชำระแล้ว");
+            boolean reserveUpdated = thanachokManager.updateReserve(targetReserve);
+            if (!reserveUpdated) {
+                redirectAttributes.addFlashAttribute("errorMessage", "ไม่สามารถอัปเดตสถานะการจองได้");
+                return "redirect:/Record";
+            }
+
+            // สร้าง Rent สถานะ "รออนุมัติ" (ยังไม่ได้ห้อง)
+            Rent deposit = new Rent();
+            deposit.setRentID(0);
+            deposit.setMember(loginMember);
+            deposit.setRoom(room);
+            deposit.setTotalPrice(String.valueOf(depositAmount));
+            deposit.setRentDate(new Date());
+            // returnDate จะเป็น NULL จนกว่า Member จะคืนห้องและ Manager อนุมัติ
+            deposit.setStatus("รออนุมัติ"); // รอ Manager อนุมัติ
             deposit.setPaymentSlipImage(uploadDir + "/" + newFileName);
-            deposit.setDeadlineDate(deadline);
-            deposit.setStatus("รอดำเนินการ");
-            deposit.setTotalPrice("500");
+            deposit.setTransferAccountName(transferAccountName);
+            deposit.setDeadline(deadline);
 
-            boolean depositSaved = thanachokManager.saveRentalDeposit(deposit);
-            if (!depositSaved) {
-                redirectAttributes.addFlashAttribute("errorMessage", "ไม่สามารถบันทึกการชำระเงินได้");
-                return "redirect:/Homesucess";
+            boolean depositInserted = thanachokManager.saveRent(deposit);
+            if (!depositInserted) {
+                redirectAttributes.addFlashAttribute("errorMessage", "ไม่สามารถสร้างรายการค่ามัดจำได้");
+                return "redirect:/Record";
             }
 
-            // อัปเดตสถานะห้อง
-            room.setRoomStatus("ไม่ว่าง");
-            boolean roomUpdated = thanachokManager.updateRoom(room);
-            if (!roomUpdated) {
-                redirectAttributes.addFlashAttribute("errorMessage", "ไม่สามารถอัปเดตสถานะห้องได้");
-                return "redirect:/Homesucess";
-            }
+            // ไม่ต้องอัปเดตสถานะห้องตอนนี้ รอ Manager อนุมัติก่อน
 
             redirectAttributes.addFlashAttribute("message",
-                    "บันทึกการชำระเงินสำเร็จ! ห้อง " + room.getRoomNumber() + " ถูกจองแล้ว");
-            return "redirect:/Homesucess";
+                    "ชำระเงินสำเร็จ! กรุณารอ Manager อนุมัติค่ามัดจำของห้อง " + room.getRoomNumber());
+            return "redirect:/Record";
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -196,10 +243,10 @@ public class HomeController {
         ThanachokManager manager = new ThanachokManager();
 
         // ดึงข้อมูลการจองทั้งหมดที่ยังไม่ได้คืนห้อง
-        List<RentalDeposit> activeRentals = manager.findActiveDepositsByMember(loginMember);
+        List<Rent> activeRentals = manager.findActiveDepositsByMember(loginMember);
 
-        for (RentalDeposit rd : activeRentals) {
-            System.out.println("Room: " + rd.getRent().getRoom().getRoomNumber() +
+        for (Rent rd : activeRentals) {
+            System.out.println("Room: " + rd.getRoom().getRoomNumber() +
                     ", Status: " + rd.getStatus());
         }
 
@@ -210,8 +257,8 @@ public class HomeController {
         response.put("activeRentalCount", activeCount);
 
         List<String> roomNumbers = new ArrayList<>();
-        for (RentalDeposit rd : activeRentals) {
-            roomNumbers.add(rd.getRent().getRoom().getRoomNumber());
+        for (Rent rd : activeRentals) {
+            roomNumbers.add(rd.getRoom().getRoomNumber());
         }
         response.put("activeRooms", roomNumbers);
 
@@ -227,10 +274,10 @@ public class HomeController {
     }
 
     @RequestMapping(value = "/SlipImage", method = RequestMethod.GET)
-    public void getSlipImage(@RequestParam("rentalDepositId") int rentalDepositId, HttpServletResponse response) {
+    public void getSlipImage(@RequestParam("RentId") int RentId, HttpServletResponse response) {
         try {
             ThanachokManager thanachokManager = new ThanachokManager();
-            RentalDeposit deposit = thanachokManager.findRentalDepositByRentId(rentalDepositId);
+            Rent deposit = thanachokManager.findRentByRentId(RentId);
 
             if (deposit != null && deposit.getPaymentSlipImage() != null) {
 
@@ -250,6 +297,67 @@ public class HomeController {
                 }
             } else {
                 response.sendError(HttpServletResponse.SC_NOT_FOUND, "ไม่พบข้อมูลการชำระเงิน");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            try {
+                response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "เกิดข้อผิดพลาดในการโหลดภาพ");
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    // ดึงรูปภาพห้อง (แบบเดียวกับ SlipImage)
+    @RequestMapping(value = "/RoomImage", method = RequestMethod.GET)
+    public void getRoomImage(@RequestParam("roomId") int roomId,
+            @RequestParam("imageType") String imageType,
+            HttpServletResponse response) {
+        try {
+            ThanachokManager manager = new ThanachokManager();
+            Room room = manager.findRoomById(roomId);
+
+            if (room != null) {
+                String imagePath = null;
+
+                switch (imageType) {
+                    case "number":
+                        imagePath = room.getRoomNumberImage();
+                        break;
+                    case "1":
+                        imagePath = room.getRoomImage1();
+                        break;
+                    case "2":
+                        imagePath = room.getRoomImage2();
+                        break;
+                    case "3":
+                        imagePath = room.getRoomImage3();
+                        break;
+                    case "4":
+                        imagePath = room.getRoomImage4();
+                        break;
+                }
+
+                if (imagePath != null && !imagePath.isEmpty()) {
+                    // อ่านจาก /tmp/ ที่ ManagerController บันทึกไว้
+                    String basePath = "/tmp/";
+                    String fullPath = basePath + imagePath;
+
+                    File imageFile = new File(fullPath);
+
+                    if (imageFile.exists()) {
+                        String contentType = Files.probeContentType(imageFile.toPath());
+                        response.setContentType(contentType != null ? contentType : "image/jpeg");
+
+                        Files.copy(imageFile.toPath(), response.getOutputStream());
+                        response.getOutputStream().flush();
+                    } else {
+                        response.sendError(HttpServletResponse.SC_NOT_FOUND, "ไม่พบไฟล์ภาพ");
+                    }
+                } else {
+                    response.sendError(HttpServletResponse.SC_NOT_FOUND, "ไม่มีข้อมูลรูปภาพ");
+                }
+            } else {
+                response.sendError(HttpServletResponse.SC_NOT_FOUND, "ไม่พบข้อมูลห้อง");
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -364,12 +472,32 @@ public class HomeController {
         ThanachokManager manager = new ThanachokManager();
 
         // ดึงห้องที่กำลังเช่าอยู่ทั้งหมด (รวมสถานะ "รอคืนห้อง")
-        List<RentalDeposit> currentRentals = manager.findCurrentRentalsByMember(loginMember);
+        List<Rent> currentRentals = manager.findCurrentRentalsByMember(loginMember);
+
+        // สร้าง Map เก็บข้อมูลบิลค้างชำระแต่ละห้อง
+        Map<Integer, String> unpaidInvoicesByRent = new HashMap<>();
+        java.text.SimpleDateFormat monthFormat = new java.text.SimpleDateFormat("MMMM yyyy",
+                java.util.Locale.forLanguageTag("th-TH"));
+
+        for (Rent rental : currentRentals) {
+            List<Invoice> unpaidInvoices = manager.getUnpaidInvoices(rental.getRentID());
+            if (!unpaidInvoices.isEmpty()) {
+                StringBuilder months = new StringBuilder();
+                for (int i = 0; i < unpaidInvoices.size(); i++) {
+                    months.append(monthFormat.format(unpaidInvoices.get(i).getIssueDate()));
+                    if (i < unpaidInvoices.size() - 1) {
+                        months.append(", ");
+                    }
+                }
+                unpaidInvoicesByRent.put(rental.getRentID(), months.toString());
+            }
+        }
 
         ModelAndView mav = new ModelAndView("YourRoom");
         mav.addObject("currentRentals", currentRentals);
         mav.addObject("loginMember", loginMember);
         mav.addObject("rentalCount", currentRentals.size());
+        mav.addObject("unpaidInvoicesByRent", unpaidInvoicesByRent);
 
         return mav;
     }
@@ -384,28 +512,98 @@ public class HomeController {
         ThanachokManager manager = new ThanachokManager();
 
         // ดึงข้อมูลทั้งหมด
-        List<RentalDeposit> allDeposits = manager.findAllDepositsByMemberForRecord(loginMember);
+        List<Rent> allDeposits = manager.findAllDepositsByMemberForRecord(loginMember);
 
-        // แบ่งกลุ่มตามสถานะ - เอาเฉพาะ 2 กลุ่ม
-        List<RentalDeposit> pendingApproval = new ArrayList<>(); // รอดำเนินการ
-        List<RentalDeposit> completed = new ArrayList<>(); // คืนห้องแล้ว
+        // แบ่งกลุ่มตามสถานะ
+        List<Rent> pendingApproval = new ArrayList<>(); // รออนุมัติ
+        List<Rent> paidRents = new ArrayList<>(); // ชำระแล้ว
+        List<Rent> completed = new ArrayList<>(); // คืนห้องแล้ว
 
-        for (RentalDeposit deposit : allDeposits) {
+        for (Rent deposit : allDeposits) {
             String status = deposit.getStatus();
-            if ("รอดำเนินการ".equals(status)) {
+            System.out.println("DEBUG Record - Rent ID: " + deposit.getRentID() + ", Status: '" + status + "'");
+
+            if ("รออนุมัติ".equals(status)) {
                 pendingApproval.add(deposit);
+            } else if ("ชำระแล้ว".equals(status)) {
+                paidRents.add(deposit);
             } else if ("คืนห้องแล้ว".equals(status)) {
                 completed.add(deposit);
+                System.out.println("✓ Added to completed (returned): Rent ID " + deposit.getRentID());
+            } else if ("รอคืนห้อง".equals(status)) {
+                // ถ้ามีสถานะ "รอคืนห้อง" ให้เพิ่มเข้าไปใน completed ด้วย
+                completed.add(deposit);
+                System.out.println("✓ Added to completed (pending return): Rent ID " + deposit.getRentID());
+            }
+        }
+
+        System.out.println("=== Record Summary ===");
+        System.out.println("Pending Approval: " + pendingApproval.size());
+        System.out.println("Paid Rents: " + paidRents.size());
+        System.out.println("Completed (Returned): " + completed.size());
+
+        // ดึงข้อมูลการจอง (Reserve) ของ Member
+        List<Reserve> memberReserves = manager.findReservesByMember(loginMember);
+
+        // แยกการจองตามสถานะ (Reserve จบที่ "อนุมัติแล้ว" เท่านั้น)
+        List<Reserve> pendingReserves = new ArrayList<>(); // รอการอนุมัติ
+        List<Reserve> approvedReserves = new ArrayList<>(); // อนุมัติแล้ว (สามารถจ่ายเงินได้)
+        List<Reserve> rejectedReserves = new ArrayList<>(); // ปฏิเสธ
+
+        for (Reserve reserve : memberReserves) {
+            String status = reserve.getStatus();
+            if ("รอการอนุมัติ".equals(status)) {
+                pendingReserves.add(reserve);
+            } else if ("อนุมัติแล้ว".equals(status)) {
+                approvedReserves.add(reserve);
+            } else if ("ปฏิเสธ".equals(status)) {
+                rejectedReserves.add(reserve);
             }
         }
 
         ModelAndView mav = new ModelAndView("Record");
         mav.addObject("pendingApproval", pendingApproval);
+        mav.addObject("paidRents", paidRents); // เพิ่มรายการ Rent ที่ชำระแล้ว
         mav.addObject("returnedRentals", completed);
         mav.addObject("loginMember", loginMember);
 
         mav.addObject("pendingApprovalCount", pendingApproval.size());
+        mav.addObject("paidReservesCount", paidRents.size()); // นับจำนวน Rent ที่ชำระแล้ว
         mav.addObject("returnedCount", completed.size());
+
+        // กรอง approvedReserves: เอาเฉพาะที่ยังไม่มี Rent (ยังไม่ได้จ่ายเงิน)
+        List<Reserve> filteredApprovedReserves = new ArrayList<>();
+        for (Reserve reserve : approvedReserves) {
+            boolean hasPaid = false;
+            // เช็คว่ามี Rent ที่ตรงกับห้องและสมาชิกคนนี้หรือไม่
+            for (Rent rent : paidRents) {
+                if (rent.getRoom().getRoomID() == reserve.getRoom().getRoomID()
+                        && rent.getMember().getMemberID() == reserve.getMember().getMemberID()) {
+                    hasPaid = true;
+                    break;
+                }
+            }
+            for (Rent rent : pendingApproval) {
+                if (rent.getRoom().getRoomID() == reserve.getRoom().getRoomID()
+                        && rent.getMember().getMemberID() == reserve.getMember().getMemberID()) {
+                    hasPaid = true;
+                    break;
+                }
+            }
+
+            // เพิ่มเฉพาะที่ยังไม่ได้จ่ายเงิน
+            if (!hasPaid) {
+                filteredApprovedReserves.add(reserve);
+            }
+        }
+
+        // เพิ่มข้อมูลการจอง (Reserve จบที่ "อนุมัติแล้ว")
+        mav.addObject("pendingReserves", pendingReserves);
+        mav.addObject("approvedReserves", filteredApprovedReserves); // ใช้ list ที่กรองแล้ว
+        mav.addObject("rejectedReserves", rejectedReserves);
+        mav.addObject("pendingReservesCount", pendingReserves.size());
+        mav.addObject("approvedReservesCount", filteredApprovedReserves.size()); // นับจากที่กรองแล้ว
+        mav.addObject("rejectedReservesCount", rejectedReserves.size());
 
         return mav;
     }
@@ -430,9 +628,24 @@ public class HomeController {
             // ตรวจสอบสถานะบิลค้างชำระ
             boolean hasUnpaidInvoices = manager.hasUnpaidInvoices(rentId);
             if (hasUnpaidInvoices) {
+                // ดึงรายการบิลค้างชำระ
+                List<Invoice> unpaidInvoices = manager.getUnpaidInvoices(rentId);
+
+                // สร้างข้อความแจ้งเตือนพร้อมเดือนที่ค้างชำระ
+                StringBuilder errorMsg = new StringBuilder("ไม่สามารถส่งคำขอคืนห้องได้ เนื่องจากมีบิลค้างชำระ: ");
+                java.text.SimpleDateFormat monthFormat = new java.text.SimpleDateFormat("MMMM yyyy",
+                        java.util.Locale.forLanguageTag("th-TH"));
+
+                for (int i = 0; i < unpaidInvoices.size(); i++) {
+                    errorMsg.append(monthFormat.format(unpaidInvoices.get(i).getIssueDate()));
+                    if (i < unpaidInvoices.size() - 1) {
+                        errorMsg.append(", ");
+                    }
+                }
+                errorMsg.append(" - กรุณาชำระบิลให้ครบถ้วนก่อน");
+
                 ModelAndView mav = new ModelAndView("redirect:/YourRoom");
-                mav.addObject("error",
-                        "ไม่สามารถส่งคำขอคืนห้องได้ เนื่องจากมีค่าใช้จ่ายค้างชำระ กรุณาชำระบิลให้ครบถ้วนก่อน");
+                mav.addObject("error", errorMsg.toString());
                 return mav;
             }
 
@@ -485,7 +698,15 @@ public class HomeController {
         }
 
         ThanachokManager manager = new ThanachokManager();
+
+        // ดึงข้อมูล Invoice ล่าสุด (getInvoiceWithDetails จะ clear cache อัตโนมัติ)
         Invoice invoice = manager.getInvoiceWithDetails(invoiceId);
+
+        System.out.println("=== InvoiceDetail: Loading Invoice #" + invoiceId + " ===");
+        if (invoice != null && invoice.getDetails() != null) {
+            System.out.println("Invoice found with " + invoice.getDetails().size() + " details");
+            System.out.println("Total amount: " + invoice.getTotalAmount());
+        }
 
         // ตรวจสอบว่าใบแจ้งหนี้นี้เป็นของสมาชิกคนนี้หรือไม่
         if (invoice == null || invoice.getRent().getMember().getMemberID() != member.getMemberID()) {
@@ -497,6 +718,9 @@ public class HomeController {
         ModelAndView mav = new ModelAndView("InvoiceDetail");
         mav.addObject("invoice", invoice);
         mav.addObject("invoiceDetails", invoice.getDetails());
+
+        // ป้องกัน browser cache
+        mav.addObject("timestamp", System.currentTimeMillis());
 
         return mav;
     }

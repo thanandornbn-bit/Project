@@ -1,13 +1,10 @@
 package com.springmvc.controller;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.util.ArrayList;
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 
 import org.springframework.stereotype.Controller;
@@ -19,12 +16,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.springmvc.model.Room;
 import com.springmvc.model.Invoice;
-import com.springmvc.model.InvoiceDetail;
-import com.springmvc.model.InvoiceType;
 import com.springmvc.model.Manager;
-import com.springmvc.model.Member;
 import com.springmvc.model.Rent;
-import com.springmvc.model.RentalDeposit;
+import com.springmvc.model.Rent;
 import com.springmvc.model.ThanachokManager;
 
 @Controller
@@ -48,6 +42,7 @@ public class ManagerController {
 		// เพิ่มข้อมูลสถานะการอนุมัติสำหรับแต่ละห้อง
 		Map<Integer, Boolean> roomApprovalStatus = new HashMap<>();
 		Map<Integer, String> roomDepositStatus = new HashMap<>();
+		Map<Integer, Integer> roomRentId = new HashMap<>();
 
 		for (Room room : roomList) {
 			System.out.println("Room: " + room.getRoomNumber() + " - Status: " + room.getRoomStatus());
@@ -56,9 +51,13 @@ public class ManagerController {
 				boolean isApproved = tm.isRoomApproved(room.getRoomID());
 				roomApprovalStatus.put(room.getRoomID(), isApproved);
 
-				RentalDeposit deposit = tm.getRentalDepositByRoomID(room.getRoomID());
+				Rent deposit = tm.getRentByRoomID(room.getRoomID());
 				if (deposit != null) {
 					roomDepositStatus.put(room.getRoomID(), deposit.getStatus());
+					// เก็บ rentID สำหรับห้องที่มีสถานะชำระแล้ว (สามารถคืนห้องได้)
+					if ("ชำระแล้ว".equals(deposit.getStatus())) {
+						roomRentId.put(room.getRoomID(), deposit.getRentID());
+					}
 				} else {
 					roomDepositStatus.put(room.getRoomID(), "ไม่มีข้อมูล");
 				}
@@ -72,9 +71,9 @@ public class ManagerController {
 		mav.addObject("roomList", roomList);
 		mav.addObject("roomApprovalStatus", roomApprovalStatus);
 		mav.addObject("roomDepositStatus", roomDepositStatus);
+		mav.addObject("roomRentId", roomRentId);
 		mav.addObject("floor", floor == null ? "" : floor);
 		mav.addObject("status", status == null ? "" : status);
-
 		System.out.println("===== END DEBUG =====");
 		return mav;
 	}
@@ -93,6 +92,12 @@ public class ManagerController {
 			@RequestParam("roomStatus") String roomStatus,
 			@RequestParam("roomtype") String roomtype,
 			@RequestParam("roomDeposit") String roomDeposit,
+			@RequestParam(value = "roomNumberImage", required = false) MultipartFile roomNumberImage,
+			@RequestParam(value = "roomImage1", required = false) MultipartFile roomImage1,
+			@RequestParam(value = "roomImage2", required = false) MultipartFile roomImage2,
+			@RequestParam(value = "roomImage3", required = false) MultipartFile roomImage3,
+			@RequestParam(value = "roomImage4", required = false) MultipartFile roomImage4,
+			HttpSession session,
 			Model model) {
 
 		ThanachokManager manager = new ThanachokManager();
@@ -120,6 +125,58 @@ public class ManagerController {
 		room.setRoomtype(roomtype);
 		room.setRoomDeposit(roomDeposit);
 
+		// อัปโหลดรูปภาพ
+		try {
+			String uploadDir = "room_images";
+			// ใช้ /tmp/ เพื่อไม่ให้กระทบกับ WAR extraction
+			String realPath = "/tmp/room_images";
+			File uploadPath = new File(realPath);
+			if (!uploadPath.exists()) {
+				uploadPath.mkdirs();
+			}
+
+			// บันทึกรูปเลขห้อง (เก็บแบบ room_images/filename.jpg)
+			if (roomNumberImage != null && !roomNumberImage.isEmpty()) {
+				String fileName = saveImage(roomNumberImage, uploadPath, "room_" + roomNumber + "_number");
+				if (fileName != null) {
+					room.setRoomNumberImage(uploadDir + "/" + fileName);
+				}
+			}
+
+			// บันทึกรูปภายในห้อง 1-4 (เก็บแบบ room_images/filename.jpg)
+			if (roomImage1 != null && !roomImage1.isEmpty()) {
+				String fileName = saveImage(roomImage1, uploadPath, "room_" + roomNumber + "_img1");
+				if (fileName != null) {
+					room.setRoomImage1(uploadDir + "/" + fileName);
+				}
+			}
+
+			if (roomImage2 != null && !roomImage2.isEmpty()) {
+				String fileName = saveImage(roomImage2, uploadPath, "room_" + roomNumber + "_img2");
+				if (fileName != null) {
+					room.setRoomImage2(uploadDir + "/" + fileName);
+				}
+			}
+
+			if (roomImage3 != null && !roomImage3.isEmpty()) {
+				String fileName = saveImage(roomImage3, uploadPath, "room_" + roomNumber + "_img3");
+				if (fileName != null) {
+					room.setRoomImage3(uploadDir + "/" + fileName);
+				}
+			}
+
+			if (roomImage4 != null && !roomImage4.isEmpty()) {
+				String fileName = saveImage(roomImage4, uploadPath, "room_" + roomNumber + "_img4");
+				if (fileName != null) {
+					room.setRoomImage4(uploadDir + "/" + fileName);
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			model.addAttribute("errorMessage", "เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ: " + e.getMessage());
+			return "AddRoom";
+		}
+
 		boolean success = manager.insertRoom(room);
 
 		if (success) {
@@ -129,6 +186,26 @@ public class ManagerController {
 		}
 
 		return "AddRoom";
+	}
+
+	// Helper method สำหรับบันทึกรูปภาพ
+	private String saveImage(MultipartFile file, File uploadPath, String prefix) {
+		try {
+			String originalFileName = file.getOriginalFilename();
+			String extension = "";
+			if (originalFileName != null && originalFileName.contains(".")) {
+				extension = originalFileName.substring(originalFileName.lastIndexOf("."));
+			}
+
+			String newFileName = prefix + "_" + System.currentTimeMillis() + extension;
+			File dest = new File(uploadPath, newFileName);
+			file.transferTo(dest);
+
+			return newFileName;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	// แสดงรายการจองทั้งหมด
@@ -162,31 +239,46 @@ public class ManagerController {
 	}
 
 	// ยืนยันการชำระเงินและเปลี่ยนสถานะเป็น "เสร็จสมบูรณ์"
-	@RequestMapping(value = "/ConfirmRentalDeposit", method = RequestMethod.POST)
-	public String confirmRentalDeposit(@RequestParam("depositId") int depositId, Model model) {
+	@RequestMapping(value = "/ConfirmRent", method = RequestMethod.POST)
+	public String confirmRent(@RequestParam("depositId") int depositId, Model model) {
 		ThanachokManager manager = new ThanachokManager();
-		RentalDeposit deposit = manager.getRentalDepositById(depositId);
+		Rent deposit = manager.getRentById(depositId);
 
 		if (deposit != null && !"เสร็จสมบูรณ์".equals(deposit.getStatus())) {
 			deposit.setStatus("เสร็จสมบูรณ์");
-			manager.updateRentalDeposit(deposit);
+			manager.updateRent(deposit);
 			model.addAttribute("message", "ยืนยันเรียบร้อยแล้ว");
 		}
 
-		Rent rent = manager.findRentById(deposit.getRent().getRentID());
-		model.addAttribute("rent", rent);
+		model.addAttribute("rent", deposit);
 		return "ViewReservationDetail";
 	}
 
 	@RequestMapping(value = "/approveDeposit", method = RequestMethod.POST)
-	public String approveDeposit(@RequestParam("depositID") int depositID) {
+	public String approveDeposit(@RequestParam("depositID") int depositID, RedirectAttributes redirectAttributes) {
 		ThanachokManager manager = new ThanachokManager();
-		boolean updated = manager.confirmRentalDeposit(depositID);
+		boolean updated = manager.confirmRent(depositID);
 
 		if (updated) {
+			redirectAttributes.addFlashAttribute("message", "อนุมัติค่ามัดจำเรียบร้อยแล้ว Member จะได้รับห้องทันที");
 			return "redirect:/OViewReserve";
 		} else {
-			return "redirect:/ViewReservationDetail.jsp?error=approve_failed";
+			redirectAttributes.addFlashAttribute("error", "ไม่สามารถอนุมัติค่ามัดจำได้ กรุณาลองใหม่อีกครั้ง");
+			return "redirect:/OViewReserve";
+		}
+	}
+
+	@RequestMapping(value = "/rejectDeposit", method = RequestMethod.POST)
+	public String rejectDeposit(@RequestParam("depositID") int depositID, RedirectAttributes redirectAttributes) {
+		ThanachokManager manager = new ThanachokManager();
+		boolean deleted = manager.deleteRent(depositID);
+
+		if (deleted) {
+			redirectAttributes.addFlashAttribute("message", "ปฏิเสธค่ามัดจำเรียบร้อยแล้ว");
+			return "redirect:/OViewReserve";
+		} else {
+			redirectAttributes.addFlashAttribute("error", "ไม่สามารถปฏิเสธค่ามัดจำได้ กรุณาลองใหม่อีกครั้ง");
+			return "redirect:/OViewReserve";
 		}
 	}
 
@@ -208,22 +300,84 @@ public class ManagerController {
 
 	// อัปเดตข้อมูลห้อง
 	@RequestMapping(value = "/UpdateRoom", method = RequestMethod.POST)
-	public String updateRoom(@RequestParam("roomID") int roomID, @RequestParam("roomNumber") String roomNumber,
-			@RequestParam("description") String description, @RequestParam("roomPrice") String roomPrice,
+	public String updateRoom(
+			@RequestParam("roomID") int roomID,
+			@RequestParam("roomNumber") String roomNumber,
+			@RequestParam("description") String description,
+			@RequestParam("roomPrice") String roomPrice,
+			@RequestParam("roomDeposit") String roomDeposit,
 			@RequestParam("roomtype") String roomtype,
+			@RequestParam(value = "roomNumberImage", required = false) MultipartFile roomNumberImage,
+			@RequestParam(value = "roomImage1", required = false) MultipartFile roomImage1,
+			@RequestParam(value = "roomImage2", required = false) MultipartFile roomImage2,
+			@RequestParam(value = "roomImage3", required = false) MultipartFile roomImage3,
+			@RequestParam(value = "roomImage4", required = false) MultipartFile roomImage4,
 			RedirectAttributes redirect) {
 
 		ThanachokManager tm = new ThanachokManager();
 		Room room = tm.findRoomById(roomID);
 
+		// อัปเดตข้อมูลพื้นฐาน
 		room.setRoomNumber(roomNumber);
 		room.setDescription(description);
 		room.setRoomPrice(roomPrice);
-
+		room.setRoomDeposit(roomDeposit);
 		room.setRoomtype(roomtype);
 
+		// อัปเดตรูปภาพ (ถ้ามีการอัปโหลดใหม่)
+		try {
+			String uploadDir = "room_images";
+			String realPath = "/tmp/room_images";
+			File uploadPath = new File(realPath);
+			if (!uploadPath.exists()) {
+				uploadPath.mkdirs();
+			}
+
+			// บันทึกรูปเลขห้อง (ถ้ามีการอัปโหลดใหม่)
+			if (roomNumberImage != null && !roomNumberImage.isEmpty()) {
+				String fileName = saveImage(roomNumberImage, uploadPath, "room_" + roomNumber + "_number");
+				if (fileName != null) {
+					room.setRoomNumberImage(uploadDir + "/" + fileName);
+				}
+			}
+
+			// บันทึกรูปภายในห้อง 1-4 (ถ้ามีการอัปโหลดใหม่)
+			if (roomImage1 != null && !roomImage1.isEmpty()) {
+				String fileName = saveImage(roomImage1, uploadPath, "room_" + roomNumber + "_img1");
+				if (fileName != null) {
+					room.setRoomImage1(uploadDir + "/" + fileName);
+				}
+			}
+
+			if (roomImage2 != null && !roomImage2.isEmpty()) {
+				String fileName = saveImage(roomImage2, uploadPath, "room_" + roomNumber + "_img2");
+				if (fileName != null) {
+					room.setRoomImage2(uploadDir + "/" + fileName);
+				}
+			}
+
+			if (roomImage3 != null && !roomImage3.isEmpty()) {
+				String fileName = saveImage(roomImage3, uploadPath, "room_" + roomNumber + "_img3");
+				if (fileName != null) {
+					room.setRoomImage3(uploadDir + "/" + fileName);
+				}
+			}
+
+			if (roomImage4 != null && !roomImage4.isEmpty()) {
+				String fileName = saveImage(roomImage4, uploadPath, "room_" + roomNumber + "_img4");
+				if (fileName != null) {
+					room.setRoomImage4(uploadDir + "/" + fileName);
+				}
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			redirect.addFlashAttribute("error", "เกิดข้อผิดพลาดในการอัปโหลดรูปภาพ: " + e.getMessage());
+			return "redirect:/editRoom?id=" + roomID;
+		}
+
 		tm.updateRoom(room);
-		redirect.addFlashAttribute("message", "แก้ไขห้องเรียบร้อย");
+		redirect.addFlashAttribute("message", "✅ แก้ไขห้อง " + roomNumber + " เรียบร้อยแล้ว");
 		return "redirect:/OwnerHome";
 	}
 
@@ -325,7 +479,7 @@ public class ManagerController {
 		boolean success = tm.managerreturnRoom(rentId);
 
 		if (success) {
-			if ("รอดำเนินการ".equals(status)) {
+			if ("รออนุมัติ".equals(status)) {
 				redirectAttributes.addFlashAttribute("message",
 						"✅ ยกเลิกการจองห้อง " + roomNumber + " เรียบร้อยแล้ว\n" +
 								"ห้องพร้อมให้จองใหม่");
@@ -351,7 +505,7 @@ public class ManagerController {
 		}
 
 		ThanachokManager tm = new ThanachokManager();
-		List<RentalDeposit> returnRequests = tm.findPendingReturnRequests();
+		List<Rent> returnRequests = tm.findPendingReturnRequests();
 
 		ModelAndView mav = new ModelAndView("ListReturnRoom");
 		mav.addObject("returnRequests", returnRequests);
@@ -397,6 +551,79 @@ public class ManagerController {
 		}
 
 		return "redirect:/ListReturnRoom";
+	}
+
+	// Manager คืนห้องให้ลูกค้า (กรณีต้องการคืนห้องทันที)
+	@RequestMapping(value = "/ManagerForceReturnRoom", method = RequestMethod.POST)
+	public String managerForceReturnRoom(@RequestParam("rentId") int rentId,
+			@RequestParam("notes") String notes,
+			@RequestParam("roomNumber") String roomNumber,
+			RedirectAttributes redirectAttributes) {
+
+		ThanachokManager tm = new ThanachokManager();
+		boolean success = tm.managerForceReturnRoom(rentId, notes);
+
+		if (success) {
+			redirectAttributes.addFlashAttribute("message",
+					"✅ คืนห้อง " + roomNumber + " เรียบร้อยแล้ว");
+		} else {
+			redirectAttributes.addFlashAttribute("error",
+					"เกิดข้อผิดพลาดในการคืนห้อง");
+		}
+
+		return "redirect:/OwnerHome";
+	}
+
+	// แสดงรายการจองที่รอการอนุมัติ
+	@RequestMapping(value = "/ListReservations", method = RequestMethod.GET)
+	public ModelAndView listReservations(HttpSession session) {
+		Manager manager = (Manager) session.getAttribute("loginManager");
+		if (manager == null) {
+			return new ModelAndView("redirect:/Login");
+		}
+
+		ThanachokManager tm = new ThanachokManager();
+		List<com.springmvc.model.Reserve> reserveList = tm.findAllReserves();
+
+		ModelAndView mav = new ModelAndView("ListReservations");
+		mav.addObject("reserveList", reserveList);
+		return mav;
+	}
+
+	// Manager อนุมัติการจอง
+	@RequestMapping(value = "/ApproveReservation", method = RequestMethod.POST)
+	public String approveReservation(
+			@RequestParam("reserveId") int reserveId,
+			RedirectAttributes redirectAttributes) {
+
+		ThanachokManager tm = new ThanachokManager();
+		boolean success = tm.updateReserveStatus(reserveId, "อนุมัติแล้ว");
+
+		if (success) {
+			redirectAttributes.addFlashAttribute("message", "✅ อนุมัติการจองเรียบร้อยแล้ว");
+		} else {
+			redirectAttributes.addFlashAttribute("error", "เกิดข้อผิดพลาดในการอนุมัติ");
+		}
+
+		return "redirect:/ListReservations";
+	}
+
+	// Manager ปฏิเสธการจอง
+	@RequestMapping(value = "/RejectReservation", method = RequestMethod.POST)
+	public String rejectReservation(
+			@RequestParam("reserveId") int reserveId,
+			RedirectAttributes redirectAttributes) {
+
+		ThanachokManager tm = new ThanachokManager();
+		boolean success = tm.updateReserveStatus(reserveId, "ปฏิเสธ");
+
+		if (success) {
+			redirectAttributes.addFlashAttribute("message", "❌ ปฏิเสธการจองเรียบร้อยแล้ว");
+		} else {
+			redirectAttributes.addFlashAttribute("error", "เกิดข้อผิดพลาดในการปฏิเสธ");
+		}
+
+		return "redirect:/ListReservations";
 	}
 
 }

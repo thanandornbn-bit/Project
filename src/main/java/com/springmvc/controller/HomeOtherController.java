@@ -1,16 +1,19 @@
 package com.springmvc.controller;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.springmvc.model.Manager;
 import com.springmvc.model.Member;
-import com.springmvc.model.RentalDeposit;
 import com.springmvc.model.Room;
 import com.springmvc.model.ThanachokManager;
 
@@ -73,6 +76,13 @@ public class HomeOtherController {
 		if (!password.equals(confirmPassword)) {
 			ModelAndView mav = new ModelAndView("Register");
 			mav.addObject("add_result", "รหัสผ่านไม่ตรงกัน");
+			return mav;
+		}
+
+		// ตรวจสอบว่า Email มีอยู่ในระบบแล้วหรือไม่ (ไม่สนใจตัวพิมพ์ใหญ่-เล็ก)
+		if (manager.isEmailExists(email)) {
+			ModelAndView mav = new ModelAndView("Register");
+			mav.addObject("add_result", "อีเมลนี้ถูกใช้งานแล้ว กรุณาใช้อีเมลอื่น");
 			return mav;
 		}
 
@@ -150,6 +160,126 @@ public class HomeOtherController {
 		ModelAndView mav = new ModelAndView("ODetailRoom");
 		mav.addObject("room", room);
 		return mav;
+	}
+
+	// Member จองห้อง - บันทึกลง Reserve table
+	@RequestMapping(value = "/MemberReserveRoom", method = RequestMethod.POST)
+	public String memberReserveRoom(
+			@RequestParam("roomID") int roomID,
+			@RequestParam("checkInDate") String checkInDateStr,
+			@RequestParam(value = "reserveTimestamp", required = false) String reserveTimestamp,
+			HttpSession session) {
+
+		Member loginMember = (Member) session.getAttribute("loginMember");
+		if (loginMember == null) {
+			return "redirect:/Login";
+		}
+
+		ThanachokManager manager = new ThanachokManager();
+
+		try {
+			// ตรวจสอบว่าสมาชิกมีการจองที่ยังไม่ถูกปฏิเสธหรือยกเลิกอยู่หรือไม่
+			List<com.springmvc.model.Reserve> existingReserves = manager.findReservesByMember(loginMember);
+			boolean hasActiveReserve = false;
+
+			for (com.springmvc.model.Reserve res : existingReserves) {
+				// ถ้ามีการจองที่สถานะไม่ใช่ "ปฏิเสธ" หรือ "ยกเลิก" = มีการจองอยู่
+				if (!"ปฏิเสธ".equals(res.getStatus()) && !"ยกเลิก".equals(res.getStatus())) {
+					hasActiveReserve = true;
+					break;
+				}
+			}
+
+			if (hasActiveReserve) {
+				return "redirect:/Homesucess?reserveError=hasActiveReserve";
+			}
+
+			// แปลง String เป็น Date
+			java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd");
+			java.util.Date checkInDate = sdf.parse(checkInDateStr);
+
+			// สร้าง Reserve object
+			com.springmvc.model.Reserve reserve = new com.springmvc.model.Reserve();
+			// รับเวลาจอง (ISO UTC) จาก client แล้วแปลงเป็น Date
+			if (reserveTimestamp != null && !reserveTimestamp.trim().isEmpty()) {
+				try {
+					// Parse ISO UTC timestamp (e.g. 2025-11-01T15:49:00.000Z)
+					java.time.Instant instant = java.time.Instant.parse(reserveTimestamp);
+					reserve.setReserveDate(java.util.Date.from(instant));
+				} catch (Exception ex) {
+					// ถ้า parse ไม่ได้ fallback เป็น server time
+					reserve.setReserveDate(new java.util.Date());
+				}
+			} else {
+				reserve.setReserveDate(new java.util.Date()); // วันที่จองปัจจุบัน
+			}
+			reserve.setCheckInDate(checkInDate); // วันที่ต้องการเข้าพัก
+			reserve.setStatus("รอการอนุมัติ");
+
+			// ดึงข้อมูล Room และ Member
+			com.springmvc.model.Room room = manager.findRoomById(roomID);
+			reserve.setRoom(room);
+			reserve.setMember(loginMember);
+
+			// ตรวจสอบว่าห้องยังว่างอยู่หรือไม่
+			if (!"ว่าง".equals(room.getRoomStatus())) {
+				return "redirect:/Homesucess?reserveError=roomNotAvailable";
+			}
+
+			// บันทึกลงฐานข้อมูล
+			boolean success = manager.insertReserve(reserve);
+
+			if (success) {
+				// เปลี่ยนสถานะห้องเป็น "ไม่ว่าง" ทันที
+				room.setRoomStatus("ไม่ว่าง");
+				manager.updateRoom(room);
+
+				return "redirect:/Homesucess?reserveSuccess=true";
+			} else {
+				return "redirect:/Homesucess?reserveError=true";
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "redirect:/Homesucess?reserveError=true";
+		}
+	}
+
+	// API: ตรวจสอบว่ามีการจองที่ยังไม่ได้รับการอนุมัติหรือปฏิเสธ
+	@RequestMapping(value = "/checkActiveReserve", method = RequestMethod.GET)
+	@ResponseBody
+	public Map<String, Object> checkActiveReserve(HttpSession session) {
+		Map<String, Object> result = new HashMap<>();
+
+		Member loginMember = (Member) session.getAttribute("loginMember");
+		if (loginMember == null) {
+			result.put("hasActiveReserve", false);
+			result.put("activeReserveCount", 0);
+			return result;
+		}
+
+		ThanachokManager manager = new ThanachokManager();
+		List<com.springmvc.model.Reserve> reserves = manager.findReservesByMember(loginMember);
+
+		int activeCount = 0;
+		List<String> activeRooms = new ArrayList<>();
+
+		for (com.springmvc.model.Reserve reserve : reserves) {
+			String status = reserve.getStatus();
+			// นับเฉพาะการจองที่ไม่ใช่ "ปฏิเสธ" หรือ "ยกเลิก"
+			if (!"ปฏิเสธ".equals(status) && !"ยกเลิก".equals(status)) {
+				activeCount++;
+				if (reserve.getRoom() != null) {
+					activeRooms.add(reserve.getRoom().getRoomNumber());
+				}
+			}
+		}
+
+		result.put("hasActiveReserve", activeCount > 0);
+		result.put("activeReserveCount", activeCount);
+		result.put("activeRooms", activeRooms);
+
+		return result;
 	}
 
 }

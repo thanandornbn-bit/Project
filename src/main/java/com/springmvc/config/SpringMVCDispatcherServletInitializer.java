@@ -1,5 +1,6 @@
 package com.springmvc.config;
 
+import org.springframework.lang.NonNull;
 import org.springframework.web.filter.CharacterEncodingFilter;
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 import jakarta.servlet.Filter;
@@ -19,6 +20,7 @@ public class SpringMVCDispatcherServletInitializer extends AbstractAnnotationCon
 	}
 
 	@Override
+	@NonNull
 	protected String[] getServletMappings() {
 		return new String[] { "/" };
 	}
@@ -33,7 +35,7 @@ public class SpringMVCDispatcherServletInitializer extends AbstractAnnotationCon
 
 	// ✅ เพิ่มส่วนนี้
 	@Override
-	protected void customizeRegistration(ServletRegistration.Dynamic registration) {
+	protected void customizeRegistration(@NonNull ServletRegistration.Dynamic registration) {
 		// location, maxFileSize, maxRequestSize, fileSizeThreshold
 		MultipartConfigElement multipartConfigElement = new MultipartConfigElement(null, 20971520, 41943040, 0);
 		registration.setMultipartConfig(multipartConfigElement);

@@ -3,6 +3,7 @@ package com.springmvc.config;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.lang.NonNull;
 import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -13,7 +14,7 @@ import org.springframework.web.multipart.support.StandardServletMultipartResolve
 
 @Configuration
 @EnableWebMvc
-//แพคเกตวิ่งไปหา
+// แพคเกตวิ่งไปหา
 @ComponentScan(basePackages = "com.springmvc")
 public class WebConfig implements WebMvcConfigurer {
 	@Bean
@@ -24,13 +25,13 @@ public class WebConfig implements WebMvcConfigurer {
 		viewResolver.setSuffix(".jsp");
 		return viewResolver;
 	}
-	
-	
-	public void addResourceHandlers(ResourceHandlerRegistry registry) {
+
+	@Override
+	public void addResourceHandlers(@NonNull ResourceHandlerRegistry registry) {
 		registry.addResourceHandler("/image/**")
-		.addResourceLocations("/image/");
+				.addResourceLocations("/image/");
 		registry.addResourceHandler("/slipet/**")
-        .addResourceLocations("/slipet/");
+				.addResourceLocations("/slipet/");
 	}
 
 	@Bean

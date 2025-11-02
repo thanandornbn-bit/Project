@@ -1,26 +1,43 @@
 package com.springmvc.model;
 
-import javax.persistence.CascadeType;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-
-import net.bytebuddy.asm.Advice.Return;
-
+import javax.persistence.*;
 import java.util.Date;
 
 @Entity
+@Table(name = "rent")
 public class Rent {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "rentID", unique = true)
     private int rentID;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "rentDate")
+    private Date rentDate;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "returnDate")
+    private Date returnDate;
+
+    @Column(name = "status", length = 255)
+    private String status;
+
+    @Column(name = "paymentSlipImage", length = 255)
+    private String paymentSlipImage;
+
+    @Column(name = "totalPrice", length = 255)
+    private String totalPrice;
+
+    @Column(name = "transferAccountName", length = 255)
+    private String transferAccountName;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "deadline")
+    private Date deadline;
+
+    @Column(name = "notes", columnDefinition = "TEXT")
+    private String notes;
 
     @ManyToOne
     @JoinColumn(name = "memberID")
@@ -30,38 +47,87 @@ public class Rent {
     @JoinColumn(name = "roomID")
     private Room room;
 
-    @Temporal(TemporalType.DATE)
-    private Date rentDate;
-
-    @Temporal(TemporalType.DATE)
-    private Date returnDate;
-
-    @OneToOne(mappedBy = "rent", cascade = CascadeType.ALL)
-    private RentalDeposit rentalDeposit;
-
-    @OneToMany(mappedBy = "rent", cascade = CascadeType.ALL)
-    private java.util.List<Invoice> invoices;
-
+    // Default constructor
     public Rent() {
-        super();
     }
 
-    public Rent(int rentID, Member member, Room room, Date rentDate, RentalDeposit rentalDeposit, Date returnDate) {
-        super();
+    public Rent(int rentID, Date rentDate, Date returnDate, String status, String paymentSlipImage, String totalPrice,
+            String transferAccountName, Date deadline, Member member, Room room) {
         this.rentID = rentID;
+        this.rentDate = rentDate;
+        this.returnDate = returnDate;
+        this.status = status;
+        this.paymentSlipImage = paymentSlipImage;
+        this.totalPrice = totalPrice;
+        this.transferAccountName = transferAccountName;
+        this.deadline = deadline;
         this.member = member;
         this.room = room;
-        this.rentDate = rentDate;
-        this.rentalDeposit = rentalDeposit;
-        this.returnDate = returnDate;
     }
 
+    // Getter & Setter
     public int getRentID() {
         return rentID;
     }
 
     public void setRentID(int rentID) {
         this.rentID = rentID;
+    }
+
+    public Date getRentDate() {
+        return rentDate;
+    }
+
+    public void setRentDate(Date rentDate) {
+        this.rentDate = rentDate;
+    }
+
+    public Date getReturnDate() {
+        return returnDate;
+    }
+
+    public void setReturnDate(Date returnDate) {
+        this.returnDate = returnDate;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getPaymentSlipImage() {
+        return paymentSlipImage;
+    }
+
+    public void setPaymentSlipImage(String paymentSlipImage) {
+        this.paymentSlipImage = paymentSlipImage;
+    }
+
+    public String getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(String totalPrice) {
+        this.totalPrice = totalPrice;
+    }
+
+    public String getTransferAccountName() {
+        return transferAccountName;
+    }
+
+    public void setTransferAccountName(String transferAccountName) {
+        this.transferAccountName = transferAccountName;
+    }
+
+    public Date getDeadline() {
+        return deadline;
+    }
+
+    public void setDeadline(Date deadline) {
+        this.deadline = deadline;
     }
 
     public Member getMember() {
@@ -80,48 +146,11 @@ public class Rent {
         this.room = room;
     }
 
-    public Date getReturnDate() {
-        return rentDate;
+    public String getNotes() {
+        return notes;
     }
 
-    public void setReturnDate(Date returntDate) {
-        this.returnDate = returntDate;
-    }
-
-    public Date getRentDate() {
-        return rentDate;
-    }
-
-    public void setRentDate(Date rentDate) {
-        this.rentDate = rentDate;
-    }
-
-    public RentalDeposit getRentalDeposit() {
-        return rentalDeposit;
-    }
-
-    public void setRentalDeposit(RentalDeposit rentalDeposit) {
-        this.rentalDeposit = rentalDeposit;
-    }
-
-    public java.util.List<Invoice> getInvoices() {
-        return invoices;
-    }
-
-    public void setInvoices(java.util.List<Invoice> invoices) {
-        this.invoices = invoices;
-    }
-
-    // ตรวจสอบว่าคืนห้องแล้วหรือยังจาก RentalDeposit status
-    public boolean isReturned() {
-        return rentalDeposit != null && "คืนห้องแล้ว".equals(rentalDeposit.getStatus());
-    }
-
-    @Override
-    public String toString() {
-        return "Rent [rentID=" + rentID + ", rentDate=" + rentDate + 
-               ", member=" + (member != null ? member.getFirstName() + " " + member.getLastName() : "null") +
-               ", room=" + (room != null ? room.getRoomNumber() : "null") + 
-               ", returned=" + isReturned() + "]";
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 }

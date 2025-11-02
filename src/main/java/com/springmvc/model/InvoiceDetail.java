@@ -1,19 +1,24 @@
 package com.springmvc.model;
 
-import java.math.BigDecimal;
-
 import javax.persistence.*;
 
 @Entity
 @Table(name = "invoice_detail")
 public class InvoiceDetail {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int detailId;
+    @Column(name = "id", unique = true)
+    private int id;
 
-    private BigDecimal amount;   // จำนวนเงินรวม
-    private BigDecimal price;    // ราคาต่อหน่วย (ถ้ามี)
-    private int quantity;        // หน่วย (ถ้ามี)
+    @Column(name = "amount", precision = 19, scale = 2)
+    private double amount;
+
+    @Column(name = "price", precision = 19, scale = 2)
+    private double price;
+
+    @Column(name = "quantity")
+    private int quantity;
 
     @ManyToOne
     @JoinColumn(name = "invoice_id")
@@ -23,27 +28,41 @@ public class InvoiceDetail {
     @JoinColumn(name = "type_id")
     private InvoiceType type;
 
-    public int getDetailId() {
-        return detailId;
+    // Default constructor
+    public InvoiceDetail() {
     }
 
-    public void setDetailId(int detailId) {
-        this.detailId = detailId;
+    public InvoiceDetail(int id, double amount, double price, int quantity, Invoice invoice, InvoiceType type) {
+        this.id = id;
+        this.amount = amount;
+        this.price = price;
+        this.quantity = quantity;
+        this.invoice = invoice;
+        this.type = type;
     }
 
-    public BigDecimal getAmount() {
+    // Getter & Setter
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public double getAmount() {
         return amount;
     }
 
-    public void setAmount(BigDecimal amount) {
+    public void setAmount(double amount) {
         this.amount = amount;
     }
 
-    public BigDecimal getPrice() {
+    public double getPrice() {
         return price;
     }
 
-    public void setPrice(BigDecimal price) {
+    public void setPrice(double price) {
         this.price = price;
     }
 
@@ -70,23 +89,4 @@ public class InvoiceDetail {
     public void setType(InvoiceType type) {
         this.type = type;
     }
-
-    public InvoiceDetail(int detailId, BigDecimal amount, BigDecimal price, int quantity, Invoice invoice,
-            InvoiceType type) {
-        this.detailId = detailId;
-        this.amount = amount;
-        this.price = price;
-        this.quantity = quantity;
-        this.invoice = invoice;
-        this.type = type;
-    }
-
-    public InvoiceDetail() {
-        //TODO Auto-generated constructor stub
-    }
-
-    
 }
-
-
-

@@ -17,7 +17,30 @@
                                 <title>Manager Dashboard - ThanaChok Place</title>
                                 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
                                     rel="stylesheet">
+                                <link
+                                    href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap"
+                                    rel="stylesheet">
                                 <style>
+                                    :root {
+                                        --bg: #FFFFFF;
+                                        --muted-bg: #F0F7FF;
+                                        --primary: #5CA9E9;
+                                        --primary-dark: #4A90E2;
+                                        --primary-light: #7BC4FF;
+                                        --accent: #E3F2FD;
+                                        --text: #1E3A5F;
+                                        --text-light: #FFFFFF;
+                                        --muted-text: #5B7A9D;
+                                        --bg-secondary: #F8FCFF;
+                                        --border: #D1E8FF;
+                                        --card-border: #D1E8FF;
+                                        --hover-bg: #E8F4FF;
+                                        --shadow: rgba(92, 169, 233, 0.15);
+                                        --success: #4CAF50;
+                                        --warning: #FF9800;
+                                        --danger: #F44336;
+                                    }
+
                                     * {
                                         margin: 0;
                                         padding: 0;
@@ -25,200 +48,112 @@
                                     }
 
                                     body {
-                                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                                        background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
+                                        font-family: 'Sarabun', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+                                        background: var(--bg);
+                                        color: var(--text);
                                         min-height: 100vh;
-                                        color: #fff;
-                                        position: relative;
-                                        overflow-x: hidden;
                                     }
 
-                                    .bg-animation {
-                                        position: fixed;
-                                        top: 0;
-                                        left: 0;
+                                    .page-container {
                                         width: 100%;
-                                        height: 100%;
-                                        overflow: hidden;
-                                        z-index: 0;
+                                        min-height: 100vh;
+                                        display: flex;
+                                        flex-direction: column;
                                     }
-
-                                    .floating-shapes {
-                                        position: absolute;
-                                        width: 100px;
-                                        height: 100px;
-                                        background: rgba(255, 140, 0, 0.1);
-                                        border-radius: 50%;
-                                        animation: float 6s ease-in-out infinite;
-                                        box-shadow: 0 0 30px rgba(255, 140, 0, 0.2);
-                                    }
-
-                                    .floating-shapes:nth-child(1) {
-                                        top: 10%;
-                                        left: 10%;
-                                        animation-delay: 0s;
-                                    }
-
-                                    .floating-shapes:nth-child(2) {
-                                        top: 20%;
-                                        right: 10%;
-                                        animation-delay: 2s;
-                                    }
-
-                                    .floating-shapes:nth-child(3) {
-                                        bottom: 10%;
-                                        left: 20%;
-                                        animation-delay: 4s;
-                                    }
-
-                                    .floating-shapes:nth-child(4) {
-                                        bottom: 20%;
-                                        right: 20%;
-                                        animation-delay: 1s;
-                                    }
-
-                                    @keyframes float {
-
-                                        0%,
-                                        100% {
-                                            transform: translateY(0px) rotate(0deg);
-                                        }
-
-                                        50% {
-                                            transform: translateY(-20px) rotate(180deg);
-                                        }
-                                    }
-
-
-                                    .particles {
-                                        position: fixed;
-                                        top: 0;
-                                        left: 0;
-                                        width: 100%;
-                                        height: 100%;
-                                        overflow: hidden;
-                                        z-index: 0;
-                                    }
-
-                                    .particle {
-                                        position: absolute;
-                                        width: 4px;
-                                        height: 4px;
-                                        background: rgba(255, 140, 0, 0.5);
-                                        border-radius: 50%;
-                                        animation: particleFloat 8s linear infinite;
-                                        box-shadow: 0 0 10px rgba(255, 140, 0, 0.5);
-                                    }
-
-                                    @keyframes particleFloat {
-                                        0% {
-                                            opacity: 0;
-                                            transform: translateY(100vh) scale(0);
-                                        }
-
-                                        10% {
-                                            opacity: 1;
-                                        }
-
-                                        90% {
-                                            opacity: 1;
-                                        }
-
-                                        100% {
-                                            opacity: 0;
-                                            transform: translateY(-100vh) scale(1);
-                                        }
-                                    }
-
-                                    .container {
-                                        max-width: 1400px;
-                                        margin: 0 auto;
-                                        padding: 20px;
-                                        position: relative;
-                                        z-index: 1;
-                                    }
-
 
                                     .header {
-                                        background: linear-gradient(135deg, #ff8c00, #ff6b00);
-                                        color: white;
-                                        text-align: center;
-                                        padding: 30px;
-                                        border-radius: 15px;
-                                        margin-bottom: 20px;
-                                        font-size: 2.5rem;
-                                        font-weight: bold;
-                                        box-shadow: 0 8px 32px rgba(255, 140, 0, 0.3);
+                                        background: var(--bg);
+                                        padding: 18px 48px;
                                         display: flex;
                                         align-items: center;
-                                        justify-content: center;
-                                        gap: 15px;
-                                        animation: glow 2s ease-in-out infinite;
-                                    }
-
-                                    @keyframes glow {
-
-                                        0%,
-                                        100% {
-                                            text-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-                                        }
-
-                                        50% {
-                                            text-shadow: 0 0 30px rgba(0, 0, 0, 0.5), 0 0 40px rgba(255, 255, 255, 0.3);
-                                        }
-                                    }
-
-
-                                    .top-bar {
-                                        display: flex;
                                         justify-content: space-between;
-                                        align-items: center;
-                                        background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
-                                        padding: 20px 30px;
-                                        border-radius: 15px;
-                                        margin-bottom: 25px;
-                                        border: 1px solid rgba(255, 140, 0, 0.3);
+                                        border-bottom: 2px solid var(--accent);
+                                        position: sticky;
+                                        top: 0;
+                                        z-index: 50;
+                                        box-shadow: 0 2px 8px rgba(74, 144, 226, 0.08);
                                     }
 
-                                    .welcome-message {
+                                    .header h1 {
+                                        font-size: 2.5rem;
+                                        color: var(--primary);
+                                        font-weight: 700;
+                                        display: flex;
+                                        align-items: center;
+                                        gap: 12px;
+                                    }
+
+                                    .nav-menu {
+                                        display: flex;
+                                        gap: 28px;
+                                        align-items: center;
+                                    }
+
+                                    .nav-link {
+                                        color: var(--muted-text);
+                                        text-decoration: none;
+                                        font-weight: 600;
+                                        padding: 8px 12px;
+                                        border-radius: 8px;
+                                        transition: all 0.3s ease;
+                                    }
+
+                                    .nav-link.active {
+                                        color: var(--primary);
+                                        background: var(--accent);
+                                    }
+
+                                    .nav-link:hover {
+                                        color: var(--primary);
+                                        background: var(--hover-bg);
+                                    }
+
+                                    .user-section {
+                                        display: flex;
+                                        gap: 16px;
+                                        align-items: center;
+                                    }
+
+                                    .user-info {
                                         display: flex;
                                         align-items: center;
                                         gap: 10px;
-                                        font-size: 1.2rem;
-                                        color: #fff;
+                                        color: var(--muted-text);
+                                        font-weight: 600;
+                                        padding: 10px 16px;
+                                        background: var(--accent);
+                                        border-radius: 10px;
                                     }
 
-                                    .admin-badge {
-                                        background: linear-gradient(135deg, #ff8c00, #ff6b00);
-                                        color: white;
-                                        padding: 5px 15px;
-                                        border-radius: 20px;
-                                        font-size: 0.85rem;
-                                        font-weight: 600;
-                                        box-shadow: 0 4px 10px rgba(255, 140, 0, 0.3);
+                                    .user-info i {
+                                        color: var(--primary);
+                                        font-size: 1.2rem;
                                     }
 
                                     .logout-btn {
-                                        background: rgba(255, 68, 68, 0.2);
-                                        color: #ff4444;
-                                        border: 2px solid #ff4444;
-                                        padding: 10px 25px;
+                                        background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+                                        color: white;
+                                        border: none;
+                                        padding: 10px 20px;
                                         border-radius: 10px;
+                                        font-weight: 700;
+                                        font-family: 'Sarabun', sans-serif;
                                         cursor: pointer;
-                                        font-size: 1rem;
-                                        font-weight: 600;
                                         transition: all 0.3s ease;
-                                        display: flex;
-                                        align-items: center;
-                                        gap: 8px;
+                                        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
                                     }
 
                                     .logout-btn:hover {
-                                        background: linear-gradient(135deg, #ff4444, #cc0000);
-                                        color: white;
+                                        box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
                                         transform: translateY(-2px);
                                     }
 
+
+                                    .search-section {
+                                        background: linear-gradient(135deg, var(--muted-bg) 0%, #E8F4FF 100%);
+                                        padding: 32px 48px;
+                                        border-bottom: 1px solid var(--card-border);
+                                    }
 
                                     .stats-container {
                                         display: grid;
@@ -228,14 +163,15 @@
                                     }
 
                                     .stat-card {
-                                        background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
-                                        padding: 25px;
-                                        border-radius: 15px;
+                                        background: var(--bg);
+                                        padding: 28px;
+                                        border-radius: 16px;
                                         text-align: center;
-                                        border: 1px solid rgba(255, 140, 0, 0.3);
+                                        border: 2px solid var(--border);
                                         transition: all 0.3s ease;
                                         position: relative;
                                         overflow: hidden;
+                                        box-shadow: 0 4px 16px var(--shadow);
                                     }
 
                                     .stat-card::before {
@@ -249,7 +185,8 @@
 
                                     .stat-card:hover {
                                         transform: translateY(-5px);
-                                        box-shadow: 0 12px 40px rgba(255, 140, 0, 0.3);
+                                        box-shadow: 0 12px 32px var(--shadow);
+                                        border-color: var(--primary);
                                     }
 
                                     .stat-icon {
@@ -264,48 +201,49 @@
                                     }
 
                                     .stat-label {
-                                        color: #999;
+                                        color: var(--muted-text);
                                         font-size: 0.95rem;
+                                        font-weight: 500;
                                     }
 
                                     .stat-total::before {
-                                        background: linear-gradient(90deg, #ff8c00, #ff6b00);
+                                        background: linear-gradient(90deg, var(--primary), var(--primary-light));
                                     }
 
                                     .stat-total .stat-icon,
                                     .stat-total .stat-number {
-                                        color: #ff8c00;
+                                        color: var(--primary);
                                     }
 
                                     .stat-available::before {
-                                        background: linear-gradient(90deg, #00ff88, #00cc6f);
+                                        background: linear-gradient(90deg, var(--success), #66BB6A);
                                     }
 
                                     .stat-available .stat-icon,
                                     .stat-available .stat-number {
-                                        color: #00ff88;
+                                        color: var(--success);
                                     }
 
                                     .stat-occupied::before {
-                                        background: linear-gradient(90deg, #ff4444, #cc0000);
+                                        background: linear-gradient(90deg, var(--danger), #E57373);
                                     }
 
                                     .stat-occupied .stat-icon,
                                     .stat-occupied .stat-number {
-                                        color: #ff4444;
+                                        color: var(--danger);
                                     }
 
                                     .stat-pending::before {
-                                        background: linear-gradient(90deg, #ffa726, #f57c00);
+                                        background: linear-gradient(90deg, var(--warning), #FFB74D);
                                     }
 
                                     .stat-pending .stat-icon,
                                     .stat-pending .stat-number {
-                                        color: #ffa726;
+                                        color: var(--warning);
                                     }
 
                                     .stat-revenue::before {
-                                        background: linear-gradient(90deg, #42a5f5, #1976d2);
+                                        background: linear-gradient(90deg, #42a5f5, var(--primary-dark));
                                     }
 
                                     .stat-revenue .stat-icon,
@@ -314,187 +252,116 @@
                                     }
 
 
-                                    .nav {
-                                        background: rgba(0, 0, 0, 0.6);
-                                        backdrop-filter: blur(10px);
-                                        padding: 15px;
-                                        display: flex;
-                                        justify-content: center;
-                                        gap: 15px;
-                                        flex-wrap: wrap;
-                                    }
-
-                                    .nav a {
-                                        color: white;
-                                        text-decoration: none;
-                                        padding: 12px 24px;
-                                        border-radius: 10px;
-                                        background: rgba(255, 140, 0, 0.1);
-                                        border: 1px solid rgba(255, 140, 0, 0.3);
-                                        transition: all 0.3s ease;
-                                        display: flex;
-                                        align-items: center;
-                                        gap: 8px;
-                                    }
-
-                                    .nav a:hover,
-                                    .nav a.active {
-                                        background: linear-gradient(135deg, #ff8c00, #ff6b00);
-                                    }
-
-                                    .nav a.return-notification {
-                                        background: linear-gradient(135deg, #ff4444, #cc0000);
-                                        border: 2px solid #ff6666;
-                                        animation: pulse 2s ease-in-out infinite;
-                                        position: relative;
-                                        font-weight: 600;
-                                    }
-
-                                    .nav a.return-notification:hover {
-                                        background: linear-gradient(135deg, #ff6666, #ff4444);
-                                        transform: translateY(-2px);
-                                    }
-
-                                    .notification-badge {
-                                        background: white;
-                                        color: #ff4444;
-                                        border-radius: 50%;
-                                        padding: 2px 8px;
-                                        font-size: 0.75rem;
-                                        font-weight: bold;
-                                        margin-left: 8px;
-                                        animation: bounce 1s ease-in-out infinite;
-                                    }
-
-                                    @keyframes pulse {
-                                        0%, 100% { opacity: 1; box-shadow: 0 0 10px rgba(255, 68, 68, 0.3); }
-                                        50% { opacity: 0.9; box-shadow: 0 0 20px rgba(255, 68, 68, 0.6); }
-                                    }
-
-                                    @keyframes bounce {
-                                        0%, 100% { transform: scale(1); }
-                                        50% { transform: scale(1.1); }
-                                    }
-
 
                                     .search-form {
-                                        background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
-                                        padding: 30px;
-                                        border-radius: 15px;
-                                        margin-bottom: 25px;
-                                        border: 1px solid rgba(255, 140, 0, 0.3);
+                                        max-width: 1200px;
+                                        margin: 0 auto;
                                     }
 
                                     .search-form h3 {
-                                        color: #ff8c00;
+                                        font-size: 1.4rem;
+                                        color: var(--primary);
                                         margin-bottom: 20px;
-                                        font-size: 1.3rem;
+                                        font-weight: 700;
                                         display: flex;
                                         align-items: center;
                                         gap: 10px;
                                     }
 
-                                    .search-form form {
+                                    .search-row {
                                         display: flex;
-                                        gap: 15px;
+                                        align-items: flex-end;
+                                        gap: 20px;
                                         flex-wrap: wrap;
-                                        align-items: end;
                                     }
 
                                     .form-group {
+                                        display: flex;
+                                        flex-direction: column;
+                                        gap: 6px;
                                         flex: 1;
-                                        min-width: 150px;
+                                        min-width: 180px;
                                     }
 
                                     .form-group label {
-                                        display: block;
-                                        margin-bottom: 8px;
-                                        color: #ccc;
-                                        font-weight: 500;
+                                        color: var(--text);
+                                        font-weight: 600;
+                                        font-size: 0.95rem;
                                     }
 
                                     .form-group select {
-                                        width: 100%;
-                                        padding: 12px 15px;
-                                        background: rgba(0, 0, 0, 0.4);
-                                        border: 2px solid rgba(255, 140, 0, 0.3);
+                                        padding: 12px 16px;
                                         border-radius: 10px;
-                                        color: #fff;
-                                        font-size: 1rem;
-                                        cursor: pointer;
+                                        border: 2px solid var(--card-border);
+                                        background: white;
+                                        color: var(--text);
+                                        font-weight: 600;
+                                        font-family: 'Sarabun', sans-serif;
                                         transition: all 0.3s ease;
+                                        cursor: pointer;
+                                        width: 100%;
                                     }
 
                                     .form-group select:focus {
                                         outline: none;
-                                        border-color: #ff8c00;
-                                        box-shadow: 0 0 15px rgba(255, 140, 0, 0.3);
-                                    }
-
-                                    .search-btn,
-                                    .clear-btn {
-                                        padding: 12px 30px;
-                                        border: none;
-                                        border-radius: 10px;
-                                        font-size: 1rem;
-                                        font-weight: 600;
-                                        cursor: pointer;
-                                        transition: all 0.3s ease;
-                                        display: flex;
-                                        align-items: center;
-                                        gap: 8px;
+                                        border-color: var(--primary);
+                                        box-shadow: 0 0 0 3px rgba(92, 169, 233, 0.1);
                                     }
 
                                     .search-btn {
-                                        background: linear-gradient(135deg, #ff8c00, #ff6b00);
+                                        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
                                         color: white;
-                                        box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);
+                                        border: none;
+                                        padding: 12px 32px;
+                                        border-radius: 10px;
+                                        font-weight: 700;
+                                        font-family: 'Sarabun', sans-serif;
+                                        cursor: pointer;
+                                        transition: all 0.3s ease;
+                                        box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+                                        display: inline-flex;
+                                        align-items: center;
+                                        gap: 8px;
+                                        white-space: nowrap;
+                                        height: 48px;
                                     }
 
                                     .search-btn:hover {
+                                        box-shadow: 0 6px 16px rgba(74, 144, 226, 0.4);
                                         transform: translateY(-2px);
-                                        box-shadow: 0 6px 20px rgba(255, 140, 0, 0.5);
-                                    }
-
-                                    .clear-btn {
-                                        background: rgba(255, 68, 68, 0.2);
-                                        color: #ff4444;
-                                        border: 2px solid #ff4444;
-                                    }
-
-                                    .clear-btn:hover {
-                                        background: linear-gradient(135deg, #ff4444, #cc0000);
-                                        color: white;
                                     }
 
 
                                     .table-container {
-                                        background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
-                                        border-radius: 15px;
-                                        padding: 30px;
-                                        border: 1px solid rgba(255, 140, 0, 0.3);
+                                        flex: 1;
+                                        padding: 28px 48px;
+                                        background: var(--bg);
                                     }
 
                                     .table-header {
                                         display: flex;
                                         justify-content: space-between;
                                         align-items: center;
-                                        margin-bottom: 25px;
+                                        margin-bottom: 28px;
                                         flex-wrap: wrap;
                                         gap: 15px;
+                                        padding-bottom: 20px;
+                                        border-bottom: 2px solid var(--border);
                                     }
 
                                     .table-header h2 {
-                                        color: #ff8c00;
-                                        font-size: 1.5rem;
+                                        color: var(--primary);
+                                        font-size: 1.6rem;
+                                        font-weight: 700;
                                         display: flex;
                                         align-items: center;
-                                        gap: 10px;
+                                        gap: 12px;
                                     }
 
                                     .table-info {
-                                        color: #999;
+                                        color: var(--muted-text);
                                         font-size: 1rem;
+                                        font-weight: 500;
                                     }
 
                                     table {
@@ -503,14 +370,14 @@
                                     }
 
                                     thead tr {
-                                        background: linear-gradient(135deg, #ff8c00, #ff6b00);
+                                        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
                                     }
 
                                     th {
                                         padding: 18px 15px;
                                         text-align: center;
                                         font-weight: 600;
-                                        color: white;
+                                        color: var(--text-light);
                                         text-transform: uppercase;
                                         letter-spacing: 0.5px;
                                         font-size: 0.9rem;
@@ -519,70 +386,73 @@
                                     td {
                                         padding: 16px 15px;
                                         text-align: center;
-                                        border-bottom: 1px solid rgba(255, 140, 0, 0.1);
-                                        color: #ccc;
+                                        border-bottom: 1px solid var(--border);
+                                        color: var(--text);
                                     }
 
                                     tbody tr {
                                         transition: all 0.3s ease;
+                                        background: var(--bg);
                                     }
 
                                     tbody tr:hover {
-                                        background: rgba(255, 140, 0, 0.1);
+                                        background: var(--accent);
                                         transform: scale(1.01);
                                     }
 
                                     .room-number {
                                         font-weight: 700;
-                                        color: #ff8c00;
+                                        color: var(--primary);
                                         font-size: 1.1rem;
                                     }
 
                                     .room-type {
-                                        color: #fff;
+                                        color: var(--text);
+                                        font-weight: 500;
                                     }
 
                                     .price {
                                         font-weight: 600;
-                                        color: #00ff88;
+                                        color: var(--success);
                                         font-size: 1.05rem;
                                     }
 
 
                                     .status-badge {
-                                        padding: 6px 16px;
+                                        padding: 7px 18px;
                                         border-radius: 20px;
-                                        font-size: 0.85rem;
+                                        font-size: 0.88rem;
                                         font-weight: 600;
                                         display: inline-flex;
                                         align-items: center;
-                                        gap: 6px;
+                                        gap: 8px;
                                     }
 
                                     .status-available {
-                                        background: linear-gradient(135deg, #00ff88, #00cc6f);
-                                        color: #000;
-                                        box-shadow: 0 4px 10px rgba(0, 255, 136, 0.3);
+                                        background: linear-gradient(135deg, var(--success), #66BB6A);
+                                        color: var(--text-light);
+                                        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
                                     }
 
                                     .status-occupied {
-                                        background: linear-gradient(135deg, #ff4444, #cc0000);
-                                        color: white;
-                                        box-shadow: 0 4px 10px rgba(255, 68, 68, 0.3);
+                                        background: linear-gradient(135deg, var(--danger), #E57373);
+                                        color: var(--text-light);
+                                        box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
                                     }
 
                                     .deposit-status {
-                                        font-size: 0.8rem;
-                                        margin-top: 5px;
+                                        font-size: 0.82rem;
+                                        margin-top: 6px;
                                         display: inline-block;
+                                        font-weight: 600;
                                     }
 
                                     .deposit-status.approved {
-                                        color: #00ff88;
+                                        color: var(--success);
                                     }
 
                                     .deposit-status.pending {
-                                        color: #ffa726;
+                                        color: var(--warning);
                                     }
 
 
@@ -594,77 +464,255 @@
                                     }
 
                                     .action-btn {
-                                        padding: 8px 16px;
+                                        padding: 9px 18px;
                                         border: none;
-                                        border-radius: 8px;
-                                        font-size: 0.85rem;
-                                        font-weight: 500;
+                                        border-radius: 10px;
+                                        font-size: 0.88rem;
+                                        font-weight: 600;
+                                        font-family: 'Sarabun', sans-serif;
                                         cursor: pointer;
                                         transition: all 0.3s ease;
                                         text-decoration: none;
                                         display: inline-flex;
                                         align-items: center;
-                                        gap: 6px;
+                                        gap: 8px;
                                     }
 
                                     .btn-add {
-                                        background: linear-gradient(135deg, #00ff88, #00cc6f);
-                                        color: #000;
+                                        background: linear-gradient(135deg, var(--success), #66BB6A);
+                                        color: var(--text-light);
+                                        box-shadow: 0 3px 10px rgba(76, 175, 80, 0.3);
                                     }
 
                                     .btn-edit-invoice {
-                                        background: linear-gradient(135deg, #42a5f5, #1976d2);
-                                        color: white;
+                                        background: linear-gradient(135deg, #42a5f5, var(--primary-dark));
+                                        color: var(--text-light);
+                                        box-shadow: 0 3px 10px rgba(66, 165, 245, 0.3);
                                     }
 
                                     .btn-edit {
-                                        background: linear-gradient(135deg, #ff8c00, #ff6b00);
-                                        color: white;
+                                        background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+                                        color: var(--text-light);
+                                        box-shadow: 0 3px 10px var(--shadow);
                                     }
 
                                     .btn-delete {
-                                        background: linear-gradient(135deg, #ff4444, #cc0000);
-                                        color: white;
+                                        background: linear-gradient(135deg, var(--danger), #E57373);
+                                        color: var(--text-light);
+                                        box-shadow: 0 3px 10px rgba(244, 67, 54, 0.3);
                                     }
 
                                     .btn-view {
-                                        background: linear-gradient(135deg, #ffa726, #f57c00);
-                                        color: white;
+                                        background: linear-gradient(135deg, var(--warning), #FFB74D);
+                                        color: var(--text-light);
+                                        box-shadow: 0 3px 10px rgba(255, 152, 0, 0.3);
                                     }
 
                                     .btn-disabled {
-                                        background: #666;
-                                        color: #999;
+                                        background: #ccc;
+                                        color: var(--muted-text);
                                         cursor: not-allowed;
+                                        opacity: 0.6;
                                     }
 
                                     .action-btn:not(.btn-disabled):hover {
                                         transform: translateY(-2px);
-                                        box-shadow: 0 4px 15px rgba(255, 140, 0, 0.4);
+                                        box-shadow: 0 5px 16px var(--shadow);
                                     }
 
-
-                                    .empty-state {
-                                        text-align: center;
-                                        padding: 60px 20px;
+                                    /* Room Cards Grid */
+                                    .rooms-grid {
+                                        display: flex;
+                                        gap: 20px;
+                                        align-items: flex-start;
+                                        overflow-x: auto;
+                                        padding: 18px 8px;
+                                        scroll-behavior: smooth;
+                                        flex-wrap: wrap;
                                     }
 
-                                    .empty-icon {
-                                        font-size: 4rem;
-                                        color: #ff8c00;
-                                        margin-bottom: 20px;
+                                    .rooms-grid::-webkit-scrollbar {
+                                        height: 10px;
+                                    }
+
+                                    .rooms-grid::-webkit-scrollbar-thumb {
+                                        background: var(--accent);
+                                        border-radius: 10px;
+                                    }
+
+                                    .room-card {
+                                        min-width: 340px;
+                                        max-width: 380px;
+                                        background: var(--bg);
+                                        border-radius: 16px;
+                                        border: 2px solid var(--card-border);
+                                        box-shadow: 0 8px 24px rgba(92, 169, 233, 0.12);
+                                        overflow: hidden;
+                                        display: flex;
+                                        flex-direction: column;
+                                        transition: all 0.3s ease;
+                                    }
+
+                                    .room-card:hover {
+                                        transform: translateY(-8px);
+                                        box-shadow: 0 12px 32px rgba(92, 169, 233, 0.2);
+                                        border-color: var(--primary);
+                                    }
+
+                                    .room-image-container {
+                                        height: 240px;
+                                        background: linear-gradient(135deg, var(--accent) 0%, var(--hover-bg) 100%);
+                                        display: flex;
+                                        align-items: center;
+                                        justify-content: center;
+                                        overflow: hidden;
+                                        position: relative;
+                                    }
+
+                                    .room-image {
+                                        width: 100%;
+                                        height: 100%;
+                                        object-fit: cover;
+                                        transition: transform .4s ease;
+                                    }
+
+                                    .room-card:hover .room-image {
+                                        transform: scale(1.06);
+                                    }
+
+                                    .no-image {
+                                        display: flex;
+                                        flex-direction: column;
+                                        align-items: center;
+                                        justify-content: center;
+                                        gap: 12px;
+                                        color: var(--primary);
+                                    }
+
+                                    .no-image i {
+                                        font-size: 3rem;
                                         opacity: 0.5;
                                     }
 
+                                    .no-image-text {
+                                        font-weight: 600;
+                                        color: var(--muted-text);
+                                    }
+
+                                    .room-info {
+                                        padding: 20px;
+                                        background: transparent;
+                                        color: var(--text);
+                                        display: flex;
+                                        flex-direction: column;
+                                        gap: 14px;
+                                    }
+
+                                    .room-number-badge {
+                                        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+                                        color: white;
+                                        padding: 10px 16px;
+                                        border-radius: 10px;
+                                        font-weight: 700;
+                                        display: inline-flex;
+                                        align-items: center;
+                                        gap: 8px;
+                                        font-size: 1.05rem;
+                                        box-shadow: 0 4px 12px rgba(74, 144, 226, 0.25);
+                                    }
+
+                                    .room-detail-row {
+                                        display: flex;
+                                        justify-content: space-between;
+                                        align-items: center;
+                                        padding: 8px 0;
+                                        border-bottom: 1px solid var(--accent);
+                                    }
+
+                                    .room-detail-row:last-of-type {
+                                        border-bottom: none;
+                                    }
+
+                                    .detail-label {
+                                        color: var(--muted-text);
+                                        font-size: 0.95rem;
+                                        font-weight: 600;
+                                    }
+
+                                    .detail-value {
+                                        color: var(--text);
+                                        font-weight: 700;
+                                        font-size: 1.05rem;
+                                    }
+
+                                    .deposit-status {
+                                        padding: 4px 10px;
+                                        border-radius: 12px;
+                                        font-size: 0.85rem;
+                                        font-weight: 600;
+                                    }
+
+                                    .deposit-status.pending {
+                                        background: #FEF3C7;
+                                        color: #F59E0B;
+                                        border: 1px solid #F59E0B;
+                                    }
+
+                                    .deposit-status.approved {
+                                        background: #D4F4DD;
+                                        color: #22C55E;
+                                        border: 1px solid #22C55E;
+                                    }
+
+                                    .action-buttons {
+                                        display: flex;
+                                        flex-direction: column;
+                                        gap: 8px;
+                                        margin-top: 8px;
+                                    }
+
+                                    .view-btn {
+                                        display: inline-block;
+                                        text-align: center;
+                                        padding: 12px 16px;
+                                        border-radius: 10px;
+                                        background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+                                        color: white;
+                                        text-decoration: none;
+                                        font-weight: 700;
+                                        transition: all 0.3s ease;
+                                        box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+                                        border: none;
+                                        cursor: pointer;
+                                        width: 100%;
+                                    }
+
+                                    .view-btn:hover {
+                                        box-shadow: 0 6px 16px rgba(74, 144, 226, 0.4);
+                                        transform: translateY(-2px);
+                                    }
+
+                                    .empty-state {
+                                        padding: 80px 20px;
+                                        text-align: center;
+                                        color: var(--muted-text);
+                                    }
+
+                                    .empty-state i {
+                                        font-size: 4rem;
+                                        color: var(--primary);
+                                        opacity: 0.3;
+                                        margin-bottom: 20px;
+                                    }
+
                                     .empty-state h3 {
-                                        color: #ff8c00;
-                                        font-size: 1.8rem;
-                                        margin-bottom: 10px;
+                                        color: var(--text);
+                                        margin: 16px 0 8px;
+                                        font-size: 1.4rem;
                                     }
 
                                     .empty-state p {
-                                        color: #999;
-                                        font-size: 1.1rem;
+                                        color: var(--muted-text);
                                     }
 
 
@@ -684,8 +732,8 @@
                                     .spinner {
                                         width: 60px;
                                         height: 60px;
-                                        border: 6px solid rgba(255, 140, 0, 0.3);
-                                        border-top: 6px solid #ff8c00;
+                                        border: 6px solid var(--accent);
+                                        border-top: 6px solid var(--primary);
                                         border-radius: 50%;
                                         animation: spin 1s linear infinite;
                                     }
@@ -704,24 +752,25 @@
                                         position: fixed;
                                         top: 20px;
                                         right: 20px;
-                                        background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
-                                        padding: 15px 20px;
-                                        border-radius: 10px;
-                                        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+                                        background: var(--bg);
+                                        padding: 16px 22px;
+                                        border-radius: 12px;
+                                        box-shadow: 0 6px 20px var(--shadow);
                                         z-index: 1001;
                                         display: none;
                                         animation: slideInRight 0.3s ease;
-                                        border: 1px solid rgba(255, 140, 0, 0.3);
-                                        color: white;
+                                        border: 2px solid var(--border);
+                                        color: var(--text);
                                         max-width: 400px;
+                                        font-weight: 500;
                                     }
 
                                     .toast.success {
-                                        border-left: 4px solid #00ff88;
+                                        border-left: 5px solid var(--success);
                                     }
 
                                     .toast.error {
-                                        border-left: 4px solid #ff4444;
+                                        border-left: 5px solid var(--danger);
                                     }
 
                                     @keyframes slideInRight {
@@ -788,43 +837,56 @@
                             </head>
 
                             <body>
-                                <div class="bg-animation">
-                                    <div class="floating-shapes"></div>
-                                    <div class="floating-shapes"></div>
-                                    <div class="floating-shapes"></div>
-                                    <div class="floating-shapes"></div>
-                                    <div class="particles" id="particles"></div>
-                                </div>
-
+                                <!-- Loading Animation -->
                                 <div class="loading" id="loading">
                                     <div class="spinner"></div>
                                 </div>
 
+                                <!-- Toast Notification -->
                                 <div id="toast" class="toast">
                                     <div id="toast-message"></div>
                                 </div>
 
-                                <div class="container">
+                                <!-- Main Content -->
+                                <div class="page-container">
+                                    <!-- Header -->
                                     <div class="header">
-                                        <i class="fas fa-building"></i>
-                                        ThanaChok Place
-                                    </div>
-
-                                    <div class="top-bar">
-                                        <div class="welcome-message">
-                                            <i class="fas fa-user-shield"></i>
-                                            สวัสดี, ${loginManager.email}!
-                                            <span class="admin-badge">Manager</span>
+                                        <h1>
+                                            <i class="fas fa-building"></i>
+                                            ThanaChok Place
+                                        </h1>
+                                        <div class="nav-menu">
+                                            <a href="OwnerHome" class="nav-link active">
+                                                <i class="fas fa-home"></i> หน้าหลัก
+                                            </a>
+                                            <a href="OViewReserve" class="nav-link">
+                                                <i class="fas fa-list"></i> รายการเช่า
+                                            </a>
+                                            <a href="ListReservations" class="nav-link">
+                                                <i class="fas fa-clipboard-list"></i> รายการจอง
+                                            </a>
+                                            <a href="ListReturnRoom" class="nav-link">
+                                                <i class="fas fa-clipboard-check"></i> คำขอคืนห้อง
+                                            </a>
+                                            <a href="AddRoom" class="nav-link">
+                                                <i class="fas fa-plus"></i> เพิ่มห้อง
+                                            </a>
                                         </div>
-
-                                        <form action="Logout" method="post" style="display: inline;">
-                                            <button type="submit" class="logout-btn">
-                                                <i class="fas fa-sign-out-alt"></i>
-                                                ออกจากระบบ
-                                            </button>
-                                        </form>
+                                        <div class="user-section">
+                                            <div class="user-info">
+                                                <i class="fas fa-user-circle"></i>
+                                                <span>Manager@gmail.com</span>
+                                            </div>
+                                            <form action="Logout" method="post" style="display: inline;">
+                                                <button type="submit" class="logout-btn">
+                                                    <i class="fas fa-sign-out-alt"></i>
+                                                    ออกจากระบบ
+                                                </button>
+                                            </form>
+                                        </div>
                                     </div>
 
+                                    <!-- Stats Container -->
                                     <div class="stats-container">
                                         <div class="stat-card stat-total">
                                             <div class="stat-icon">
@@ -901,52 +963,51 @@
                                                 ฿
                                                 <fmt:formatNumber value="${totalRevenue}" groupingUsed="true" />
                                             </div>
-                                            <div class="stat-label">รายได้ต่อเดือน (ประมาณ)</div>
+                                            <div class="stat-label">รายได้ต่อเดือน</div>
                                         </div>
                                     </div>
 
-                                    <div class="nav">
-                                        <a href="OwnerHome" class="active"><i class="fas fa-home"></i> หน้าหลัก</a>
-                                        <a href="OViewReserve"><i class="fas fa-list"></i> รายการจอง</a>
-                                        <a href="ListReturnRoom"><i class="fas fa-clipboard-check"></i> คำขอคืนห้อง</a>
-                                        <a href="AddRoom"><i class="fas fa-plus"></i> เพิ่มห้อง</a>
-                                    </div>
-
-                                    <div class="search-form">
-                                        <h3>
-                                            <i class="fas fa-search"></i>
-                                            ค้นหาและกรองห้องพัก
-                                        </h3>
-                                        <form method="get" action="OwnerHome" id="searchForm">
-                                            <div class="form-group">
-                                                <label for="floor">ชั้น:</label>
-                                                <select name="floor" id="floor">
-                                                    <option value="">ทั้งหมด</option>
-                                                    <c:forEach var="i" begin="1" end="5">
-                                                        <option value="${i}" ${param.floor==i ? 'selected' : '' }>ชั้น
-                                                            ${i}</option>
-                                                    </c:forEach>
-                                                </select>
-                                            </div>
-
-                                            <div class="form-group">
-                                                <label for="status">สถานะ:</label>
-                                                <select name="status" id="status">
-                                                    <option value="">ทั้งหมด</option>
-                                                    <option value="ว่าง" ${param.status=='ว่าง' ? 'selected' : '' }>ว่าง
-                                                    </option>
-                                                    <option value="ไม่ว่าง" ${param.status=='ไม่ว่าง' ? 'selected' : ''
-                                                        }>ไม่ว่าง</option>
-                                                </select>
-                                            </div>
-
-                                            <button type="submit" class="search-btn">
+                                    <!-- Search Section -->
+                                    <div class="search-section">
+                                        <div class="search-form">
+                                            <h3>
                                                 <i class="fas fa-search"></i>
-                                                ค้นหา
-                                            </button>
-                                        </form>
+                                                ค้นหาและกรองห้องพัก
+                                            </h3>
+                                            <form method="get" action="OwnerHome" id="searchForm">
+                                                <div class="search-row">
+                                                    <div class="form-group">
+                                                        <label for="floor">ชั้น:</label>
+                                                        <select name="floor" id="floor">
+                                                            <option value="">ทั้งหมด</option>
+                                                            <c:forEach var="i" begin="1" end="5">
+                                                                <option value="${i}" ${param.floor==i ? 'selected' : ''
+                                                                    }>ชั้น ${i}</option>
+                                                            </c:forEach>
+                                                        </select>
+                                                    </div>
+
+                                                    <div class="form-group">
+                                                        <label for="status">สถานะ:</label>
+                                                        <select name="status" id="status">
+                                                            <option value="">ทั้งหมด</option>
+                                                            <option value="ว่าง" ${param.status=='ว่าง' ? 'selected'
+                                                                : '' }>ว่าง</option>
+                                                            <option value="ไม่ว่าง" ${param.status=='ไม่ว่าง'
+                                                                ? 'selected' : '' }>ไม่ว่าง</option>
+                                                        </select>
+                                                    </div>
+
+                                                    <button type="submit" class="search-btn">
+                                                        <i class="fas fa-search"></i>
+                                                        ค้นหา
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </div>
                                     </div>
 
+                                    <!-- Table Container -->
                                     <div class="table-container">
                                         <div class="table-header">
                                             <h2>
@@ -958,144 +1019,233 @@
                                         <c:choose>
                                             <c:when test="${empty roomList}">
                                                 <div class="empty-state">
-                                                    <div class="empty-icon">
-                                                        <i class="fas fa-search"></i>
-                                                    </div>
+                                                    <i class="fas fa-search"></i>
                                                     <h3>ไม่พบห้องพัก</h3>
-                                                    <p>ไม่มีห้องพักที่ตรงกับเงื่อนไขการค้นหา
-                                                        กรุณาลองเปลี่ยนตัวกรองหรือเพิ่มห้องใหม่</p>
+                                                    <p>ลองเปลี่ยนเงื่อนไขการค้นหาหรือเพิ่มห้องใหม่</p>
                                                 </div>
                                             </c:when>
                                             <c:otherwise>
-                                                <table>
-                                                    <thead>
-                                                        <tr>
-                                                            <th><i class="fas fa-door-open"></i> หมายเลขห้อง</th>
-                                                            <th><i class="fas fa-home"></i> ประเภทห้อง</th>
-                                                           <th><i class="fas fa-money-bill-wave"></i> ราคา</th>
-                                                            <th><i class="fas fa-info-circle"></i> สถานะ</th>
-                                                            <th><i class="fas fa-cogs"></i> จัดการ</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <c:forEach var="room" items="${roomList}">
-                                                            <tr>
-                                                                <td class="room-number">${room.roomNumber}</td>
-                                                                <td class="room-type">${room.roomtype}</td>
-                                                                <td class="price">฿
-                                                                    <fmt:formatNumber value="${room.roomPrice}"
-                                                                        groupingUsed="true" />
-                                                                </td>
-                                                                <td>
+                                                <div class="rooms-grid">
+                                                    <c:forEach var="room" items="${roomList}">
+                                                        <div class="room-card">
+                                                            <div class="room-image-container">
+                                                                <c:choose>
+                                                                    <c:when test="${not empty room.roomNumberImage}">
+                                                                        <img src="${pageContext.request.contextPath}/RoomImage?roomId=${room.roomID}&imageType=number"
+                                                                            alt="ห้อง ${room.roomNumber}"
+                                                                            class="room-image"
+                                                                            onerror="this.parentElement.innerHTML='<div class=\'no-image\'><i class=\'fas fa-image\'></i><span class=\'no-image-text\'>ไม่มีรูปภาพ</span></div>';">
+                                                                    </c:when>
+                                                                    <c:otherwise>
+                                                                        <div class="no-image">
+                                                                            <i class="fas fa-image"></i>
+                                                                            <span
+                                                                                class="no-image-text">ไม่มีรูปภาพ</span>
+                                                                        </div>
+                                                                    </c:otherwise>
+                                                                </c:choose>
+                                                            </div>
+
+                                                            <div class="room-info">
+                                                                <div class="room-number-badge">
+                                                                    <i class="fas fa-door-open"></i>
+                                                                    ห้อง ${room.roomNumber}
+                                                                </div>
+
+                                                                <div class="room-detail-row">
+                                                                    <span class="detail-label">
+                                                                        <i class="fas fa-home"></i> ประเภทห้อง
+                                                                    </span>
+                                                                    <span class="detail-value">${room.roomtype}</span>
+                                                                </div>
+
+                                                                <div class="room-detail-row">
+                                                                    <span class="detail-label">
+                                                                        <i class="fas fa-money-bill-wave"></i> ราคา
+                                                                    </span>
+                                                                    <span class="detail-value">฿
+                                                                        <fmt:formatNumber value="${room.roomPrice}"
+                                                                            groupingUsed="true" />
+                                                                    </span>
+                                                                </div>
+
+                                                                <div class="room-detail-row">
+                                                                    <span class="detail-label">
+                                                                        <i class="fas fa-info-circle"></i> สถานะ
+                                                                    </span>
                                                                     <span
                                                                         class="status-badge ${room.roomStatus == 'ว่าง' ? 'status-available' : 'status-occupied'}">
                                                                         <i
                                                                             class="fas ${room.roomStatus == 'ว่าง' ? 'fa-check-circle' : 'fa-times-circle'}"></i>
                                                                         ${room.roomStatus}
                                                                     </span>
-                                                                    
-                                                                    <c:if test="${room.roomStatus == 'ไม่ว่าง'}">
-                                                                        <c:choose>
-                                                                            <c:when test="${roomDepositStatus[room.roomID] == 'รอคืนห้อง'}">
-                                                                                <br>
-                                                                                <small class="deposit-status pending" style="color: #ff4444;">
+                                                                </div>
+
+                                                                <!-- สถานะเพิ่มเติมสำหรับห้องไม่ว่าง -->
+                                                                <c:if test="${room.roomStatus == 'ไม่ว่าง'}">
+                                                                    <c:choose>
+                                                                        <c:when
+                                                                            test="${roomDepositStatus[room.roomID] == 'รอคืนห้อง'}">
+                                                                            <div class="room-detail-row">
+                                                                                <span class="detail-label">
                                                                                     <i class="fas fa-door-open"></i>
+                                                                                    สถานะเพิ่มเติม
+                                                                                </span>
+                                                                                <span class="deposit-status pending"
+                                                                                    style="color: #ff4444;">
                                                                                     รอคืนห้อง
-                                                                                </small>
-                                                                            </c:when>
-                                                                            <c:when test="${roomDepositStatus[room.roomID] == 'รอดำเนินการ'}">
-                                                                                <br>
-                                                                                <small class="deposit-status pending">
+                                                                                </span>
+                                                                            </div>
+                                                                        </c:when>
+                                                                        <c:when
+                                                                            test="${roomDepositStatus[room.roomID] == 'รอดำเนินการ'}">
+                                                                            <div class="room-detail-row">
+                                                                                <span class="detail-label">
                                                                                     <i class="fas fa-clock"></i>
+                                                                                    สถานะเพิ่มเติม
+                                                                                </span>
+                                                                                <span class="deposit-status pending">
                                                                                     รอดำเนินการ
-                                                                                </small>
-                                                                            </c:when>
-                                                                            <c:when test="${roomDepositStatus[room.roomID] == 'เสร็จสมบูรณ์'}">
-                                                                                <br>
-                                                                                <small class="deposit-status approved">
+                                                                                </span>
+                                                                            </div>
+                                                                        </c:when>
+                                                                        <c:when
+                                                                            test="${roomDepositStatus[room.roomID] == 'เสร็จสมบูรณ์'}">
+                                                                            <div class="room-detail-row">
+                                                                                <span class="detail-label">
                                                                                     <i class="fas fa-check-circle"></i>
+                                                                                    สถานะเพิ่มเติม
+                                                                                </span>
+                                                                                <span class="deposit-status approved">
                                                                                     เสร็จสมบูรณ์
-                                                                                </small>
+                                                                                </span>
+                                                                            </div>
+                                                                        </c:when>
+                                                                    </c:choose>
+                                                                </c:if>
+
+                                                                <!-- ปุ่มจัดการสำหรับ Manager -->
+                                                                <div class="action-buttons">
+                                                                    <!-- แสดงปุ่มเพิ่มบิลและแก้ไขบิลเฉพาะเมื่อห้องไม่ว่าง -->
+                                                                    <c:if test="${room.roomStatus == 'ไม่ว่าง'}">
+                                                                        <a href="ManagerAddInvoice?roomID=${room.roomID}"
+                                                                            class="view-btn"
+                                                                            style="background:linear-gradient(135deg, #22C55E, #16A34A);">
+                                                                            <i class="fas fa-plus"></i> เพิ่มบิล
+                                                                        </a>
+                                                                        <a href="EditInvoice?roomID=${room.roomID}"
+                                                                            class="view-btn"
+                                                                            style="background:linear-gradient(135deg, #F59E0B, #D97706);">
+                                                                            <i class="fas fa-file-invoice"></i> แก้ไขบิล
+                                                                        </a>
+
+                                                                        <!-- ปุ่มเพิ่มเติมตามสถานะ -->
+                                                                        <c:choose>
+                                                                            <c:when
+                                                                                test="${roomDepositStatus[room.roomID] == 'รอคืนห้อง'}">
+                                                                                <a href="ListReturnRoom"
+                                                                                    class="view-btn"
+                                                                                    style="background: linear-gradient(135deg, #9c27b0, #7b1fa2);">
+                                                                                    <i class="fas fa-door-open"></i>
+                                                                                    อนุมัติการคืนห้อง
+                                                                                </a>
+                                                                            </c:when>
+                                                                            <c:when
+                                                                                test="${roomDepositStatus[room.roomID] == 'รอดำเนินการ'}">
+                                                                                <a href="OViewReserve" class="view-btn"
+                                                                                    style="background: linear-gradient(135deg, #3B82F6, #2563EB);">
+                                                                                    <i
+                                                                                        class="fas fa-clipboard-check"></i>
+                                                                                    อนุมัติการจอง
+                                                                                </a>
+                                                                            </c:when>
+                                                                            <c:when
+                                                                                test="${roomDepositStatus[room.roomID] == 'ชำระแล้ว'}">
+                                                                                <!-- ปุ่มคืนห้องโดย Manager -->
+                                                                                <button class="view-btn"
+                                                                                    style="background:linear-gradient(135deg, #FF6B6B, #EE5A6F);"
+                                                                                    onclick="showReturnRoomModal(${room.roomID}, '${room.roomNumber}', '${roomRentId[room.roomID]}')">
+                                                                                    <i class="fas fa-sign-out-alt"></i>
+                                                                                    คืนห้อง
+                                                                                </button>
                                                                             </c:when>
                                                                         </c:choose>
                                                                     </c:if>
-                                                                </td>
-                                                                <td>
-                                                    <div class="action-buttons">
-                                                        <c:if test="${room.roomStatus == 'ไม่ว่าง'}">
-                                                            <c:choose>
-                                                                <c:when test="${roomApprovalStatus[room.roomID] == true}">
-                                                                    <a href="ManagerAddInvoice?roomID=${room.roomID}"
-                                                                        class="action-btn btn-add"
-                                                                        title="เพิ่มใบแจ้งหนี้สำหรับห้อง ${room.roomNumber}">
-                                                                        <i class="fas fa-plus"></i>
-                                                                        เพิ่มบิล
-                                                                    </a>
-                                                                    <a href="EditInvoice?roomID=${room.roomID}"
-                                                                        class="action-btn btn-edit-invoice"
-                                                                        title="แก้ไขใบแจ้งหนี้ห้อง ${room.roomNumber}">
-                                                                        <i class="fas fa-file-invoice"></i>
-                                                                        แก้ไขบิล
-                                                                    </a>
-                                                                </c:when>
-                                                                <c:otherwise>
-                                                                    <button class="action-btn btn-disabled" disabled
-                                                                        title="ต้องอนุมัติการจองก่อนจึงจะสามารถเพิ่มบิลได้">
-                                                                        <i class="fas fa-ban"></i>
-                                                                        รอการอนุมัติ
-                                                                    </button>
-                                                                    <c:choose>
-                                                                        <c:when test="${roomDepositStatus[room.roomID] == 'รอคืนห้อง'}">
-                                                                            <a href="ListReturnRoom"
-                                                                                class="action-btn btn-view"
-                                                                                style="background: linear-gradient(135deg, #9c27b0, #7b1fa2); color: white;"
-                                                                                title="มีคำขอคืนห้องรอดำเนินการ">
-                                                                                <i class="fas fa-door-open"></i>
-                                                                                อนุมัติการคืนห้อง
-                                                                            </a>
-                                                                        </c:when>
-                                                                        <c:when test="${roomDepositStatus[room.roomID] == 'รอดำเนินการ'}">
-                                                                            <a href="OViewReserve"
-                                                                                class="action-btn btn-view"
-                                                                                title="ไปที่หน้าจัดการการจองเพื่ออนุมัติ">
-                                                                                <i class="fas fa-clipboard-check"></i>
-                                                                                อนุมัติการจอง
-                                                                            </a>
-                                                                        </c:when>
-                                                                    </c:choose>
-                                                                </c:otherwise>
-                                                            </c:choose>
-                                                        </c:if>
 
-                                                        <a href="editRoom?id=${room.roomID}"
-                                                            class="action-btn btn-edit"
-                                                            title="แก้ไขข้อมูลห้อง ${room.roomNumber}">
-                                                            <i class="fas fa-edit"></i>
-                                                            แก้ไขข้อมูล
-                                                        </a>
+                                                                    <!-- ปุ่มแก้ไขข้อมูลห้อง (แสดงเสมอ) -->
+                                                                    <a href="editRoom?id=${room.roomID}"
+                                                                        class="view-btn"
+                                                                        style="background:linear-gradient(135deg, #4A90E2, #5CA9E9);">
+                                                                        <i class="fas fa-edit"></i> แก้ไขข้อมูล
+                                                                    </a>
 
-                                                        <c:if test="${room.roomStatus == 'ว่าง'}">
-                                                            <button class="action-btn btn-delete"
-                                                                onclick="confirmDelete(${room.roomID}, '${room.roomNumber}')"
-                                                                title="ลบห้อง ${room.roomNumber}">
-                                                                <i class="fas fa-trash"></i>
-                                                                ลบ
-                                                            </button>
-                                                        </c:if>
-                                                    </div>
-                                                                </td>
-                                                            </tr>
-                                                        </c:forEach>
-                                                    </tbody>
-                                                </table>
+                                                                    <!-- ปุ่มลบ (แสดงเฉพาะเมื่อห้องว่าง) -->
+                                                                    <c:if test="${room.roomStatus == 'ว่าง'}">
+                                                                        <button class="view-btn"
+                                                                            style="background:linear-gradient(135deg, #EF4444, #DC2626);"
+                                                                            onclick="confirmDelete(${room.roomID}, '${room.roomNumber}')">
+                                                                            <i class="fas fa-trash"></i> ลบห้อง
+                                                                        </button>
+                                                                    </c:if>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </c:forEach>
+                                                </div>
                                             </c:otherwise>
                                         </c:choose>
                                     </div>
                                 </div>
 
+                                <!-- Modal สำหรับกรอกหมายเหตุการคืนห้อง -->
+                                <div id="returnRoomModal"
+                                    style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999; justify-content:center; align-items:center;">
+                                    <div
+                                        style="background:white; padding:40px; border-radius:20px; max-width:500px; width:90%; box-shadow:0 10px 40px rgba(0,0,0,0.3);">
+                                        <h3
+                                            style="color:var(--primary); margin-bottom:20px; font-size:1.8rem; display:flex; align-items:center; gap:12px;">
+                                            <i class="fas fa-sign-out-alt"></i>
+                                            คืนห้อง <span id="modalRoomNumber" style="color:var(--danger);"></span>
+                                        </h3>
+                                        <form id="returnRoomForm" method="post" action="ManagerForceReturnRoom">
+                                            <input type="hidden" id="modalRentId" name="rentId">
+                                            <input type="hidden" id="modalRoomNumberInput" name="roomNumber">
+
+                                            <div style="margin-bottom:25px;">
+                                                <label
+                                                    style="display:block; margin-bottom:10px; font-weight:700; color:var(--text); font-size:1.1rem;">
+                                                    <i class="fas fa-sticky-note"></i> หมายเหตุ / เหตุผลในการคืนห้อง:
+                                                </label>
+                                                <textarea name="notes" id="returnNotes" required
+                                                    style="width:100%; min-height:150px; padding:15px; border:2px solid var(--card-border); border-radius:12px; font-family:'Sarabun',sans-serif; font-size:1rem; resize:vertical;"
+                                                    placeholder="กรุณากรอกเหตุผลหรือหมายเหตุในการคืนห้อง...&#10;เช่น: ผู้เช่าขอยกเลิกสัญญา, ย้ายออก, ฯลฯ"></textarea>
+                                                <small style="color:var(--muted-text); display:block; margin-top:8px;">
+                                                    <i class="fas fa-info-circle"></i>
+                                                    ข้อมูลนี้จะถูกบันทึกไว้เพื่อการตรวจสอบในภายหลัง
+                                                </small>
+                                            </div>
+
+                                            <div style="display:flex; gap:12px; justify-content:flex-end;">
+                                                <button type="button" onclick="closeReturnRoomModal()"
+                                                    style="padding:12px 28px; border:2px solid var(--card-border); background:white; color:var(--text); border-radius:10px; cursor:pointer; font-weight:700; font-family:'Sarabun',sans-serif; font-size:1rem;">
+                                                    <i class="fas fa-times"></i> ยกเลิก
+                                                </button>
+                                                <button type="submit"
+                                                    style="padding:12px 28px; border:none; background:linear-gradient(135deg, #EF4444, #DC2626); color:white; border-radius:10px; cursor:pointer; font-weight:700; font-family:'Sarabun',sans-serif; font-size:1rem; box-shadow:0 4px 12px rgba(239,68,68,0.3);">
+                                                    <i class="fas fa-check"></i> ยืนยันการคืนห้อง
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+
                                 <script>
+                                    var successMessage = '<c:out value="${message}" escapeXml="false" />';
+                                    var errorMessage = '<c:out value="${error}" escapeXml="false" />';
+
                                     function createParticles() {
                                         const particles = document.getElementById('particles');
+                                        if (!particles) return; // เช็คว่ามี element หรือไม่
                                         const particleCount = 50;
                                         for (let i = 0; i < particleCount; i++) {
                                             const particle = document.createElement('div');
@@ -1115,6 +1265,33 @@
                                         toast.style.display = 'block';
                                         setTimeout(() => { toast.style.display = 'none'; }, 5000);
                                     }
+
+                                    function showReturnRoomModal(roomID, roomNumber, rentId) {
+                                        if (!rentId || rentId === '' || rentId === 'undefined' || rentId === 'null') {
+                                            showToast('ข้อผิดพลาด: ไม่พบข้อมูลการเช่า', 'error');
+                                            return;
+                                        }
+
+                                        document.getElementById('modalRoomNumber').textContent = roomNumber;
+                                        document.getElementById('modalRentId').value = rentId;
+                                        document.getElementById('modalRoomNumberInput').value = roomNumber;
+                                        document.getElementById('returnNotes').value = '';
+                                        document.getElementById('returnRoomModal').style.display = 'flex';
+                                    }
+
+                                    function closeReturnRoomModal() {
+                                        document.getElementById('returnRoomModal').style.display = 'none';
+                                    }
+
+                                    document.getElementById('returnRoomForm').addEventListener('submit', function (e) {
+                                        const notes = document.getElementById('returnNotes').value.trim();
+                                        if (notes === '') {
+                                            e.preventDefault();
+                                            showToast('กรุณากรอกหมายเหตุ', 'error');
+                                            return;
+                                        }
+                                        document.getElementById('loading').style.display = 'flex';
+                                    });
 
                                     function confirmDelete(roomID, roomNumber) {
 
@@ -1148,23 +1325,21 @@
 
                                     window.addEventListener('load', function () {
                                         createParticles();
-            
-            <c:if test="${not empty message}">
-                setTimeout(() => showToast("${message}", "success"), 500);
-            </c:if>
 
-            <c:if test="${not empty error}">
-                setTimeout(() => showToast("${error}", "error"), 500);
-            </c:if>
+                                        if (successMessage) {
+                                            setTimeout(function () { showToast(successMessage, "success"); }, 500);
+                                        }
 
-                                        setTimeout(() => { document.getElementById('loading').style.display = 'none'; }, 1000);
+                                        if (errorMessage) {
+                                            setTimeout(function () { showToast(errorMessage, "error"); }, 500);
+                                        }
+
+                                        setTimeout(function () { document.getElementById('loading').style.display = 'none'; }, 1000);
 
                                         document.body.style.opacity = '0';
                                         document.body.style.transition = 'opacity 0.5s ease-in-out';
                                         setTimeout(function () { document.body.style.opacity = '1'; }, 100);
-                                    });
-
-                                    document.querySelectorAll('.action-btn:not(.btn-disabled)').forEach(btn => {
+                                    }); document.querySelectorAll('.action-btn:not(.btn-disabled)').forEach(btn => {
                                         btn.addEventListener('click', function (e) {
                                             this.style.transform = 'scale(0.95)';
                                             setTimeout(() => { this.style.transform = ''; }, 150);
