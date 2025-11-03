@@ -60,7 +60,8 @@ public class HibernateConnection {
 						.addAnnotatedClass(Member.class)
 						.addAnnotatedClass(Reserve.class)
 						.addAnnotatedClass(Rent.class)
-						.addAnnotatedClass(Room.class);
+						.addAnnotatedClass(Room.class)
+						.addAnnotatedClass(UtilityRate.class);
 
 				StandardServiceRegistryBuilder ssrb = new StandardServiceRegistryBuilder()
 						.applySettings(cfg.getProperties());

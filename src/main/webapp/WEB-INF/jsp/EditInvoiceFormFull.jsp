@@ -184,8 +184,8 @@
 
                                 .form-group label {
                                     display: block;
-                                    font-weight: 600;
-                                    color: var(--text);
+                                    font-weight: 700;
+                                    color: #2c3e50;
                                     margin-bottom: 10px;
                                     font-size: 1rem;
                                 }
@@ -211,8 +211,9 @@
                                 .form-control:disabled,
                                 .form-control[readonly] {
                                     background: #f5f5f5;
-                                    color: #999;
+                                    color: #2c3e50;
                                     cursor: not-allowed;
+                                    font-weight: 600;
                                 }
 
                                 .total-section {
@@ -566,6 +567,7 @@
                                     roomPrice: ${ roomPrice },
                                     internetPrice: ${ internetPrice },
                                     penalty: ${ penalty },
+                                    penaltyRemark: '<c:out value="${penaltyRemark}" escapeXml="true" />',
                                     prevWater: ${ prevWater },
                                     currWater: ${ currWater },
                                     waterRate: ${ waterRate },
@@ -579,6 +581,9 @@
                                     penaltyDetailId: ${ penaltyDetailId },
                                     roomDetailId: ${ roomDetailId }
         };
+                                
+                                console.log('DEBUG: existingInvoiceData loaded:', existingInvoiceData);
+                                console.log('DEBUG: penaltyRemark value:', existingInvoiceData.penaltyRemark);
 
                                 function showToast(message, type = 'success') {
                                     const toast = document.getElementById('toast');
@@ -602,7 +607,7 @@
                                     card.innerHTML = '<div class="section-title" style="display: flex; justify-content: space-between; align-items: center;">' +
                                         '<div>' +
                                         '<i class="fas fa-file-invoice-dollar"></i> ' +
-                                        'บิลที่ ' + (bills.length + 1) +
+                                        'รายการที่ ' + (bills.length + 1) +
                                         '</div>' +
                                         '<div style="color: #999; font-size: 0.9rem;">กรอกข้อมูลและกดเพิ่มบิล</div>' +
                                         '</div>' +
@@ -647,36 +652,58 @@
                                     if (type === 'water' || type === 'electricity') {
                                         const prevMeter = type === 'water' ? currentPrevWater : currentPrevElectric;
                                         const rate = type === 'water' ? initialWaterRate : initialElectricRate;
+                                        const label = type === 'water' ? 'ค่าน้ำ' : 'ค่าไฟฟ้า';
 
                                         html = '<div class="form-group">' +
-                                            '<label>หน่วยเดือนก่อน</label>' +
-                                            '<input type="number" class="form-control prevMeter" value="' + prevMeter + '" readonly />' +
+                                            '<label><i class="fas fa-history"></i> มิเตอร์เดือนก่อน</label>' +
+                                            '<input type="number" class="form-control prevMeter" value="' + prevMeter + '" readonly style="background: #f5f5f5; cursor: not-allowed;" />' +
                                             '</div>' +
                                             '<div class="form-group">' +
-                                            '<label>หน่วยปัจจุบัน</label>' +
-                                            '<input type="number" class="form-control currMeter" placeholder="กรอกมิเตอร์ปัจจุบัน" oninput="calculateMeter(\'' + cardId + '\')" />' +
+                                            '<label><i class="fas fa-tachometer-alt"></i> มิเตอร์ปัจจุบัน</label>' +
+                                            '<input type="number" class="form-control currMeter" placeholder="กรอกมิเตอร์ปัจจุบัน" oninput="calculateMeter(\'' + cardId + '\')" min="' + prevMeter + '" />' +
                                             '</div>' +
                                             '<div class="form-group">' +
-                                            '<label>อัตราต่อหน่วย (฿)</label>' +
-                                            '<input type="number" class="form-control rate" value="' + rate + '" step="0.01" oninput="calculateMeter(\'' + cardId + '\')" />' +
+                                            '<label><i class="fas fa-chart-line"></i> จำนวนหน่วยที่ใช้</label>' +
+                                            '<input type="number" class="form-control usage" value="0" readonly style="background: #e3f2fd; color: #1565c0; font-weight: bold; cursor: not-allowed; font-size: 1.1rem;" />' +
+                                            '<small style="color: #424242; margin-top: 5px; display: block; font-weight: 600;"><i class="fas fa-info-circle"></i> (ปัจจุบัน - เดือนก่อน)</small>' +
                                             '</div>' +
                                             '<div class="form-group">' +
-                                            '<label>จำนวนเงิน</label>' +
-                                            '<input type="number" class="form-control amount" readonly style="background: rgba(0,0,0,0.6); color: #00ff88; font-weight: bold;" />' +
+                                            '<label><i class="fas fa-tag"></i> ราคาต่อหน่วย (฿)</label>' +
+                                            '<input type="number" class="form-control rate" value="' + rate + '" step="0.01" readonly style="background: #f5f5f5; cursor: not-allowed; font-weight: 700; color: #2c3e50;" />' +
+                                            '</div>' +
+                                            '<div class="form-group">' +
+                                            '<label><i class="fas fa-calculator"></i> จำนวนเงิน' + label + '</label>' +
+                                            '<input type="number" class="form-control amount" readonly style="background: rgba(76, 175, 80, 0.1); color: #2e7d32; font-weight: bold; font-size: 1.1rem; border: 2px solid #4caf50;" />' +
+                                            '<small style="color: #424242; margin-top: 5px; display: block; font-weight: 600;"><i class="fas fa-calculator"></i> (หน่วยที่ใช้ × ราคาต่อหน่วย)</small>' +
+                                            '</div>';
+                                    } else if (type === 'internet') {
+                                        html = '<div class="form-group">' +
+                                            '<label><i class="fas fa-wifi"></i> ราคาอินเทอร์เน็ต (ต่อเดือน)</label>' +
+                                            '<input type="number" class="form-control amount" placeholder="ระบุจำนวนเงิน" step="0.01" min="0" style="font-weight: 600;" />' +
+                                            '</div>';
+                                    } else if (type === 'penalty') {
+                                        html = '<div class="form-group">' +
+                                            '<label><i class="fas fa-sticky-note"></i> หมายเหตุ <span style="color: #f44336;">*</span></label>' +
+                                            '<textarea class="form-control remark" placeholder="กรอกเหตุผลที่เรียกเก็บค่าปรับ (ต้องกรอก)" rows="3" required style="resize: vertical; min-height: 80px;"></textarea>' +
+                                            '<small style="color: #424242; margin-top: 5px; display: block; font-weight: 600;"><i class="fas fa-info-circle"></i> โปรดระบุเหตุผลในการเรียกเก็บค่าปรับ</small>' +
+                                            '</div>' +
+                                            '<div class="form-group">' +
+                                            '<label><i class="fas fa-money-bill-wave"></i> จำนวนเงิน (฿)</label>' +
+                                            '<input type="number" class="form-control amount" placeholder="ระบุจำนวนเงิน" step="0.01" min="0" />' +
                                             '</div>';
                                     } else if (type === 'other') {
                                         html = '<div class="form-group">' +
-                                            '<label>ชื่อรายการ</label>' +
+                                            '<label><i class="fas fa-edit"></i> ชื่อรายการ</label>' +
                                             '<input type="text" class="form-control itemName" placeholder="ระบุชื่อรายการ" />' +
                                             '</div>' +
                                             '<div class="form-group">' +
-                                            '<label>จำนวนเงิน (฿)</label>' +
-                                            '<input type="number" class="form-control amount" placeholder="ระบุจำนวนเงิน" step="0.01" />' +
+                                            '<label><i class="fas fa-money-bill-wave"></i> จำนวนเงิน (฿)</label>' +
+                                            '<input type="number" class="form-control amount" placeholder="ระบุจำนวนเงิน" step="0.01" min="0" />' +
                                             '</div>';
                                     } else {
                                         html = '<div class="form-group">' +
-                                            '<label>จำนวนเงิน (฿)</label>' +
-                                            '<input type="number" class="form-control amount" placeholder="ระบุจำนวนเงิน" step="0.01" />' +
+                                            '<label><i class="fas fa-money-bill-wave"></i> จำนวนเงิน (฿)</label>' +
+                                            '<input type="number" class="form-control amount" placeholder="ระบุจำนวนเงิน" step="0.01" min="0" />' +
                                             '</div>';
                                     }
 
@@ -690,11 +717,24 @@
                                     const prevMeter = parseFloat(card.querySelector('.prevMeter').value) || 0;
                                     const currMeter = parseFloat(card.querySelector('.currMeter').value) || 0;
                                     const rate = parseFloat(card.querySelector('.rate').value) || 0;
+                                    const usageInput = card.querySelector('.usage');
 
                                     if (currMeter >= prevMeter) {
                                         const usage = currMeter - prevMeter;
                                         const total = usage * rate;
+
+                                        // แสดงจำนวนหน่วยที่ใช้
+                                        if (usageInput) {
+                                            usageInput.value = usage.toFixed(2);
+                                        }
+
                                         card.querySelector('.amount').value = total.toFixed(2);
+                                    } else {
+                                        // ถ้ามิเตอร์ปัจจุบันน้อยกว่าเดือนก่อน รีเซ็ตค่า
+                                        if (usageInput) {
+                                            usageInput.value = '0';
+                                        }
+                                        card.querySelector('.amount').value = '';
                                     }
 
                                     calculateAllBillsTotal();
@@ -724,6 +764,20 @@
 
                                         if (currMeter < prevMeter) {
                                             showToast('หน่วยปัจจุบันต้องมากกว่าหรือเท่ากับหน่วยเดือนก่อน', 'error');
+                                            return;
+                                        }
+
+                                        if (amount <= 0) {
+                                            showToast('จำนวนเงินต้องมากกว่า 0', 'error');
+                                            return;
+                                        }
+                                    } else if (type === 'penalty') {
+                                        const remarkInput = card.querySelector('.remark');
+                                        const remark = remarkInput ? remarkInput.value.trim() : '';
+                                        const amount = parseFloat(card.querySelector('.amount').value) || 0;
+
+                                        if (!remark) {
+                                            showToast('กรุณากรอกหมายเหตุสำหรับค่าปรับ', 'error');
                                             return;
                                         }
 
@@ -773,7 +827,7 @@
                                     if (sectionTitle) {
                                         sectionTitle.style.borderBottom = '2px solid #00ff88';
                                         sectionTitle.innerHTML = '<div style="color: #00ff88; font-weight: 600;">' +
-                                            '<i class="fas fa-check-circle"></i> บิลที่ ' + bills.length + ' (แก้ไขได้)' +
+                                            '<i class="fas fa-check-circle"></i> รายการที่ ' + bills.length + ' (แก้ไขได้)' +
                                             '</div>';
                                     }
 
@@ -838,7 +892,7 @@
                                     const card = document.getElementById(cardId);
                                     if (!card) return;
 
-                                    const inputs = card.querySelectorAll('input[type="number"], input[type="text"]');
+                                    const inputs = card.querySelectorAll('input[type="number"], input[type="text"], textarea');
                                     inputs.forEach(input => {
                                         input.addEventListener('input', function () {
                                             calculateAllBillsTotal();
@@ -957,16 +1011,36 @@
                                                         isValid = true;
                                                     }
                                                 }
+                                            } else if (type === 'penalty') {
+                                                // ค่าปรับ - ต้องเก็บ remark
+                                                const amountInput = card.querySelector('.amount');
+                                                const remarkInput = card.querySelector('.remark');
+                                                
+                                                if (amountInput && remarkInput) {
+                                                    name = 'ค่าปรับ';
+                                                    amount = parseFloat(amountInput.value) || 0;
+                                                    const remark = remarkInput.value.trim();
+                                                    detail = '-';
+                                                    
+                                                    // เก็บ remark ก่อนตรวจสอบ amount
+                                                    meterData = { remark: remark };
+                                                    console.log('DEBUG: Penalty remark collected from card:', remark);
+                                                    
+                                                    if (amount > 0) {
+                                                        isValid = true;
+                                                    }
+                                                }
                                             } else {
+                                                // internet และอื่นๆ
                                                 const amountInput = card.querySelector('.amount');
                                                 if (amountInput) {
                                                     const typeNames = {
-                                                        internet: 'ค่าอินเทอร์เน็ต',
-                                                        penalty: 'ค่าปรับ'
+                                                        internet: 'ค่าอินเทอร์เน็ต'
                                                     };
                                                     name = typeNames[type] || type;
                                                     amount = parseFloat(amountInput.value) || 0;
                                                     detail = '-';
+                                                    
                                                     if (amount > 0) {
                                                         isValid = true;
                                                     }
@@ -1004,10 +1078,18 @@
                                             '<input type="hidden" name="item_' + i + '_amount" value="' + bill.amount + '" />';
 
                                         if (bill.meterData) {
-                                            container.innerHTML += '<input type="hidden" name="item_' + i + '_prevMeter" value="' + bill.meterData.prev + '" />' +
-                                                '<input type="hidden" name="item_' + i + '_currMeter" value="' + bill.meterData.curr + '" />' +
-                                                '<input type="hidden" name="item_' + i + '_rate" value="' + bill.meterData.rate + '" />' +
-                                                '<input type="hidden" name="item_' + i + '_usage" value="' + bill.meterData.usage + '" />';
+                                            if (bill.meterData.remark !== undefined) {
+                                                // สำหรับค่าปรับที่มีหมายเหตุ (ส่งไปเสมอ แม้ว่าจะว่าง)
+                                                const remarkValue = bill.meterData.remark || '';
+                                                container.innerHTML += '<input type="hidden" name="item_' + i + '_remark" value="' + remarkValue + '" />';
+                                                console.log('DEBUG: Creating hidden input item_' + i + '_remark with value:', remarkValue);
+                                            } else {
+                                                // สำหรับน้ำ/ไฟ ที่มีข้อมูลมิเตอร์
+                                                container.innerHTML += '<input type="hidden" name="item_' + i + '_prevMeter" value="' + bill.meterData.prev + '" />' +
+                                                    '<input type="hidden" name="item_' + i + '_currMeter" value="' + bill.meterData.curr + '" />' +
+                                                    '<input type="hidden" name="item_' + i + '_rate" value="' + bill.meterData.rate + '" />' +
+                                                    '<input type="hidden" name="item_' + i + '_usage" value="' + bill.meterData.usage + '" />';
+                                            }
                                         }
                                     });
 
@@ -1056,7 +1138,8 @@
                                     if (existingInvoiceData.penalty > 0) {
                                         createCardWithData('penalty', {
                                             detailId: existingInvoiceData.penaltyDetailId,
-                                            amount: existingInvoiceData.penalty
+                                            amount: existingInvoiceData.penalty,
+                                            remark: existingInvoiceData.penaltyRemark
                                         });
                                     }
 
@@ -1095,27 +1178,47 @@
                                     let formInputsHTML = '';
 
                                     if (type === 'water' || type === 'electricity') {
-                                        const amount = (data.currMeter - data.prevMeter) * data.rate;
+                                        const usage = data.currMeter - data.prevMeter;
+                                        const amount = usage * data.rate;
+                                        const label = type === 'water' ? 'ค่าน้ำ' : 'ค่าไฟฟ้า';
+                                        
                                         formInputsHTML = '<div class="form-group">' +
-                                            '<label>หน่วยเดือนก่อน</label>' +
-                                            '<input type="number" class="form-control prevMeter" value="' + data.prevMeter + '" readonly />' +
+                                            '<label><i class="fas fa-history"></i> มิเตอร์เดือนก่อน</label>' +
+                                            '<input type="number" class="form-control prevMeter" value="' + data.prevMeter + '" readonly style="background: #f5f5f5; cursor: not-allowed;" />' +
                                             '</div>' +
                                             '<div class="form-group">' +
-                                            '<label>หน่วยปัจจุบัน</label>' +
-                                            '<input type="number" class="form-control currMeter" value="' + data.currMeter + '" oninput="calculateMeter(\'' + cardId + '\')" />' +
+                                            '<label><i class="fas fa-tachometer-alt"></i> มิเตอร์ปัจจุบัน</label>' +
+                                            '<input type="number" class="form-control currMeter" value="' + data.currMeter + '" oninput="calculateMeter(\'' + cardId + '\')" min="' + data.prevMeter + '" />' +
                                             '</div>' +
                                             '<div class="form-group">' +
-                                            '<label>อัตราต่อหน่วย (฿)</label>' +
-                                            '<input type="number" class="form-control rate" value="' + data.rate + '" step="0.01" oninput="calculateMeter(\'' + cardId + '\')" />' +
+                                            '<label><i class="fas fa-chart-line"></i> จำนวนหน่วยที่ใช้</label>' +
+                                            '<input type="number" class="form-control usage" value="' + usage.toFixed(2) + '" readonly style="background: #e3f2fd; color: #1565c0; font-weight: bold; cursor: not-allowed; font-size: 1.1rem;" />' +
+                                            '<small style="color: #424242; margin-top: 5px; display: block; font-weight: 600;"><i class="fas fa-info-circle"></i> (ปัจจุบัน - เดือนก่อน)</small>' +
                                             '</div>' +
                                             '<div class="form-group">' +
-                                            '<label>จำนวนเงิน</label>' +
-                                            '<input type="number" class="form-control amount" value="' + amount.toFixed(2) + '" readonly style="background: rgba(0,0,0,0.6); color: #00ff88; font-weight: bold;" />' +
+                                            '<label><i class="fas fa-tag"></i> ราคาต่อหน่วย (฿)</label>' +
+                                            '<input type="number" class="form-control rate" value="' + data.rate + '" step="0.01" readonly style="background: #f5f5f5; cursor: not-allowed; font-weight: 700; color: #2c3e50;" />' +
+                                            '</div>' +
+                                            '<div class="form-group">' +
+                                            '<label><i class="fas fa-calculator"></i> จำนวนเงิน' + label + '</label>' +
+                                            '<input type="number" class="form-control amount" value="' + amount.toFixed(2) + '" readonly style="background: rgba(76, 175, 80, 0.1); color: #2e7d32; font-weight: bold; font-size: 1.1rem; border: 2px solid #4caf50;" />' +
+                                            '<small style="color: #424242; margin-top: 5px; display: block; font-weight: 600;"><i class="fas fa-calculator"></i> (หน่วยที่ใช้ × ราคาต่อหน่วย)</small>' +
+                                            '</div>';
+                                    } else if (type === 'penalty') {
+                                        const remarkValue = data.remark || '';
+                                        formInputsHTML = '<div class="form-group">' +
+                                            '<label><i class="fas fa-sticky-note"></i> หมายเหตุ <span style="color: #f44336;">*</span></label>' +
+                                            '<textarea class="form-control remark" rows="3" required style="resize: vertical; min-height: 80px;">' + remarkValue + '</textarea>' +
+                                            '<small style="color: #424242; margin-top: 5px; display: block; font-weight: 600;"><i class="fas fa-info-circle"></i> โปรดระบุเหตุผลในการเรียกเก็บค่าปรับ</small>' +
+                                            '</div>' +
+                                            '<div class="form-group">' +
+                                            '<label><i class="fas fa-money-bill-wave"></i> จำนวนเงิน (฿)</label>' +
+                                            '<input type="number" class="form-control amount" value="' + data.amount + '" step="0.01" min="0" />' +
                                             '</div>';
                                     } else {
                                         formInputsHTML = '<div class="form-group">' +
-                                            '<label>จำนวนเงิน (฿)</label>' +
-                                            '<input type="number" class="form-control amount" value="' + data.amount + '" step="0.01" />' +
+                                            '<label><i class="fas fa-money-bill-wave"></i> จำนวนเงิน (฿)</label>' +
+                                            '<input type="number" class="form-control amount" value="' + data.amount + '" step="0.01" min="0" />' +
                                             '</div>';
                                     }
 

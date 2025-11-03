@@ -18,8 +18,10 @@ import com.springmvc.model.InvoiceDetail;
 import com.springmvc.model.InvoiceType;
 import com.springmvc.model.Manager;
 import com.springmvc.model.Rent;
+import com.springmvc.model.Reserve;
 import com.springmvc.model.Room;
 import com.springmvc.model.ThanachokManager;
+import com.springmvc.model.UtilityRate;
 
 @Controller
 public class InvoiceController {
@@ -96,6 +98,24 @@ public class InvoiceController {
         // ดึงเลขมิเตอร์จากบิลก่อนหน้า
         java.util.Map<String, Integer> prevReadings = tm.getPreviousMeterReadings(roomID);
 
+        // ดึงข้อมูลหน่วยค่าน้ำ-ค่าไฟที่ใช้งานอยู่
+        UtilityRate activeRate = tm.getActiveUtilityRate();
+        double waterRatePerUnit = (activeRate != null) ? activeRate.getRatePerUnitWater() : 18.00;
+        double electricRatePerUnit = (activeRate != null) ? activeRate.getRatePerUnitElectric() : 8.00;
+
+        // ดึงราคาอินเทอร์เน็ตจาก Reserve โดยใช้ roomID และ memberID
+        double internetPrice = 0.00;
+        List<Reserve> reserves = tm.findReservesByRoomAndMember(rent.getRoom().getRoomID(),
+                rent.getMember().getMemberID());
+        if (reserves != null && !reserves.isEmpty()) {
+            for (Reserve reserve : reserves) {
+                if ("เช่าอยู่".equals(reserve.getStatus())) {
+                    internetPrice = reserve.getInternetFee();
+                    break;
+                }
+            }
+        }
+
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
         ModelAndView mav = new ModelAndView("ManagerAddInvoice");
@@ -107,8 +127,9 @@ public class InvoiceController {
         // ส่งข้อมูลเลขมิเตอร์จากบิลก่อนหน้า
         mav.addObject("prevWater", prevReadings.get("prevWater"));
         mav.addObject("prevElectric", prevReadings.get("prevElectric"));
-        mav.addObject("waterRate", prevReadings.get("waterRate"));
-        mav.addObject("electricRate", prevReadings.get("electricRate"));
+        mav.addObject("waterRate", waterRatePerUnit);
+        mav.addObject("electricRate", electricRatePerUnit);
+        mav.addObject("internetPrice", internetPrice);
 
         System.out.println("=== Add Invoice Form ===");
         System.out.println("Room: " + roomID);
@@ -179,10 +200,12 @@ public class InvoiceController {
                 String amountParam = "item_" + i + "_amount";
                 String priceParam = "item_" + i + "_rate";
                 String currMeterParam = "item_" + i + "_currMeter";
+                String remarkParam = "item_" + i + "_remark";
 
                 String type = request.getParameter(typeParam);
                 String name = request.getParameter(nameParam);
                 String amountStr = request.getParameter(amountParam);
+                String remark = request.getParameter(remarkParam);
 
                 if (type == null || name == null || amountStr == null) {
                     System.out.println("Skipping item " + i + " - missing required fields");
@@ -241,6 +264,12 @@ public class InvoiceController {
                     detail.setType(tm.getInvoiceTypeByName(name));
                     detail.setPrice(amount);
                     detail.setQuantity(1);
+
+                    // บันทึกหมายเหตุสำหรับค่าปรับ
+                    if ("penalty".equals(type) && remark != null && !remark.isEmpty()) {
+                        detail.setRemark(remark);
+                        System.out.println("  - Penalty remark: " + remark);
+                    }
                 }
 
                 details.add(detail);
@@ -477,6 +506,7 @@ public class InvoiceController {
         double roomPrice = 0;
         double internetPrice = 0;
         double penalty = 0;
+        String penaltyRemark = "";
         int prevWater = 0;
         int currWater = 0;
         double waterRate = 18;
@@ -528,6 +558,7 @@ public class InvoiceController {
                     case "ค่าปรับ":
                         penalty = detail.getAmount();
                         penaltyDetailId = detail.getId();
+                        penaltyRemark = detail.getRemark() != null ? detail.getRemark() : "";
                         break;
                     case "ค่าน้ำ":
                         // เลขปัจจุบัน = quantity ที่บันทึกไว้
@@ -547,6 +578,7 @@ public class InvoiceController {
         mav.addObject("roomPrice", roomPrice);
         mav.addObject("internetPrice", internetPrice);
         mav.addObject("penalty", penalty);
+        mav.addObject("penaltyRemark", penaltyRemark);
         mav.addObject("prevWater", prevWater);
         mav.addObject("currWater", currWater);
         mav.addObject("waterRate", waterRate);
@@ -632,11 +664,16 @@ public class InvoiceController {
                 String amountParam = "item_" + i + "_amount";
                 String priceParam = "item_" + i + "_rate";
                 String currMeterParam = "item_" + i + "_currMeter";
+                String remarkParam = "item_" + i + "_remark";
 
                 String detailIdStr = request.getParameter(detailIdParam);
                 String type = request.getParameter(typeParam);
                 String name = request.getParameter(nameParam);
                 String amountStr = request.getParameter(amountParam);
+                String remark = request.getParameter(remarkParam);
+
+                System.out.println("DEBUG item " + i + ": type=" + type + ", remark parameter="
+                        + (remark != null ? "'" + remark + "'" : "NULL"));
 
                 if (type == null || name == null || amountStr == null) {
                     System.out.println("Skipping item " + i + " - missing required fields");
@@ -715,6 +752,17 @@ public class InvoiceController {
                     detail.setType(tm.getInvoiceTypeByName(name));
                     detail.setPrice(amount);
                     detail.setQuantity(1);
+                }
+
+                // บันทึกหมายเหตุสำหรับค่าปรับ (ย้ายออกมาจาก else block)
+                if ("penalty".equals(type)) {
+                    if (remark != null && !remark.isEmpty()) {
+                        detail.setRemark(remark);
+                        System.out.println("  - Penalty remark saved: " + remark);
+                    } else {
+                        detail.setRemark(null);
+                        System.out.println("  - Penalty remark cleared (empty)");
+                    }
                 }
 
                 newDetails.add(detail);

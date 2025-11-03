@@ -1,3 +1,4 @@
+
 package com.springmvc.model;
 
 import java.util.ArrayList;
@@ -151,12 +152,12 @@ public class ThanachokManager {
     }
 
     // ดึงรายการจองทั้งหมด (สำหรับ Manager)
+    // กรองเฉพาะสถานะที่เกี่ยวข้องกับการจอง ไม่รวม "เช่าอยู่" และ "คืนห้องแล้ว"
     public List<Reserve> findAllReserves() {
         Session session = null;
         try {
             SessionFactory factory = HibernateConnection.doHibernateConnection();
             session = factory.openSession();
-            // เรียงจากวันที่จองเก่าสุดไปใหม่สุด (ASC)
             String hql = "FROM Reserve r ORDER BY r.reserveDate ASC";
             return session.createQuery(hql, Reserve.class).list();
         } catch (Exception e) {
@@ -197,6 +198,26 @@ public class ThanachokManager {
         } catch (Exception e) {
             e.printStackTrace();
             return null;
+        } finally {
+            if (session != null)
+                session.close();
+        }
+    }
+
+    // ดึงรายการจองตามห้องและผู้เช่า
+    public List<Reserve> findReservesByRoomAndMember(int roomID, int memberID) {
+        Session session = null;
+        try {
+            SessionFactory factory = HibernateConnection.doHibernateConnection();
+            session = factory.openSession();
+            String hql = "FROM Reserve r WHERE r.room.roomID = :roomID AND r.member.memberID = :memberID ORDER BY r.reserveDate DESC";
+            return session.createQuery(hql, Reserve.class)
+                    .setParameter("roomID", roomID)
+                    .setParameter("memberID", memberID)
+                    .list();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Collections.emptyList();
         } finally {
             if (session != null)
                 session.close();
@@ -1757,10 +1778,14 @@ public class ThanachokManager {
                     detail.setPrice(newDetail.getPrice());
                     detail.setQuantity(newDetail.getQuantity());
                     detail.setAmount(newDetail.getAmount());
+                    detail.setRemark(newDetail.getRemark()); // บันทึก remark สำหรับค่าปรับ
 
                     dbInvoice.getDetails().add(detail);
                     System.out.println("Saved detail: " + newDetail.getType().getTypeName() +
-                            " (ID: " + (detail.getId() > 0 ? detail.getId() : "NEW") + ") = ฿" + newDetail.getAmount());
+                            " (ID: " + (detail.getId() > 0 ? detail.getId() : "NEW") + ") = ฿" + newDetail.getAmount() +
+                            (newDetail.getRemark() != null && !newDetail.getRemark().isEmpty()
+                                    ? " [Remark: " + newDetail.getRemark() + "]"
+                                    : ""));
                 }
             }
 
@@ -2050,6 +2075,14 @@ public class ThanachokManager {
             if (deposit != null) {
                 deposit.setStatus("คืนห้องแล้ว");
                 session.update(deposit);
+
+                // อัปเดตสถานะ Reserve ที่เกี่ยวข้องด้วย
+                String reserveHql = "UPDATE Reserve SET status = 'คืนห้องแล้ว' WHERE rent.rentID = :rentId AND status = 'เช่าอยู่'";
+                Query reserveQuery = session.createQuery(reserveHql);
+                reserveQuery.setParameter("rentId", rentId);
+                int updatedReserves = reserveQuery.executeUpdate();
+                System.out
+                        .println("✅ Updated " + updatedReserves + " reserve(s) to 'คืนห้องแล้ว' for rentId: " + rentId);
             }
             tx.commit();
             return true;
@@ -2509,6 +2542,203 @@ public class ThanachokManager {
             if (session != null) {
                 session.close();
             }
+        }
+    }
+
+    // ==================== Utility Rate Management ====================
+
+    // ดึงข้อมูลหน่วยค่าน้ำ-ค่าไฟที่ใช้งานอยู่
+    public UtilityRate getActiveUtilityRate() {
+        Session session = null;
+        try {
+            SessionFactory factory = HibernateConnection.doHibernateConnection();
+            session = factory.openSession();
+
+            String hql = "FROM UtilityRate WHERE isActive = true ORDER BY effectiveDate DESC";
+            Query<UtilityRate> query = session.createQuery(hql, UtilityRate.class);
+            query.setMaxResults(1);
+
+            List<UtilityRate> rates = query.list();
+            return rates.isEmpty() ? null : rates.get(0);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+    }
+
+    // ดึงข้อมูลหน่วยค่าน้ำ-ค่าไฟทั้งหมด
+    public List<UtilityRate> getAllUtilityRates() {
+        Session session = null;
+        try {
+            SessionFactory factory = HibernateConnection.doHibernateConnection();
+            session = factory.openSession();
+
+            String hql = "FROM UtilityRate ORDER BY effectiveDate DESC";
+            Query<UtilityRate> query = session.createQuery(hql, UtilityRate.class);
+
+            return query.list();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Collections.emptyList();
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+    }
+
+    // บันทึกหน่วยค่าน้ำ-ค่าไฟใหม่
+    public boolean saveUtilityRate(UtilityRate newRate) {
+        Session session = null;
+        Transaction tx = null;
+        try {
+            System.out.println("=== Saving Utility Rate ===");
+            System.out.println("Water Rate: " + newRate.getRatePerUnitWater());
+            System.out.println("Electric Rate: " + newRate.getRatePerUnitElectric());
+            System.out.println("Notes: " + newRate.getNotes());
+
+            SessionFactory factory = HibernateConnection.doHibernateConnection();
+            session = factory.openSession();
+            tx = session.beginTransaction();
+
+            // ปิดการใช้งาน rates เก่าทั้งหมด
+            String updateHql = "UPDATE UtilityRate SET isActive = false WHERE isActive = true";
+            int updated = session.createQuery(updateHql).executeUpdate();
+            System.out.println("Deactivated " + updated + " old rate(s)");
+
+            // บันทึก rate ใหม่ (บวกเวลา +7 ชั่วโมง)
+            java.util.Calendar cal = java.util.Calendar.getInstance();
+            cal.add(java.util.Calendar.HOUR_OF_DAY, 7);
+
+            newRate.setActive(true);
+            newRate.setEffectiveDate(cal.getTime());
+            session.save(newRate);
+            System.out.println("New rate saved successfully with Thai time (+7 hours)");
+
+            tx.commit();
+            System.out.println("Transaction committed");
+            return true;
+
+        } catch (Exception e) {
+            System.err.println("=== ERROR Saving Utility Rate ===");
+            System.err.println("Error Type: " + e.getClass().getName());
+            System.err.println("Error Message: " + e.getMessage());
+            if (tx != null && tx.isActive()) {
+                tx.rollback();
+                System.err.println("Transaction rolled back");
+            }
+            e.printStackTrace();
+            return false;
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+    }
+
+    // อัปเดตหน่วยค่าน้ำ-ค่าไฟ
+    public boolean updateUtilityRate(UtilityRate rate) {
+        Session session = null;
+        Transaction tx = null;
+        try {
+            SessionFactory factory = HibernateConnection.doHibernateConnection();
+            session = factory.openSession();
+            tx = session.beginTransaction();
+
+            session.update(rate);
+
+            tx.commit();
+            return true;
+
+        } catch (Exception e) {
+            if (tx != null && tx.isActive()) {
+                tx.rollback();
+            }
+            e.printStackTrace();
+            return false;
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+    }
+
+    // ลบหน่วยค่าน้ำ-ค่าไฟ
+    public boolean deleteUtilityRate(int rateId) {
+        Session session = null;
+        Transaction tx = null;
+        try {
+            SessionFactory factory = HibernateConnection.doHibernateConnection();
+            session = factory.openSession();
+            tx = session.beginTransaction();
+
+            UtilityRate rate = session.get(UtilityRate.class, rateId);
+            if (rate != null) {
+                session.delete(rate);
+                tx.commit();
+                return true;
+            }
+
+            return false;
+
+        } catch (Exception e) {
+            if (tx != null && tx.isActive()) {
+                tx.rollback();
+            }
+            e.printStackTrace();
+            return false;
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+    }
+
+    // ตรวจสอบชื่อ-นามสกุล-เบอร์โทร ซ้ำ (ไม่สนใจตัวพิมพ์ใหญ่-เล็กและช่องว่าง)
+    // ตรวจสอบชื่อ-นามสกุลซ้ำ (case sensitive, ตัดช่องว่าง)
+    public boolean isNameDuplicate(String firstName, String lastName) {
+        Session session = null;
+        try {
+            SessionFactory sessionFactory = HibernateConnection.doHibernateConnection();
+            session = sessionFactory.openSession();
+            String hql = "FROM Member WHERE LOWER(REPLACE(firstName, ' ', '')) = :firstName AND LOWER(REPLACE(lastName, ' ', '')) = :lastName";
+            Member member = session.createQuery(hql, Member.class)
+                    .setParameter("firstName", firstName.trim().replace(" ", "").toLowerCase())
+                    .setParameter("lastName", lastName.trim().replace(" ", "").toLowerCase())
+                    .uniqueResult();
+            return member != null;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            if (session != null)
+                session.close();
+        }
+    }
+
+    // ตรวจสอบเบอร์โทรศัพท์ซ้ำ (ตัดช่องว่าง)
+    public boolean isPhoneDuplicate(String phoneNumber) {
+        Session session = null;
+        try {
+            SessionFactory sessionFactory = HibernateConnection.doHibernateConnection();
+            session = sessionFactory.openSession();
+            String hql = "FROM Member WHERE REPLACE(phoneNumber, ' ', '') = :phoneNumber";
+            Member member = session.createQuery(hql, Member.class)
+                    .setParameter("phoneNumber", phoneNumber.trim().replace(" ", ""))
+                    .uniqueResult();
+            return member != null;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        } finally {
+            if (session != null)
+                session.close();
         }
     }
 

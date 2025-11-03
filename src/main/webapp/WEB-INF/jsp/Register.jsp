@@ -872,15 +872,49 @@
               // Form submission
               document
                 .getElementById("registerForm")
-                .addEventListener("submit", function (e) {
+                .addEventListener("submit", async function (e) {
                   const btnText = document.getElementById("btnText");
                   const loading = document.getElementById("loading");
                   const submitBtn = document.getElementById("submitBtn");
+                  const errorMessage = document.getElementById("errorMessage");
+
+                  // Password validation: at least 1 upper, 1 lower, 6-50 chars
+                  const password = document.getElementById("password").value;
+                  if (!isPasswordValid(password)) {
+                    e.preventDefault();
+                    errorMessage.innerHTML = '<i class="fas fa-exclamation-circle"></i> รหัสผ่านต้องมีตัวพิมพ์ใหญ่ ตัวพิมพ์เล็กอย่างน้อย 1 ตัว และความยาว 6-50 ตัวอักษร';
+                    errorMessage.style.display = "flex";
+                    btnText.style.opacity = "1";
+                    loading.style.display = "none";
+                    submitBtn.disabled = false;
+                    return;
+                  }
+
+                  // (Optional) Duplicate check for name/phone (async placeholder)
+                  // You can implement AJAX call to backend for real-time check here
+                  // Example:
+                  // const firstName = document.getElementById("firstName").value;
+                  // const lastName = document.getElementById("lastName").value;
+                  // const phoneNumber = document.getElementById("phoneNumber").value;
+                  // let isDuplicate = await checkNamePhoneDuplicate(firstName, lastName, phoneNumber);
+                  // if (isDuplicate) { ... show error ... return; }
 
                   btnText.style.opacity = "0";
                   loading.style.display = "block";
                   submitBtn.disabled = true;
                 });
+
+              // Password validation function (same as backend)
+              function isPasswordValid(password) {
+                if (!password) return false;
+                if (password.length < 6 || password.length > 50) return false;
+                let hasUpper = false, hasLower = false;
+                for (let i = 0; i < password.length; i++) {
+                  if (/[A-Z]/.test(password[i])) hasUpper = true;
+                  if (/[a-z]/.test(password[i])) hasLower = true;
+                }
+                return hasUpper && hasLower;
+              }
             });
 
             // Create particles

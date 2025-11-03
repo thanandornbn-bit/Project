@@ -19,6 +19,7 @@ import com.springmvc.model.Invoice;
 import com.springmvc.model.Manager;
 import com.springmvc.model.Rent;
 import com.springmvc.model.ThanachokManager;
+import com.springmvc.model.UtilityRate;
 
 @Controller
 public class ManagerController {
@@ -646,6 +647,52 @@ public class ManagerController {
 		mav.addObject("room", room);
 
 		return mav;
+	}
+
+	// ==================== Utility Rate Management ====================
+
+	// แสดงหน้าจัดการหน่วยค่าน้ำ-ค่าไฟ
+	@RequestMapping(value = "/ManageUtilityRates", method = RequestMethod.GET)
+	public ModelAndView showManageUtilityRates(HttpSession session) {
+		Manager manager = (Manager) session.getAttribute("loginManager");
+		if (manager == null) {
+			return new ModelAndView("redirect:/Login");
+		}
+
+		ThanachokManager tm = new ThanachokManager();
+		UtilityRate activeRate = tm.getActiveUtilityRate();
+		List<UtilityRate> allRates = tm.getAllUtilityRates();
+
+		ModelAndView mav = new ModelAndView("ManageUtilityRates");
+		mav.addObject("activeRate", activeRate);
+		mav.addObject("allRates", allRates);
+
+		return mav;
+	}
+
+	// บันทึกหน่วยค่าน้ำ-ค่าไฟใหม่
+	@RequestMapping(value = "/SaveUtilityRate", method = RequestMethod.POST)
+	public String saveUtilityRate(
+			@RequestParam("ratePerUnitWater") double ratePerUnitWater,
+			@RequestParam("ratePerUnitElectric") double ratePerUnitElectric,
+			@RequestParam(value = "notes", required = false) String notes,
+			RedirectAttributes redirectAttributes) {
+
+		ThanachokManager tm = new ThanachokManager();
+		UtilityRate newRate = new UtilityRate(ratePerUnitWater, ratePerUnitElectric);
+		newRate.setNotes(notes);
+
+		boolean success = tm.saveUtilityRate(newRate);
+
+		if (success) {
+			redirectAttributes.addFlashAttribute("message",
+					"✅ บันทึกหน่วยค่าน้ำ-ค่าไฟใหม่เรียบร้อยแล้ว");
+		} else {
+			redirectAttributes.addFlashAttribute("error",
+					"❌ เกิดข้อผิดพลาดในการบันทึก");
+		}
+
+		return "redirect:/ManageUtilityRates";
 	}
 
 	// คืนห้อง

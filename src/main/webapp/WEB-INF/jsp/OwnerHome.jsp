@@ -866,6 +866,9 @@
                                             <a href="ListReturnRoom" class="nav-link">
                                                 <i class="fas fa-clipboard-check"></i> คำขอคืนห้อง
                                             </a>
+                                            <a href="ManageUtilityRates" class="nav-link">
+                                                <i class="fas fa-cogs"></i> ตั้งค่าหน่วย
+                                            </a>
                                             <a href="AddRoom" class="nav-link">
                                                 <i class="fas fa-plus"></i> เพิ่มห้อง
                                             </a>

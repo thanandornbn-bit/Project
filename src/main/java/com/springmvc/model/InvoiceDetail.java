@@ -20,6 +20,9 @@ public class InvoiceDetail {
     @Column(name = "quantity")
     private int quantity;
 
+    @Column(name = "remark", columnDefinition = "TEXT")
+    private String remark;
+
     @ManyToOne
     @JoinColumn(name = "invoice_id")
     private Invoice invoice;
@@ -39,6 +42,7 @@ public class InvoiceDetail {
         this.quantity = quantity;
         this.invoice = invoice;
         this.type = type;
+        this.remark = null;
     }
 
     // Getter & Setter
@@ -88,5 +92,13 @@ public class InvoiceDetail {
 
     public void setType(InvoiceType type) {
         this.type = type;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 }

@@ -1,3 +1,4 @@
+	
 package com.springmvc.controller;
 
 import java.util.ArrayList;
@@ -51,9 +52,15 @@ public class HomeOtherController {
 		ThanachokManager manager = new ThanachokManager();
 
 		String email = request.getParameter("email");
-		String firstName = request.getParameter("firstName");
-		String lastName = request.getParameter("lastName");
-		String phoneNumber = request.getParameter("phoneNumber");
+		String firstName = request.getParameter("firstName") != null
+				? request.getParameter("firstName").trim().replace(" ", "")
+				: null;
+		String lastName = request.getParameter("lastName") != null
+				? request.getParameter("lastName").trim().replace(" ", "")
+				: null;
+		String phoneNumber = request.getParameter("phoneNumber") != null
+				? request.getParameter("phoneNumber").trim().replace(" ", "")
+				: null;
 		String password = request.getParameter("password");
 		String confirmPassword = request.getParameter("confirmPassword");
 
@@ -61,7 +68,6 @@ public class HomeOtherController {
 				|| lastName == null || lastName.trim().isEmpty() || phoneNumber == null || phoneNumber.trim().isEmpty()
 				|| password == null || password.trim().isEmpty() || confirmPassword == null
 				|| confirmPassword.trim().isEmpty()) {
-
 			ModelAndView mav = new ModelAndView("Register");
 			mav.addObject("add_result", "กรุณากรอกข้อมูลให้ครบถ้วน");
 			return mav;
@@ -73,9 +79,28 @@ public class HomeOtherController {
 			return mav;
 		}
 
+		if (manager.isNameDuplicate(firstName, lastName)) {
+			ModelAndView mav = new ModelAndView("Register");
+			mav.addObject("add_result", "ชื่อ-นามสกุลนี้ถูกใช้งานแล้ว");
+			return mav;
+		}
+		if (manager.isPhoneDuplicate(phoneNumber)) {
+			ModelAndView mav = new ModelAndView("Register");
+			mav.addObject("add_result", "เบอร์โทรศัพท์นี้ถูกใช้งานแล้ว");
+			return mav;
+		}
+
 		if (!password.equals(confirmPassword)) {
 			ModelAndView mav = new ModelAndView("Register");
 			mav.addObject("add_result", "รหัสผ่านไม่ตรงกัน");
+			return mav;
+		}
+
+		// ตรวจสอบรหัสผ่านต้องมีตัวใหญ่ ตัวเล็ก อย่างน้อย 1 ตัว และ 6-50 ตัวอักษร
+		if (!isPasswordValid(password)) {
+			ModelAndView mav = new ModelAndView("Register");
+			mav.addObject("add_result",
+					"รหัสผ่านต้องมีตัวพิมพ์ใหญ่ ตัวพิมพ์เล็กอย่างน้อย 1 ตัว และความยาว 6-50 ตัวอักษร");
 			return mav;
 		}
 
@@ -113,6 +138,22 @@ public class HomeOtherController {
 			mav.addObject("add_result", "ไม่สามารถบันทึกข้อมูลได้ กรุณาลองใหม่");
 			return mav;
 		}
+	}
+
+	// ฟังก์ชันตรวจสอบรหัสผ่าน (helper method)
+	private boolean isPasswordValid(String password) {
+		if (password == null)
+			return false;
+		if (password.length() < 6 || password.length() > 50)
+			return false;
+		boolean hasUpper = false, hasLower = false;
+		for (char c : password.toCharArray()) {
+			if (Character.isUpperCase(c))
+				hasUpper = true;
+			if (Character.isLowerCase(c))
+				hasLower = true;
+		}
+		return hasUpper && hasLower;
 	}
 
 	@RequestMapping(value = "/Login", method = RequestMethod.POST)
