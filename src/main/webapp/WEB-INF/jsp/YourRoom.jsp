@@ -1031,37 +1031,25 @@
                                     function confirmReturnRoom(rentId, roomNumber, unpaidMonths, rentDateISO) {
                                         // ตรวจสอบว่ามีบิลค้างชำระหรือไม่
                                         if (unpaidMonths && unpaidMonths.trim() !== '') {
-                                            // มีบิลค้างชำระ - แสดง alert
                                             alert('ไม่สามารถส่งคำขอคืนห้องได้!\n\n' +
                                                 'เนื่องจากมีบิลค้างชำระ: ' + unpaidMonths + '\n\n' +
                                                 'กรุณาชำระบิลให้ครบถ้วนก่อนทำการคืนห้อง');
                                             return;
                                         }
 
-                                        // ตรวจสอบว่าอยู่ครบ 6 เดือนหรือไม่
-                                        console.log('rentDateISO:', rentDateISO); // Debug
-
-                                        // แปลงวันที่แบบปลอดภัย
                                         const rentDate = new Date(rentDateISO + 'T00:00:00');
                                         const today = new Date();
 
-                                        // ตรวจสอบว่าวันที่ถูกต้อง
-                                        if (isNaN(rentDate.getTime())) {
-                                            alert('เกิดข้อผิดพลาดในการตรวจสอบวันที่เริ่มเช่า\nกรุณาติดต่อเจ้าหน้าที่');
-                                            console.error('Invalid rentDate:', rentDateISO);
-                                            return;
-                                        }
-
-                                        // คำนวณจำนวนเดือนที่อยู่แบบแม่นยำ
+                                        // คำนวณจำนวนเดือนที่อยู่
                                         let monthsDiff = (today.getFullYear() - rentDate.getFullYear()) * 12 +
                                             (today.getMonth() - rentDate.getMonth());
 
-                                        // ถ้าวันที่ปัจจุบันน้อยกว่าวันที่เริ่มเช่า ให้ลบ 1 เดือน
+                                        // ถ้าวันที่ปัจจุบันน้อยกว่าวันที่เริ่มเช่า
                                         if (today.getDate() < rentDate.getDate()) {
                                             monthsDiff--;
                                         }
 
-                                        console.log('Months difference:', monthsDiff); // Debug
+                                        
 
                                         if (monthsDiff < 6) {
                                             const remainingMonths = 6 - monthsDiff;
@@ -1083,7 +1071,7 @@
                                     // Create Particles
                                     function createParticles() {
                                         const particles = document.getElementById('particles');
-                                        if (!particles) return; // ป้องกัน error ถ้าไม่มี element
+                                        if (!particles) return; 
 
                                         const particleCount = 50;
 

@@ -278,26 +278,14 @@
                                     }
 
                                     .rooms-grid {
-                                        display: flex;
+                                        display: grid;
+                                        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
                                         gap: 20px;
-                                        align-items: flex-start;
-                                        overflow-x: auto;
                                         padding: 18px 8px;
-                                        scroll-behavior: smooth;
-                                    }
-
-                                    .rooms-grid::-webkit-scrollbar {
-                                        height: 10px;
-                                    }
-
-                                    .rooms-grid::-webkit-scrollbar-thumb {
-                                        background: var(--accent);
-                                        border-radius: 10px;
                                     }
 
                                     .room-card {
-                                        min-width: 340px;
-                                        max-width: 380px;
+                                        width: 100%;
                                         background: var(--bg);
                                         border-radius: 16px;
                                         border: 2px solid var(--card-border);
@@ -931,6 +919,10 @@
                                             margin: 10px 0 0 0;
                                         }
 
+                                        .rooms-grid {
+                                            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                                        }
+
                                         table {
                                             font-size: 0.9rem;
                                         }
@@ -958,6 +950,14 @@
 
                                         .rental-alert .alert-content {
                                             font-size: 1rem;
+                                        }
+                                    }
+
+                                    @media (max-width: 480px) {
+                                        .rooms-grid {
+                                            grid-template-columns: 1fr;
+                                            gap: 14px;
+                                            padding: 12px;
                                         }
                                     }
                                 </style>

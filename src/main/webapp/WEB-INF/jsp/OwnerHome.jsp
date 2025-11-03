@@ -522,27 +522,14 @@
 
                                     /* Room Cards Grid */
                                     .rooms-grid {
-                                        display: flex;
+                                        display: grid;
+                                        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
                                         gap: 20px;
-                                        align-items: flex-start;
-                                        overflow-x: auto;
                                         padding: 18px 8px;
-                                        scroll-behavior: smooth;
-                                        flex-wrap: wrap;
-                                    }
-
-                                    .rooms-grid::-webkit-scrollbar {
-                                        height: 10px;
-                                    }
-
-                                    .rooms-grid::-webkit-scrollbar-thumb {
-                                        background: var(--accent);
-                                        border-radius: 10px;
                                     }
 
                                     .room-card {
-                                        min-width: 340px;
-                                        max-width: 380px;
+                                        width: 100%;
                                         background: var(--bg);
                                         border-radius: 16px;
                                         border: 2px solid var(--card-border);
@@ -802,6 +789,9 @@
                                             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
                                         }
 
+                                        .rooms-grid {
+                                            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+                                        }
 
                                         .nav a {
                                             min-width: 100%;
@@ -831,6 +821,14 @@
                                         .action-btn {
                                             width: 100%;
                                             justify-content: center;
+                                        }
+                                    }
+
+                                    @media (max-width: 480px) {
+                                        .rooms-grid {
+                                            grid-template-columns: 1fr;
+                                            gap: 14px;
+                                            padding: 12px;
                                         }
                                     }
                                 </style>

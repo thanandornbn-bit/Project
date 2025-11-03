@@ -16,7 +16,24 @@
                             <title>แก้ไขบิล #INV-${invoice.invoiceId} - ThanaChok Place</title>
                             <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
                                 rel="stylesheet">
+                            <link
+                                href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap"
+                                rel="stylesheet">
                             <style>
+                                :root {
+                                    --bg: #ffffff;
+                                    --text: #2c3e50;
+                                    --primary: #5ca9e9;
+                                    --primary-dark: #4a8ac7;
+                                    --muted-bg: #f0f7ff;
+                                    --accent: #e3f2fd;
+                                    --success: #4caf50;
+                                    --warning: #ffc107;
+                                    --danger: #f44336;
+                                    --card-border: #d1e8ff;
+                                    --hover-bg: #e8f4ff;
+                                }
+
                                 * {
                                     margin: 0;
                                     padding: 0;
@@ -24,135 +41,29 @@
                                 }
 
                                 body {
-                                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                                    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
+                                    font-family: "Sarabun", sans-serif;
+                                    background: var(--bg);
                                     min-height: 100vh;
-                                    color: #fff;
-                                    position: relative;
-                                    overflow-x: hidden;
-                                }
-
-                                .bg-animation {
-                                    position: fixed;
-                                    top: 0;
-                                    left: 0;
-                                    width: 100%;
-                                    height: 100%;
-                                    overflow: hidden;
-                                    z-index: 0;
-                                }
-
-                                .floating-shapes {
-                                    position: absolute;
-                                    width: 100px;
-                                    height: 100px;
-                                    background: rgba(255, 140, 0, 0.1);
-                                    border-radius: 50%;
-                                    animation: float 6s ease-in-out infinite;
-                                    box-shadow: 0 0 30px rgba(255, 140, 0, 0.2);
-                                }
-
-                                .floating-shapes:nth-child(1) {
-                                    top: 10%;
-                                    left: 10%;
-                                    animation-delay: 0s;
-                                }
-
-                                .floating-shapes:nth-child(2) {
-                                    top: 20%;
-                                    right: 10%;
-                                    animation-delay: 2s;
-                                }
-
-                                .floating-shapes:nth-child(3) {
-                                    bottom: 10%;
-                                    left: 20%;
-                                    animation-delay: 4s;
-                                }
-
-                                @keyframes float {
-
-                                    0%,
-                                    100% {
-                                        transform: translateY(0px) rotate(0deg);
-                                    }
-
-                                    50% {
-                                        transform: translateY(-20px) rotate(180deg);
-                                    }
-                                }
-
-                                .particles {
-                                    position: fixed;
-                                    top: 0;
-                                    left: 0;
-                                    width: 100%;
-                                    height: 100%;
-                                    overflow: hidden;
-                                    z-index: 0;
-                                }
-
-                                .particle {
-                                    position: absolute;
-                                    width: 4px;
-                                    height: 4px;
-                                    background: rgba(255, 140, 0, 0.5);
-                                    border-radius: 50%;
-                                    animation: particleFloat 8s linear infinite;
-                                    box-shadow: 0 0 10px rgba(255, 140, 0, 0.5);
-                                }
-
-                                @keyframes particleFloat {
-                                    0% {
-                                        opacity: 0;
-                                        transform: translateY(100vh) scale(0);
-                                    }
-
-                                    10% {
-                                        opacity: 1;
-                                    }
-
-                                    90% {
-                                        opacity: 1;
-                                    }
-
-                                    100% {
-                                        opacity: 0;
-                                        transform: translateY(-100vh) scale(1);
-                                    }
+                                    color: var(--text);
+                                    line-height: 1.6;
                                 }
 
                                 .container {
-                                    max-width: 1000px;
+                                    max-width: 1400px;
                                     margin: 0 auto;
                                     padding: 30px 20px;
-                                    position: relative;
-                                    z-index: 1;
                                 }
 
-                                .header {
+                                .page-header {
                                     text-align: center;
-                                    color: white;
+                                    color: var(--primary);
                                     font-size: 2.5rem;
-                                    font-weight: bold;
+                                    font-weight: 700;
                                     margin-bottom: 30px;
                                     display: flex;
                                     align-items: center;
                                     justify-content: center;
                                     gap: 15px;
-                                    animation: glow 2s ease-in-out infinite;
-                                }
-
-                                @keyframes glow {
-
-                                    0%,
-                                    100% {
-                                        text-shadow: 0 0 20px rgba(255, 140, 0, 0.3);
-                                    }
-
-                                    50% {
-                                        text-shadow: 0 0 30px rgba(255, 140, 0, 0.5), 0 0 40px rgba(255, 255, 255, 0.3);
-                                    }
                                 }
 
                                 .back-btn {
@@ -160,73 +71,63 @@
                                     align-items: center;
                                     gap: 8px;
                                     margin-bottom: 25px;
-                                    padding: 12px 25px;
-                                    background: rgba(255, 140, 0, 0.1);
-                                    border: 1px solid rgba(255, 140, 0, 0.3);
-                                    color: #ff8c00;
+                                    padding: 12px 24px;
+                                    background: var(--primary);
+                                    color: white;
                                     text-decoration: none;
-                                    border-radius: 10px;
+                                    border-radius: 8px;
                                     transition: all 0.3s ease;
-                                    font-weight: 500;
+                                    font-weight: 600;
+                                    border: none;
                                 }
 
                                 .back-btn:hover {
-                                    background: rgba(255, 140, 0, 0.2);
+                                    background: var(--primary-dark);
                                     transform: translateX(-5px);
+                                    box-shadow: 0 4px 12px rgba(92, 169, 233, 0.3);
                                 }
 
                                 .form-card {
-                                    background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
-                                    border-radius: 20px;
-                                    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5);
-                                    border: 1px solid rgba(255, 140, 0, 0.3);
+                                    background: white;
+                                    border-radius: 12px;
+                                    box-shadow: 0 2px 8px rgba(92, 169, 233, 0.08);
+                                    border: 1px solid var(--card-border);
                                     overflow: hidden;
-                                    animation: slideUp 0.6s ease-out;
-                                }
-
-                                @keyframes slideUp {
-                                    from {
-                                        opacity: 0;
-                                        transform: translateY(30px);
-                                    }
-
-                                    to {
-                                        opacity: 1;
-                                        transform: translateY(0);
-                                    }
                                 }
 
                                 .card-header {
-                                    background: linear-gradient(135deg, #ff8c00, #ff6b00);
+                                    background: linear-gradient(135deg, var(--primary), var(--primary-dark));
                                     color: white;
-                                    padding: 30px;
-                                    position: relative;
+                                    padding: 24px 28px;
                                 }
 
                                 .card-header h2 {
-                                    font-size: 1.8rem;
+                                    font-size: 1.5rem;
+                                    font-weight: 600;
+                                    margin: 0;
                                     display: flex;
                                     align-items: center;
                                     gap: 12px;
                                 }
 
                                 .card-body {
-                                    padding: 35px 30px;
+                                    padding: 28px;
                                 }
 
                                 .room-info-card {
-                                    background: rgba(255, 140, 0, 0.05);
-                                    border: 2px solid rgba(255, 140, 0, 0.2);
-                                    border-radius: 15px;
-                                    padding: 25px;
-                                    margin-bottom: 30px;
-                                    animation: slideUp 0.7s ease-out;
+                                    background: white;
+                                    border-radius: 12px;
+                                    padding: 28px;
+                                    margin-bottom: 28px;
+                                    border: 1px solid var(--card-border);
+                                    box-shadow: 0 2px 8px rgba(92, 169, 233, 0.08);
                                 }
 
                                 .room-info-card h3 {
-                                    color: #ff8c00;
+                                    color: var(--primary);
                                     margin-bottom: 20px;
-                                    font-size: 1.3rem;
+                                    font-size: 1.5rem;
+                                    font-weight: 600;
                                     display: flex;
                                     align-items: center;
                                     gap: 10px;
@@ -234,48 +135,47 @@
 
                                 .room-info-grid {
                                     display: grid;
-                                    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-                                    gap: 20px;
+                                    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                                    gap: 16px;
                                 }
 
                                 .room-info-item {
-                                    display: flex;
-                                    flex-direction: column;
-                                    gap: 8px;
+                                    background: var(--muted-bg);
+                                    padding: 16px;
+                                    border-radius: 8px;
+                                    border-left: 4px solid var(--primary);
                                 }
 
                                 .room-info-item strong {
-                                    color: #999;
+                                    color: #7a8b99;
+                                    display: block;
                                     font-size: 0.9rem;
-                                    display: flex;
-                                    align-items: center;
-                                    gap: 8px;
-                                }
-
-                                .room-info-item span {
-                                    color: white;
-                                    font-size: 1.1rem;
+                                    margin-bottom: 6px;
                                     font-weight: 500;
                                 }
 
+                                .room-info-item span {
+                                    color: var(--text);
+                                    font-size: 1.1rem;
+                                    font-weight: 600;
+                                }
+
                                 .form-section {
-                                    background: rgba(0, 0, 0, 0.3);
-                                    border: 1px solid rgba(255, 140, 0, 0.2);
-                                    border-radius: 15px;
-                                    padding: 25px;
-                                    margin-bottom: 25px;
-                                    animation: slideUp 0.8s ease-out;
+                                    margin-bottom: 24px;
+                                    padding: 24px;
+                                    background: var(--muted-bg);
+                                    border-radius: 12px;
+                                    border: 1px solid var(--card-border);
                                 }
 
                                 .section-title {
+                                    color: var(--primary);
                                     font-size: 1.3rem;
-                                    color: #ff8c00;
+                                    font-weight: 600;
                                     margin-bottom: 20px;
-                                    padding-bottom: 15px;
-                                    border-bottom: 2px solid rgba(255, 140, 0, 0.3);
                                     display: flex;
                                     align-items: center;
-                                    gap: 12px;
+                                    gap: 10px;
                                 }
 
                                 .form-group {
@@ -284,125 +184,119 @@
 
                                 .form-group label {
                                     display: block;
+                                    font-weight: 600;
+                                    color: var(--text);
                                     margin-bottom: 10px;
-                                    color: #ccc;
-                                    font-weight: 500;
-                                    font-size: 0.95rem;
-                                    display: flex;
-                                    align-items: center;
-                                    gap: 8px;
+                                    font-size: 1rem;
                                 }
 
                                 .form-control {
                                     width: 100%;
-                                    padding: 14px 18px;
-                                    background: rgba(0, 0, 0, 0.6);
-                                    border: 2px solid rgba(255, 140, 0, 0.3);
-                                    border-radius: 10px;
-                                    color: white;
+                                    padding: 12px 16px;
+                                    background: white;
+                                    border: 2px solid var(--card-border);
+                                    border-radius: 8px;
                                     font-size: 1rem;
+                                    color: var(--text);
+                                    font-family: "Sarabun", sans-serif;
                                     transition: all 0.3s ease;
                                 }
 
                                 .form-control:focus {
                                     outline: none;
-                                    border-color: #ff8c00;
-                                    box-shadow: 0 0 15px rgba(255, 140, 0, 0.3);
+                                    border-color: var(--primary);
+                                    box-shadow: 0 0 0 3px rgba(92, 169, 233, 0.1);
                                 }
 
                                 .form-control:disabled,
                                 .form-control[readonly] {
-                                    background: rgba(0, 0, 0, 0.4);
-                                    cursor: not-allowed;
+                                    background: #f5f5f5;
                                     color: #999;
+                                    cursor: not-allowed;
                                 }
 
                                 .total-section {
-                                    background: linear-gradient(135deg, rgba(255, 140, 0, 0.1), rgba(255, 107, 0, 0.1));
-                                    border: 2px solid rgba(255, 140, 0, 0.4);
-                                    border-radius: 20px;
+                                    background: var(--muted-bg);
+                                    border: 2px solid var(--primary);
+                                    border-radius: 12px;
                                     padding: 30px;
-                                    margin-top: 30px;
                                     text-align: center;
-                                    animation: slideUp 1s ease-out;
+                                    margin-top: 30px;
                                 }
 
                                 .total-label {
-                                    font-size: 1.2rem;
-                                    color: #ccc;
-                                    margin-bottom: 15px;
+                                    font-size: 1.3rem;
+                                    font-weight: 600;
+                                    color: var(--text);
+                                    margin-bottom: 10px;
                                 }
 
                                 .total-amount {
-                                    font-size: 3rem;
+                                    font-size: 2.5rem;
                                     font-weight: bold;
-                                    color: #00ff88;
-                                    text-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+                                    color: var(--primary);
                                     margin-bottom: 20px;
                                 }
 
                                 .status-section {
-                                    margin-top: 25px;
-                                    padding-top: 25px;
-                                    border-top: 1px solid rgba(255, 140, 0, 0.2);
+                                    margin-top: 20px;
                                 }
 
                                 .btn-group {
                                     display: flex;
                                     gap: 15px;
                                     justify-content: center;
-                                    flex-wrap: wrap;
                                     margin-top: 30px;
+                                    flex-wrap: wrap;
                                 }
 
                                 .btn {
-                                    padding: 15px 35px;
+                                    padding: 12px 28px;
                                     border: none;
-                                    border-radius: 12px;
+                                    border-radius: 8px;
                                     cursor: pointer;
-                                    font-size: 1.1rem;
+                                    font-size: 1rem;
                                     font-weight: 600;
                                     transition: all 0.3s ease;
                                     text-decoration: none;
                                     display: inline-flex;
                                     align-items: center;
-                                    gap: 10px;
-                                    min-width: 180px;
+                                    gap: 8px;
+                                    min-width: 140px;
                                     justify-content: center;
+                                    font-family: "Sarabun", sans-serif;
                                 }
 
                                 .btn-primary {
-                                    background: linear-gradient(135deg, #00ff88, #00cc6f);
-                                    color: #000;
-                                    box-shadow: 0 5px 20px rgba(0, 255, 136, 0.3);
+                                    background: linear-gradient(135deg, var(--success), #66BB6A);
+                                    color: white;
+                                    box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
                                 }
 
                                 .btn-primary:hover {
                                     transform: translateY(-2px);
-                                    box-shadow: 0 8px 25px rgba(0, 255, 136, 0.5);
+                                    box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
                                 }
 
                                 .btn-secondary {
-                                    background: rgba(255, 68, 68, 0.2);
-                                    color: #ff4444;
-                                    border: 2px solid #ff4444;
+                                    background: #e0e0e0;
+                                    color: var(--text);
+                                    border: none;
                                 }
 
                                 .btn-secondary:hover {
-                                    background: linear-gradient(135deg, #ff4444, #cc0000);
-                                    color: white;
+                                    background: #bdbdbd;
                                     transform: translateY(-2px);
                                 }
 
                                 .btn-success {
-                                    background: linear-gradient(135deg, #00ff88, #00cc6f);
-                                    color: #000;
-                                    box-shadow: 0 5px 20px rgba(0, 255, 136, 0.3);
+                                    background: linear-gradient(135deg, var(--success), #66BB6A);
+                                    color: white;
                                 }
 
                                 .btn-success:hover {
                                     transform: translateY(-2px);
-                                    box-shadow: 0 8px 25px rgba(0, 255, 136, 0.5);
+                                    box-shadow: 0 6px 16px rgba(76, 175, 80, 0.4);
                                 }
 
                                 .loading {
@@ -412,7 +306,7 @@
                                     left: 0;
                                     width: 100%;
                                     height: 100%;
-                                    background: rgba(0, 0, 0, 0.9);
+                                    background: rgba(255, 255, 255, 0.95);
                                     z-index: 999;
                                     justify-content: center;
                                     align-items: center;
@@ -421,8 +315,8 @@
                                 .spinner {
                                     width: 60px;
                                     height: 60px;
-                                    border: 6px solid rgba(255, 140, 0, 0.3);
-                                    border-top: 6px solid #ff8c00;
+                                    border: 5px solid var(--muted-bg);
+                                    border-top: 5px solid var(--primary);
                                     border-radius: 50%;
                                     animation: spin 1s linear infinite;
                                 }
@@ -441,24 +335,25 @@
                                     position: fixed;
                                     top: 20px;
                                     right: 20px;
-                                    background: linear-gradient(145deg, #2d2d2d, #1a1a1a);
-                                    padding: 15px 20px;
-                                    border-radius: 10px;
-                                    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+                                    background: white;
+                                    padding: 16px 22px;
+                                    border-radius: 12px;
+                                    box-shadow: 0 6px 20px rgba(92, 169, 233, 0.2);
                                     z-index: 1001;
                                     display: none;
                                     animation: slideInRight 0.3s ease;
-                                    border: 1px solid rgba(255, 140, 0, 0.3);
-                                    color: white;
+                                    border: 2px solid var(--card-border);
+                                    color: var(--text);
                                     max-width: 400px;
+                                    font-weight: 500;
                                 }
 
                                 .toast.success {
-                                    border-left: 4px solid #00ff88;
+                                    border-left: 5px solid var(--success);
                                 }
 
                                 .toast.error {
-                                    border-left: 4px solid #ff4444;
+                                    border-left: 5px solid var(--danger);
                                 }
 
                                 @keyframes slideInRight {
@@ -478,12 +373,12 @@
                                         padding: 15px;
                                     }
 
-                                    .header {
+                                    .page-header {
                                         font-size: 2rem;
                                     }
 
                                     .card-body {
-                                        padding: 25px 20px;
+                                        padding: 20px;
                                     }
 
                                     .room-info-grid {
@@ -492,12 +387,10 @@
 
                                     .btn-group {
                                         flex-direction: column;
-                                        align-items: center;
                                     }
 
                                     .btn {
                                         width: 100%;
-                                        max-width: 300px;
                                     }
 
                                     .total-amount {
@@ -508,13 +401,6 @@
                         </head>
 
                         <body>
-                            <div class="bg-animation">
-                                <div class="floating-shapes"></div>
-                                <div class="floating-shapes"></div>
-                                <div class="floating-shapes"></div>
-                                <div class="particles" id="particles"></div>
-                            </div>
-
                             <div class="loading" id="loading">
                                 <div class="spinner"></div>
                             </div>
@@ -524,9 +410,9 @@
                             </div>
 
                             <div class="container">
-                                <div class="header">
-                                    <i class="fas fa-edit"></i>
-                                    แก้ไขบิล
+                                <div class="page-header">
+                                    <i class="fas fa-file-invoice"></i>
+                                    แก้ไขบิล #INV-${invoice.invoiceId}
                                 </div>
 
                                 <a href="EditInvoice?roomID=${invoice.rent.room.roomID}" class="back-btn">
@@ -693,19 +579,6 @@
                                     penaltyDetailId: ${ penaltyDetailId },
                                     roomDetailId: ${ roomDetailId }
         };
-
-                                function createParticles() {
-                                    const particles = document.getElementById('particles');
-                                    const particleCount = 30;
-                                    for (let i = 0; i < particleCount; i++) {
-                                        const particle = document.createElement('div');
-                                        particle.className = 'particle';
-                                        particle.style.left = Math.random() * 100 + '%';
-                                        particle.style.animationDelay = Math.random() * 8 + 's';
-                                        particle.style.animationDuration = (Math.random() * 3 + 5) + 's';
-                                        particles.appendChild(particle);
-                                    }
-                                }
 
                                 function showToast(message, type = 'success') {
                                     const toast = document.getElementById('toast');
@@ -1295,7 +1168,6 @@
 
                                 // เมื่อโหลดหน้าเว็บเสร็จ
                                 document.addEventListener('DOMContentLoaded', function () {
-                                    createParticles();
                                     loadExistingInvoice();
                                 });
 
