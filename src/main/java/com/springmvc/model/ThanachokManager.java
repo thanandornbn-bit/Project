@@ -125,26 +125,13 @@ public class ThanachokManager {
             session = factory.openSession();
             tx = session.beginTransaction();
 
-            // เช็คว่าห้องนี้มีการจองที่กำลังรอการอนุมัติอยู่หรือไม่
-            String checkHql = "FROM Reserve WHERE room.roomID = :roomId AND status IN ('รอการอนุมัติ', 'อนุมัติแล้ว')";
-            List<Reserve> existingReserves = session.createQuery(checkHql, Reserve.class)
-                    .setParameter("roomId", reserve.getRoom().getRoomID())
-                    .list();
+            // อนุญาตให้หลายคนจองห้องเดียวกันได้
+            // ไม่ต้องเช็คว่ามีการจองอื่นอยู่หรือไม่
+            // เช็คเฉพาะว่าห้องมีสถานะ "ไม่ว่าง" (มีคนเช่าแล้วและชำระเงินสำเร็จ)
 
-            if (!existingReserves.isEmpty()) {
-                // มีการจองอยู่แล้ว ไม่อนุญาตให้จองซ้ำ
-                tx.rollback();
-                return false;
-            }
-
-            // เช็คว่าห้องนี้มีคนเช่าอยู่หรือไม่
-            String rentCheckHql = "FROM Rent WHERE room.roomID = :roomId AND status IN ('รออนุมัติ', 'ชำระแล้ว')";
-            List<Rent> existingRents = session.createQuery(rentCheckHql, Rent.class)
-                    .setParameter("roomId", reserve.getRoom().getRoomID())
-                    .list();
-
-            if (!existingRents.isEmpty()) {
-                // ห้องมีผู้เช่าอยู่แล้ว ไม่อนุญาตให้จอง
+            Room room = session.get(Room.class, reserve.getRoom().getRoomID());
+            if (room != null && "ไม่ว่าง".equals(room.getRoomStatus())) {
+                // ห้องถูกเช่าไปแล้ว (มีคนชำระเงินและ Manager อนุมัติแล้ว)
                 tx.rollback();
                 return false;
             }
@@ -169,7 +156,8 @@ public class ThanachokManager {
         try {
             SessionFactory factory = HibernateConnection.doHibernateConnection();
             session = factory.openSession();
-            String hql = "FROM Reserve r ORDER BY r.reserveDate DESC";
+            // เรียงจากวันที่จองเก่าสุดไปใหม่สุด (ASC)
+            String hql = "FROM Reserve r ORDER BY r.reserveDate ASC";
             return session.createQuery(hql, Reserve.class).list();
         } catch (Exception e) {
             e.printStackTrace();
@@ -227,18 +215,18 @@ public class ThanachokManager {
             Reserve reserve = session.get(Reserve.class, reserveId);
             if (reserve != null) {
                 reserve.setStatus(status);
+
+                // บันทึกเวลาอนุมัติเพื่อใช้ตรวจสอบหมดเวลา 24 ชั่วโมง
+                if ("อนุมัติแล้ว".equals(status)) {
+                    // บวกเวลา 7 ชั่วโมงสำหรับเวลาไทย
+                    java.util.Calendar cal = java.util.Calendar.getInstance();
+                    cal.add(java.util.Calendar.HOUR_OF_DAY, 7);
+                    reserve.setApprovedDate(cal.getTime());
+                }
                 session.update(reserve);
 
-                // ถ้าอนุมัติการจองนี้ → ปฏิเสธการจองอื่นๆ ของห้องเดียวกันที่ยังรออนุมัติอยู่
-                if ("อนุมัติแล้ว".equals(status)) {
-                    String rejectOthersHql = "UPDATE Reserve SET status = 'ปฏิเสธ' " +
-                            "WHERE room.roomID = :roomId AND reserveID != :currentReserveId " +
-                            "AND status = 'รอการอนุมัติ'";
-                    session.createQuery(rejectOthersHql)
-                            .setParameter("roomId", reserve.getRoom().getRoomID())
-                            .setParameter("currentReserveId", reserveId)
-                            .executeUpdate();
-                }
+                // อนุญาตให้อนุมัติได้หลายคน ไม่ปฏิเสธคนอื่น
+                // การปฏิเสธจะเกิดขึ้นอัตโนมัติเมื่อมีคนชำระเงินค่ามัดจำสำเร็จ
 
                 // ถ้าปฏิเสธการจอง → เปลี่ยนสถานะห้องกลับเป็น "ว่าง"
                 // (ถ้าไม่มีการจองอื่นรออนุมัติ)
@@ -299,6 +287,45 @@ public class ThanachokManager {
                 tx.rollback();
             e.printStackTrace();
             return false;
+        } finally {
+            if (session != null)
+                session.close();
+        }
+    }
+
+    // ปฏิเสธการจองที่อนุมัติแล้วแต่ไม่ชำระเงินภายใน 24 ชั่วโมง (อัตโนมัติ)
+    public int autoRejectExpiredReservations() {
+        Session session = null;
+        Transaction tx = null;
+        try {
+            SessionFactory factory = HibernateConnection.doHibernateConnection();
+            session = factory.openSession();
+            tx = session.beginTransaction();
+
+            // หาการจองที่สถานะ "อนุมัติแล้ว" และเกินเวลาอนุมัติมา 24 ชั่วโมงแล้ว
+            java.util.Date now = new java.util.Date();
+            long oneDayInMillis = 24 * 60 * 60 * 1000; // 24 ชั่วโมง
+
+            String hql = "FROM Reserve WHERE status = 'อนุมัติแล้ว' AND approvedDate IS NOT NULL";
+            List<Reserve> approvedReserves = session.createQuery(hql, Reserve.class).list();
+
+            int updatedCount = 0;
+            for (Reserve reserve : approvedReserves) {
+                long timeDiff = now.getTime() - reserve.getApprovedDate().getTime();
+                if (timeDiff >= oneDayInMillis) {
+                    reserve.setStatus("ปฏิเสธ");
+                    session.update(reserve);
+                    updatedCount++;
+                }
+            }
+
+            tx.commit();
+            return updatedCount;
+        } catch (Exception e) {
+            if (tx != null)
+                tx.rollback();
+            e.printStackTrace();
+            return 0;
         } finally {
             if (session != null)
                 session.close();
@@ -460,6 +487,15 @@ public class ThanachokManager {
             tx = session.beginTransaction();
 
             Rent rent = session.get(Rent.class, RentId);
+            System.out.println("=== confirmRent Debug ===");
+            System.out.println("RentId: " + RentId);
+            System.out.println("Rent found: " + (rent != null));
+            if (rent != null) {
+                System.out.println("Current status: " + rent.getStatus());
+                System.out.println("Room: " + (rent.getRoom() != null ? rent.getRoom().getRoomNumber() : "null"));
+                System.out.println("Member: " + (rent.getMember() != null ? rent.getMember().getFirstName() : "null"));
+            }
+
             if (rent != null && "รออนุมัติ".equals(rent.getStatus())) {
                 // เปลี่ยนสถานะจาก "รออนุมัติ" เป็น "ชำระแล้ว" (ได้ห้องแล้ว)
                 rent.setStatus("ชำระแล้ว");
@@ -467,19 +503,98 @@ public class ThanachokManager {
 
                 // อัปเดตสถานะห้องเป็น "ไม่ว่าง"
                 Room room = rent.getRoom();
-                if (room != null) {
+                Member paidMember = rent.getMember();
+                if (room != null && paidMember != null) {
                     room.setRoomStatus("ไม่ว่าง");
                     session.update(room);
+
+                    System.out.println("=== Start Processing Payment Approval ===");
+                    System.out.println("Paid Member ID: " + paidMember.getMemberID());
+                    System.out
+                            .println("Paid Member Name: " + paidMember.getFirstName() + " " + paidMember.getLastName());
+                    System.out.println("Room ID: " + room.getRoomID());
+
+                    // หาการจองทั้งหมดของห้องนี้
+                    String findAllReservesHql = "FROM Reserve r WHERE r.room.roomID = :roomId ORDER BY r.reserveDate ASC";
+                    List<Reserve> allReserves = session.createQuery(findAllReservesHql, Reserve.class)
+                            .setParameter("roomId", room.getRoomID())
+                            .list();
+
+                    System.out.println("=== All Reserves for Room " + room.getRoomNumber() + " ===");
+                    for (Reserve r : allReserves) {
+                        System.out.println("  Reserve ID: " + r.getReserveId() +
+                                ", Member ID: " + r.getMember().getMemberID() +
+                                ", Member: " + r.getMember().getFirstName() + " " + r.getMember().getLastName() +
+                                ", Status: " + r.getStatus());
+                    }
+
+                    // หาการจองที่ได้รับอนุมัติแล้วหรือชำระแล้วของห้องนี้
+                    String findApprovedReservesHql = "FROM Reserve r " +
+                            "WHERE r.room.roomID = :roomId " +
+                            "AND r.status IN ('อนุมัติแล้ว', 'ชำระแล้ว') " +
+                            "ORDER BY r.approvedDate ASC";
+                    List<Reserve> approvedReserves = session.createQuery(findApprovedReservesHql, Reserve.class)
+                            .setParameter("roomId", room.getRoomID())
+                            .list();
+
+                    System.out.println("Found " + approvedReserves.size() + " approved/paid reserves for this room");
+
+                    Reserve paidReserve = null;
+
+                    // หาการจองของคนที่จ่ายเงิน (ตรวจสอบ member ID)
+                    for (Reserve reserve : approvedReserves) {
+                        System.out.println("Checking reserve ID " + reserve.getReserveId() +
+                                " for member " + reserve.getMember().getMemberID() +
+                                " (firstName: " + reserve.getMember().getFirstName() + ")");
+                        if (reserve.getMember().getMemberID() == paidMember.getMemberID()) {
+                            paidReserve = reserve;
+                            System.out.println("Match found! This is the paid member's reserve.");
+                            break;
+                        }
+                    }
+
+                    if (paidReserve != null) {
+                        // อัปเดตการจองของคนที่จ่ายเงินเป็น "เช่าอยู่" ผ่าน HQL เพื่อ commit ทันที
+                        String updatePaidReserveHql = "UPDATE Reserve r SET r.status = 'เช่าอยู่' " +
+                                "WHERE r.reserveId = :paidReserveId";
+                        int updated = session.createQuery(updatePaidReserveHql)
+                                .setParameter("paidReserveId", paidReserve.getReserveId())
+                                .executeUpdate();
+                        System.out.println("Updated reserve ID " + paidReserve.getReserveId()
+                                + " to 'เช่าอยู่' (rows affected: " + updated + ")");
+
+                        // Flush เพื่อให้ update commit ทันที
+                        session.flush();
+                        System.out.println("Flushed session to commit changes");
+
+                        // ปฏิเสธการจองอื่นๆ ทั้งหมดของห้องนี้ (รอการอนุมัติ + อนุมัติแล้ว + ชำระแล้ว
+                        // ยกเว้นที่เปลี่ยนเป็น "เช่าอยู่" แล้ว)
+                        String rejectOthersHql = "UPDATE Reserve r SET r.status = 'ปฏิเสธ' " +
+                                "WHERE r.room.roomID = :roomId " +
+                                "AND r.reserveId != :paidReserveId " +
+                                "AND r.status IN ('รอการอนุมัติ', 'อนุมัติแล้ว', 'ชำระแล้ว')";
+                        int rejected = session.createQuery(rejectOthersHql)
+                                .setParameter("roomId", room.getRoomID())
+                                .setParameter("paidReserveId", paidReserve.getReserveId())
+                                .executeUpdate();
+                        System.out.println("Rejected " + rejected + " other reserves");
+                    } else {
+                        System.out.println(
+                                "ERROR: No approved reserve found for paid member ID " + paidMember.getMemberID());
+                    }
                 }
 
                 tx.commit();
+                System.out.println("=== Rent confirmed successfully ===");
                 return true;
             }
+            System.out.println("=== Cannot confirm: rent is null or status is not 'รออนุมัติ' ===");
             return false;
 
         } catch (Exception e) {
             if (tx != null)
                 tx.rollback();
+            System.out.println("=== Error in confirmRent: " + e.getMessage() + " ===");
             e.printStackTrace();
             return false;
         } finally {
@@ -515,28 +630,66 @@ public class ThanachokManager {
         }
     }
 
-    public Rent getRentById(int id) {
-        Session session = HibernateConnection.doHibernateConnection().openSession();
+    // Get room rental history ordered by newest first
+    public List<Rent> getRoomRentalHistory(int roomId) {
+        Session session = null;
         try {
-            return session.get(Rent.class, id);
+            SessionFactory factory = HibernateConnection.doHibernateConnection();
+            session = factory.openSession();
+
+            String hql = "FROM Rent WHERE room.roomID = :roomId ORDER BY rentDate DESC";
+            List<Rent> rentHistory = session.createQuery(hql, Rent.class)
+                    .setParameter("roomId", roomId)
+                    .list();
+
+            return rentHistory;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
         } finally {
-            session.close();
+            if (session != null)
+                session.close();
         }
     }
 
-    public void updateRent(Rent deposit) {
-        Session session = HibernateConnection.doHibernateConnection().openSession();
+    // Get rent by ID
+    public Rent getRentById(int rentId) {
+        Session session = null;
+        try {
+            SessionFactory factory = HibernateConnection.doHibernateConnection();
+            session = factory.openSession();
+            return session.get(Rent.class, rentId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            if (session != null)
+                session.close();
+        }
+    }
+
+    // Update rent information
+    public boolean updateRent(Rent rent) {
+        Session session = null;
         Transaction tx = null;
         try {
+            SessionFactory factory = HibernateConnection.doHibernateConnection();
+            session = factory.openSession();
             tx = session.beginTransaction();
-            session.update(deposit);
+
+            session.update(rent);
+
             tx.commit();
+            return true;
         } catch (Exception e) {
             if (tx != null)
                 tx.rollback();
             e.printStackTrace();
+            return false;
         } finally {
-            session.close();
+            if (session != null)
+                session.close();
         }
     }
 
@@ -2215,6 +2368,91 @@ public class ThanachokManager {
             if (tx != null && tx.isActive()) {
                 tx.rollback();
             }
+            e.printStackTrace();
+            return false;
+        } finally {
+            if (session != null) {
+                session.close();
+            }
+        }
+    }
+
+    // ยกเลิกการคืนห้อง (กรณีกดผิด / แก้ไขผิดพลาด)
+    public boolean undoRoomReturn(int rentId) {
+        Session session = null;
+        Transaction tx = null;
+        try {
+            SessionFactory sessionFactory = HibernateConnection.doHibernateConnection();
+            session = sessionFactory.openSession();
+            tx = session.beginTransaction();
+
+            System.out.println("=== Undo Room Return ===");
+            System.out.println("Rent ID: " + rentId);
+
+            // หา Rent ที่ต้องการยกเลิกการคืน
+            Rent rent = session.get(Rent.class, rentId);
+            if (rent == null) {
+                System.out.println("ERROR: Rent not found");
+                return false;
+            }
+
+            System.out.println("Current Rent Status: " + rent.getStatus());
+
+            // ตรวจสอบว่าต้องเป็นสถานะที่สามารถยกเลิกได้ (เช่น "คืนห้องแล้ว" หรือ
+            // "เสร็จสมบูรณ์")
+            if (!"คืนห้องแล้ว".equals(rent.getStatus()) && !"เสร็จสมบูรณ์".equals(rent.getStatus())) {
+                System.out.println("ERROR: Cannot undo - status is not 'คืนห้องแล้ว' or 'เสร็จสมบูรณ์'");
+                return false;
+            }
+
+            Room room = rent.getRoom();
+            if (room == null) {
+                System.out.println("ERROR: Room not found");
+                return false;
+            }
+
+            Member member = rent.getMember();
+            if (member == null) {
+                System.out.println("ERROR: Member not found");
+                return false;
+            }
+
+            System.out.println("Room ID: " + room.getRoomID() + ", Room Number: " + room.getRoomNumber());
+            System.out.println("Member ID: " + member.getMemberID() + ", Name: " + member.getFirstName() + " "
+                    + member.getLastName());
+
+            // 1. เปลี่ยนสถานะ Rent กลับเป็น "ชำระแล้ว"
+            rent.setStatus("ชำระแล้ว");
+            rent.setReturnDate(null); // ลบวันที่คืนห้อง
+            session.update(rent);
+            System.out.println("Updated Rent status to 'ชำระแล้ว'");
+
+            // 2. เปลี่ยนสถานะห้องกลับเป็น "ไม่ว่าง"
+            room.setRoomStatus("ไม่ว่าง");
+            session.update(room);
+            System.out.println("Updated Room status to 'ไม่ว่าง'");
+
+            // 3. เปลี่ยนสถานะ Reserve กลับเป็น "เช่าอยู่"
+            String updateReserveHql = "UPDATE Reserve r SET r.status = 'เช่าอยู่' " +
+                    "WHERE r.room.roomID = :roomId AND r.member.memberID = :memberId " +
+                    "AND r.status IN ('เสร็จสมบูรณ์', 'คืนห้องแล้ว')";
+
+            int reserveUpdated = session.createQuery(updateReserveHql)
+                    .setParameter("roomId", room.getRoomID())
+                    .setParameter("memberId", member.getMemberID())
+                    .executeUpdate();
+
+            System.out.println("Updated " + reserveUpdated + " Reserve(s) to 'เช่าอยู่'");
+
+            tx.commit();
+            System.out.println("=== Undo Room Return SUCCESS ===");
+            return true;
+
+        } catch (Exception e) {
+            if (tx != null && tx.isActive()) {
+                tx.rollback();
+            }
+            System.out.println("=== Undo Room Return FAILED ===");
             e.printStackTrace();
             return false;
         } finally {

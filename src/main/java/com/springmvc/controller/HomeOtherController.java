@@ -168,6 +168,7 @@ public class HomeOtherController {
 			@RequestParam("roomID") int roomID,
 			@RequestParam("checkInDate") String checkInDateStr,
 			@RequestParam(value = "reserveTimestamp", required = false) String reserveTimestamp,
+			@RequestParam(value = "internetOption", required = false, defaultValue = "false") boolean internetOption,
 			HttpSession session) {
 
 		Member loginMember = (Member) session.getAttribute("loginMember");
@@ -178,20 +179,22 @@ public class HomeOtherController {
 		ThanachokManager manager = new ThanachokManager();
 
 		try {
-			// ตรวจสอบว่าสมาชิกมีการจองที่ยังไม่ถูกปฏิเสธหรือยกเลิกอยู่หรือไม่
+			// ตรวจสอบว่าสมาชิกเคยจองห้องนี้ไว้แล้วหรือไม่ (เฉพาะห้องเดียวกัน)
 			List<com.springmvc.model.Reserve> existingReserves = manager.findReservesByMember(loginMember);
-			boolean hasActiveReserve = false;
+			boolean hasSameRoomReserve = false;
 
 			for (com.springmvc.model.Reserve res : existingReserves) {
-				// ถ้ามีการจองที่สถานะไม่ใช่ "ปฏิเสธ" หรือ "ยกเลิก" = มีการจองอยู่
-				if (!"ปฏิเสธ".equals(res.getStatus()) && !"ยกเลิก".equals(res.getStatus())) {
-					hasActiveReserve = true;
+				// ถ้าจองห้องเดียวกัน และสถานะไม่ใช่ "ปฏิเสธ" หรือ "ยกเลิก" = ห้ามจองซ้ำ
+				if (res.getRoom().getRoomID() == roomID
+						&& !"ปฏิเสธ".equals(res.getStatus())
+						&& !"ยกเลิก".equals(res.getStatus())) {
+					hasSameRoomReserve = true;
 					break;
 				}
 			}
 
-			if (hasActiveReserve) {
-				return "redirect:/Homesucess?reserveError=hasActiveReserve";
+			if (hasSameRoomReserve) {
+				return "redirect:/Homesucess?reserveError=alreadyReservedThisRoom";
 			}
 
 			// แปลง String เป็น Date
@@ -200,19 +203,10 @@ public class HomeOtherController {
 
 			// สร้าง Reserve object
 			com.springmvc.model.Reserve reserve = new com.springmvc.model.Reserve();
-			// รับเวลาจอง (ISO UTC) จาก client แล้วแปลงเป็น Date
-			if (reserveTimestamp != null && !reserveTimestamp.trim().isEmpty()) {
-				try {
-					// Parse ISO UTC timestamp (e.g. 2025-11-01T15:49:00.000Z)
-					java.time.Instant instant = java.time.Instant.parse(reserveTimestamp);
-					reserve.setReserveDate(java.util.Date.from(instant));
-				} catch (Exception ex) {
-					// ถ้า parse ไม่ได้ fallback เป็น server time
-					reserve.setReserveDate(new java.util.Date());
-				}
-			} else {
-				reserve.setReserveDate(new java.util.Date()); // วันที่จองปัจจุบัน
-			}
+			// บวกเวลา 7 ชั่วโมงสำหรับเวลาไทย
+			java.util.Calendar calReserve = java.util.Calendar.getInstance();
+			calReserve.add(java.util.Calendar.HOUR_OF_DAY, 7);
+			reserve.setReserveDate(calReserve.getTime());
 			reserve.setCheckInDate(checkInDate); // วันที่ต้องการเข้าพัก
 			reserve.setStatus("รอการอนุมัติ");
 
@@ -221,18 +215,18 @@ public class HomeOtherController {
 			reserve.setRoom(room);
 			reserve.setMember(loginMember);
 
-			// ตรวจสอบว่าห้องยังว่างอยู่หรือไม่
-			if (!"ว่าง".equals(room.getRoomStatus())) {
-				return "redirect:/Homesucess?reserveError=roomNotAvailable";
-			}
+			// ตั้งค่าอินเทอร์เน็ต
+			reserve.setInternetOption(internetOption);
+			reserve.setInternetFee(internetOption ? 200 : 0);
+
+			// ไม่ต้องตรวจสอบสถานะห้อง เพราะอนุญาตให้จองได้หลายคน
+			// หลายคนสามารถจองห้องเดียวกันได้
 
 			// บันทึกลงฐานข้อมูล
 			boolean success = manager.insertReserve(reserve);
-
 			if (success) {
-				// เปลี่ยนสถานะห้องเป็น "ไม่ว่าง" ทันที
-				room.setRoomStatus("ไม่ว่าง");
-				manager.updateRoom(room);
+				// ไม่เปลี่ยนสถานะห้อง ให้ห้องยังคงสถานะเดิม
+				// สถานะห้องจะเปลี่ยนเมื่อมีการยืนยันการเช่าเท่านั้น
 
 				return "redirect:/Homesucess?reserveSuccess=true";
 			} else {

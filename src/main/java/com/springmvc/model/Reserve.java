@@ -20,6 +20,16 @@ public class Reserve {
     @Column(name = "checkInDate")
     private Date checkInDate;
 
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "approvedDate")
+    private Date approvedDate;
+
+    @Column(name = "internetOption")
+    private Boolean internetOption; // true = เอาอินเทอร์เน็ต, false = ไม่เอา
+
+    @Column(name = "internetFee")
+    private Integer internetFee; // ค่าอินเทอร์เน็ต (200 หรือ 0)
+
     @Column(name = "status", length = 45)
     private String status;
 
@@ -67,6 +77,30 @@ public class Reserve {
 
     public void setCheckInDate(Date checkInDate) {
         this.checkInDate = checkInDate;
+    }
+
+    public Date getApprovedDate() {
+        return approvedDate;
+    }
+
+    public void setApprovedDate(Date approvedDate) {
+        this.approvedDate = approvedDate;
+    }
+
+    public Boolean getInternetOption() {
+        return internetOption;
+    }
+
+    public void setInternetOption(Boolean internetOption) {
+        this.internetOption = internetOption;
+    }
+
+    public Integer getInternetFee() {
+        return internetFee;
+    }
+
+    public void setInternetFee(Integer internetFee) {
+        this.internetFee = internetFee;
     }
 
     public String getStatus() {

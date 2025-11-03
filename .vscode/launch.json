@@ -3,6 +3,13 @@
   "configurations": [
     {
       "type": "java",
+      "name": "RunHibernate",
+      "request": "launch",
+      "mainClass": "com.springmvc.model.RunHibernate",
+      "projectName": "Thanachok03"
+    },
+    {
+      "type": "java",
       "name": "EncodePassword",
       "request": "launch",
       "mainClass": "com.springmvc.model.EncodePassword",

@@ -1162,6 +1162,7 @@
 
                                                                 <c:choose>
                                                                     <c:when test="${room.roomStatus == 'ว่าง'}">
+                                                                        <!-- ห้องว่าง: จองได้ -->
                                                                         <button class="view-btn booking-btn"
                                                                             style="background:linear-gradient(135deg, #22C55E, #16A34A);"
                                                                             data-room-id="${room.roomID}"
@@ -1173,6 +1174,7 @@
                                                                         </button>
                                                                     </c:when>
                                                                     <c:otherwise>
+                                                                        <!-- ห้องไม่ว่าง: มีคนจ่ายเงินแล้ว จองไม่ได้ -->
                                                                         <button class="view-btn booking-btn"
                                                                             style="background:linear-gradient(135deg, #EF4444, #DC2626); cursor: not-allowed;"
                                                                             data-room-id="${room.roomID}"
@@ -1211,25 +1213,8 @@
                                             return;
                                         }
 
-                                        // ตรวจสอบว่ามีการจองหรือการเช่าอยู่หรือไม่ (จากข้อมูล server)
-                                        if (hasActiveRental) {
-                                            const alertMessage =
-                                                '<div style="text-align: center;">' +
-                                                '<i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #ff4444; margin-bottom: 20px;"></i>' +
-                                                '<h3 style="color: #ff8c00; margin-bottom: 15px;">ไม่สามารถจองห้องได้</h3>' +
-                                                '<div style="margin: 20px 0; padding: 15px; background: rgba(255, 68, 68, 0.1); border-radius: 8px;">' +
-                                                '<p style="font-size: 1.1rem; margin-bottom: 10px;">คุณมีการจองหรือเช่าห้องอยู่แล้ว ' + serverActiveRentalCount + ' รายการ</p>' +
-                                                '</div>' +
-                                                '<p style="color: #999; margin-top: 15px;">' +
-                                                '<i class="fas fa-info-circle"></i> กรุณาคืนห้องเก่าในหน้า "ประวัติการจอง" ก่อนจองห้องใหม่' +
-                                                '</p>' +
-                                                '</div>';
-
-                                            showModal(alertMessage);
-                                            return;
-                                        }
-
-                                        // ถ้าไม่มีการจองหรือการเช่า ให้แสดง modal เลือกวันที่
+                                        // อนุญาตให้จองได้หลายห้อง - ไม่ตรวจสอบการจองอื่นๆ
+                                        // Backend จะตรวจสอบว่าจองห้องเดียวกันซ้ำหรือไม่เท่านั้น
                                         showReservationModal(roomID, roomNumber);
                                     }
 
@@ -1263,6 +1248,17 @@
                         <p style="font-size: 0.85rem; color: #EF4444; margin-top: 8px; margin-bottom: 0;">
                             <i class="fas fa-exclamation-circle"></i> ต้องจองล่วงหน้าอย่างน้อย 5 วัน (เลือกได้ตั้งแต่วันที่ ` + minDateStr + `)
                         </p>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; 
+                                      padding: 12px; background: rgba(74, 144, 226, 0.05); border-radius: 8px; 
+                                      border: 2px solid #4A90E2; transition: all 0.3s ease;">
+                            <input type="checkbox" id="internetOption" name="internetOption" 
+                                   style="width: 20px; height: 20px; cursor: pointer; accent-color: #4A90E2;">
+                            <span style="font-weight: 600; color: #4A90E2; font-size: 1rem;">
+                                <i class="fas fa-wifi"></i> ต้องการอินเทอร์เน็ต (+200 บาท/เดือน)
+                            </span>
+                        </label>
                     </div>
                     <input type="hidden" name="roomID" value="${roomID}">
                     <button type="submit" style="background: linear-gradient(135deg, #22C55E, #16A34A); 
@@ -1330,9 +1326,16 @@
                                             timestampInput.name = 'reserveTimestamp';
                                             timestampInput.value = new Date().toISOString(); // ส่งเป็น ISO UTC
 
+                                            // ส่งค่าอินเทอร์เน็ต
+                                            const internetInput = document.createElement('input');
+                                            internetInput.type = 'hidden';
+                                            internetInput.name = 'internetOption';
+                                            internetInput.value = document.getElementById('internetOption').checked;
+
                                             form.appendChild(roomInput);
                                             form.appendChild(dateInput);
                                             form.appendChild(timestampInput);
+                                            form.appendChild(internetInput);
                                             document.body.appendChild(form);
                                             form.submit();
                                         });
@@ -1373,24 +1376,7 @@
                                             return;
                                         }
 
-                                        // ตรวจสอบว่ามีการจองหรือการเช่าอยู่หรือไม่ (จากข้อมูล server)
-                                        if (hasActiveRental) {
-                                            const alertMessage =
-                                                '<div style="text-align: center;">' +
-                                                '<i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #ff4444; margin-bottom: 20px;"></i>' +
-                                                '<h3 style="color: #ff8c00; margin-bottom: 15px;">ไม่สามารถดูรายละเอียดห้องได้</h3>' +
-                                                '<div style="margin: 20px 0; padding: 15px; background: rgba(255, 68, 68, 0.1); border-radius: 8px;">' +
-                                                '<p style="font-size: 1.1rem; margin-bottom: 10px;">คุณมีการจองหรือเช่าห้องอยู่แล้ว ' + serverActiveRentalCount + ' รายการ</p>' +
-                                                '</div>' +
-                                                '<p style="color: #999; margin-top: 15px;">' +
-                                                '<i class="fas fa-info-circle"></i> กรุณาคืนห้องเก่าในหน้า "ประวัติการจอง" ก่อนดูห้องอื่น' +
-                                                '</p>' +
-                                                '</div>';
-
-                                            showModal(alertMessage);
-                                            return;
-                                        }
-
+                                        // อนุญาตให้ดูรายละเอียดห้องได้เสมอ
                                         // แสดง loading
                                         const loadingElement = document.getElementById('loading');
                                         if (loadingElement) {
@@ -1446,6 +1432,16 @@
         
         <c:if test="${param.reserveError eq 'hasActiveReserve'}">
             showToast("❌ คุณมีการจองห้องอยู่แล้ว ไม่สามารถจองห้องอื่นได้อีก", "error");
+            // Remove parameter from URL
+            setTimeout(() => {
+                const url = new URL(window.location);
+                url.searchParams.delete('reserveError');
+                window.history.replaceState({}, '', url);
+            }, 100);
+        </c:if>
+        
+        <c:if test="${param.reserveError eq 'alreadyReservedThisRoom'}">
+            showToast("❌ คุณได้จองห้องนี้ไว้แล้ว ไม่สามารถจองซ้ำได้", "error");
             // Remove parameter from URL
             setTimeout(() => {
                 const url = new URL(window.location);

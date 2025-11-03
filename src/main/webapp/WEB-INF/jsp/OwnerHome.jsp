@@ -1170,6 +1170,13 @@
                                                                         </c:choose>
                                                                     </c:if>
 
+                                                                    <!-- ปุ่มดูประวัติการเข้าพัก -->
+                                                                    <a href="ViewRoomHistory?roomId=${room.roomID}"
+                                                                        class="view-btn"
+                                                                        style="background:linear-gradient(135deg, #9C27B0, #BA68C8);">
+                                                                        <i class="fas fa-history"></i> ดูประวัติการเข้าพัก
+                                                                    </a>
+
                                                                     <!-- ปุ่มแก้ไขข้อมูลห้อง (แสดงเสมอ) -->
                                                                     <a href="editRoom?id=${room.roomID}"
                                                                         class="view-btn"

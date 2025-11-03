@@ -511,6 +511,9 @@ public class HomeController {
 
         ThanachokManager manager = new ThanachokManager();
 
+        // ปฏิเสธการจองที่หมดเวลาชำระเงิน (เกิน 24 ชั่วโมง) อัตโนมัติ
+        manager.autoRejectExpiredReservations();
+
         // ดึงข้อมูลทั้งหมด
         List<Rent> allDeposits = manager.findAllDepositsByMemberForRecord(loginMember);
 

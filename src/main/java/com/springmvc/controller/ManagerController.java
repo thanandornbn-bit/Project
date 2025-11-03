@@ -18,7 +18,6 @@ import com.springmvc.model.Room;
 import com.springmvc.model.Invoice;
 import com.springmvc.model.Manager;
 import com.springmvc.model.Rent;
-import com.springmvc.model.Rent;
 import com.springmvc.model.ThanachokManager;
 
 @Controller
@@ -583,6 +582,10 @@ public class ManagerController {
 		}
 
 		ThanachokManager tm = new ThanachokManager();
+
+		// ปฏิเสธการจองที่หมดเวลาชำระเงิน (เกิน 24 ชั่วโมง) อัตโนมัติ
+		tm.autoRejectExpiredReservations();
+
 		List<com.springmvc.model.Reserve> reserveList = tm.findAllReserves();
 
 		ModelAndView mav = new ModelAndView("ListReservations");
@@ -624,6 +627,84 @@ public class ManagerController {
 		}
 
 		return "redirect:/ListReservations";
+	}
+
+	// ดูประวัติการเข้าพักของห้อง
+	@RequestMapping(value = "/ViewRoomHistory", method = RequestMethod.GET)
+	public ModelAndView viewRoomHistory(@RequestParam("roomId") int roomId, HttpSession session) {
+		Manager manager = (Manager) session.getAttribute("loginManager");
+		if (manager == null) {
+			return new ModelAndView("redirect:/Login");
+		}
+
+		ThanachokManager tm = new ThanachokManager();
+		List<Rent> rentHistory = tm.getRoomRentalHistory(roomId);
+		Room room = tm.findRoomById(roomId);
+
+		ModelAndView mav = new ModelAndView("ViewRoomHistory");
+		mav.addObject("rentHistory", rentHistory);
+		mav.addObject("room", room);
+
+		return mav;
+	}
+
+	// คืนห้อง
+	@RequestMapping(value = "/returnRoom", method = RequestMethod.POST)
+	public String returnRoom(
+			@RequestParam("rentId") int rentId,
+			@RequestParam(value = "notes", required = false) String notes,
+			RedirectAttributes redirectAttributes) {
+
+		ThanachokManager tm = new ThanachokManager();
+
+		// อัปเดต returnDate และ notes
+		Rent rent = tm.getRentById(rentId);
+		if (rent != null) {
+			java.util.Calendar calReturn = java.util.Calendar.getInstance();
+			calReturn.add(java.util.Calendar.HOUR_OF_DAY, 7); // Thai time
+			rent.setReturnDate(calReturn.getTime());
+			rent.setStatus("เสร็จสมบูรณ์");
+
+			boolean success = tm.updateRent(rent);
+
+			if (success) {
+				// เปลี่ยนสถานะห้องเป็น "ว่าง"
+				Room room = rent.getRoom();
+				room.setRoomStatus("ว่าง");
+				tm.updateRoom(room);
+
+				redirectAttributes.addFlashAttribute("message", "✅ คืนห้องเรียบร้อยแล้ว");
+				return "redirect:/ViewRoomHistory?roomId=" + room.getRoomID();
+			} else {
+				redirectAttributes.addFlashAttribute("error", "เกิดข้อผิดพลาดในการคืนห้อง");
+				return "redirect:/ViewRoomHistory?roomId=" + rent.getRoom().getRoomID();
+			}
+		}
+
+		redirectAttributes.addFlashAttribute("error", "ไม่พบข้อมูลการเช่า");
+		return "redirect:/OwnerHome";
+	}
+
+	// ยกเลิกการคืนห้อง (แก้ไขผิดพลาด)
+	@RequestMapping(value = "/undoReturnRoom", method = RequestMethod.POST)
+	public String undoReturnRoom(
+			@RequestParam("rentId") int rentId,
+			@RequestParam(value = "notes", required = false) String notes,
+			RedirectAttributes redirectAttributes) {
+
+		ThanachokManager tm = new ThanachokManager();
+		boolean success = tm.undoRoomReturn(rentId);
+
+		if (success) {
+			Rent rent = tm.getRentById(rentId);
+			redirectAttributes.addFlashAttribute("message",
+					"✅ ยกเลิกการคืนห้องสำเร็จ\nสถานะกลับมาเป็นปกติแล้ว");
+			return "redirect:/ViewRoomHistory?roomId=" + rent.getRoom().getRoomID();
+		} else {
+			redirectAttributes.addFlashAttribute("error",
+					"❌ ไม่สามารถยกเลิกการคืนห้องได้");
+			return "redirect:/OwnerHome";
+		}
 	}
 
 }
