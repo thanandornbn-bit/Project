@@ -876,14 +876,19 @@
                                         <div class="user-section">
                                             <div class="user-info">
                                                 <i class="fas fa-user-circle"></i>
-                                                <span>Manager@gmail.com</span>
+                                                <span>${loginManager.email}</span>
                                             </div>
-                                            <form action="Logout" method="post" style="display: inline;">
+                                            <a href="EditManager" class="action-btn btn-edit" style="margin-left:10px;">
+                                                <i class="fas fa-user-edit"></i> แก้ไขข้อมูล
+                                            </a>
+                                            <form action="Logout" method="post" style="display: inline">
                                                 <button type="submit" class="logout-btn">
                                                     <i class="fas fa-sign-out-alt"></i>
                                                     ออกจากระบบ
                                                 </button>
                                             </form>
+
+                                            
                                         </div>
                                     </div>
 

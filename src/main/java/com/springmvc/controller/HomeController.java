@@ -21,6 +21,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.springmvc.model.Invoice;
 import com.springmvc.model.InvoiceDetail;
+import com.springmvc.model.Manager;
 import com.springmvc.model.Member;
 import com.springmvc.model.Rent;
 import com.springmvc.model.Reserve;
@@ -85,21 +86,25 @@ public class HomeController {
         return mav;
     }
 
-    // หน้าแสดงฟอร์มการชำระเงิน
     @RequestMapping(value = "/Payment", method = RequestMethod.GET)
-    public ModelAndView showPaymentForm(@RequestParam("id") int roomID, HttpSession session) {
-        Member member = (Member) session.getAttribute("loginMember");
-        if (member == null) {
-            return new ModelAndView("redirect:/Login");
-        }
-
-        ThanachokManager manager = new ThanachokManager();
-        Room room = manager.findRoomById(roomID);
-
-        ModelAndView mav = new ModelAndView("Payment");
-        mav.addObject("room", room);
-        return mav;
+public ModelAndView showPaymentForm(@RequestParam("id") int roomID, HttpSession session) {
+    Member member = (Member) session.getAttribute("loginMember");
+    if (member == null) {
+        return new ModelAndView("redirect:/Login");
     }
+
+    ThanachokManager thanachokManager = new ThanachokManager();
+    Room room = thanachokManager.findRoomById(roomID);
+    
+    // ✅ เพิ่มส่วนนี้ - ดึงข้อมูล Manager
+    Manager manager = thanachokManager.getManager();
+
+    ModelAndView mav = new ModelAndView("Payment");
+    mav.addObject("room", room);
+    mav.addObject("manager", manager);  // ✅ ส่ง manager ไปที่ JSP
+    
+    return mav;
+}
 
     @SuppressWarnings("deprecation")
     @RequestMapping(value = "/confirmPayment", method = RequestMethod.POST)
@@ -178,9 +183,11 @@ public class HomeController {
             // ตรวจสอบว่าได้จ่ายค่ามัดจำสำหรับห้องนี้ไปแล้วหรือยัง
             List<Rent> existingRents = thanachokManager.findRentsByMemberAndRoom(loginMember, room);
             for (Rent existingRent : existingRents) {
-                if ("ชำระแล้ว".equals(existingRent.getStatus()) ||
+                // เฉพาะกรณีที่ยังไม่ได้คืนห้องเท่านั้นที่ไม่ให้จองซ้ำ
+                if (("ชำระแล้ว".equals(existingRent.getStatus()) ||
                         "เสร็จสมบูรณ์".equals(existingRent.getStatus()) ||
-                        "รอคืนห้อง".equals(existingRent.getStatus())) {
+                        "รอคืนห้อง".equals(existingRent.getStatus())) &&
+                        !"คืนห้องแล้ว".equals(existingRent.getStatus())) {
                     redirectAttributes.addFlashAttribute("errorMessage",
                             "คุณได้จ่ายค่ามัดจำสำหรับห้องนี้ไปแล้ว ไม่สามารถจ่ายซ้ำได้");
                     return "redirect:/YourRoom";

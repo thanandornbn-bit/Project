@@ -52,23 +52,18 @@ public class InvoiceController {
             return new ModelAndView("redirect:/OwnerHome");
         }
 
-        // เช็คว่ามีบิลในเดือนนี้แล้วหรือยัง
-        boolean hasCurrentMonthInvoice = tm.hasInvoiceForCurrentMonth(roomID);
-        if (hasCurrentMonthInvoice) {
-            redirectAttributes.addFlashAttribute("error",
-                    "ห้อง " + room.getRoomNumber()
-                            + " มีบิลในเดือนนี้แล้ว ไม่สามารถสร้างบิลซ้ำได้ กรุณารอจนถึงเดือนหน้า");
-            return new ModelAndView("redirect:/OwnerHome");
-        }
+       // เว่ามีบิลในเดือนนี้แล้วหรือยัง
+        // boolean hasCurrentMonthInvoice = tm.hasInvoiceForCurrentMonth(roomID);
+        // if (hasCurrentMonthInvoice) {
+        //     redirectAttributes.addFlashAttribute("error",
+        //             "ห้อง " + room.getRoomNumber()
+        //                     + " มีบิลในเดือนนี้แล้ว ไม่สามารถสร้างบิลซ้ำได้ กรุณารอจนถึงเดือนหน้า");
+        //     return new ModelAndView("redirect:/OwnerHome");
+        // }
 
         // ดึงข้อมูลการเช่าที่ active
         // ก่อนอื่นดึงทุก Rent ของห้องนี้เพื่อ debug
         List<Rent> allRents = tm.findAllRentsByRoomID(roomID);
-        System.out.println("=== Debug Add Invoice ===");
-        System.out.println("RoomID: " + roomID);
-        System.out.println("Room Number: " + room.getRoomNumber());
-        System.out.println("Room Status: " + room.getRoomStatus());
-        System.out.println("Total Rents in this room: " + allRents.size());
         for (Rent r : allRents) {
             System.out.println("  - Rent ID: " + r.getRentID() +
                     ", Status: '" + r.getStatus() + "'" +
@@ -76,11 +71,6 @@ public class InvoiceController {
         }
 
         Rent rent = tm.getActiveRentByRoomID(roomID);
-        System.out.println("Active Rent found: " + (rent != null));
-        if (rent != null) {
-            System.out.println("Rent ID: " + rent.getRentID());
-            System.out.println("Rent Status: " + rent.getStatus());
-        }
 
         if (rent == null) {
             redirectAttributes.addFlashAttribute("error",
@@ -88,15 +78,16 @@ public class InvoiceController {
                             ", สถานะห้อง: " + room.getRoomStatus() + "). " +
                             "กรุณาตรวจสอบว่ามีการจ่ายค่ามัดจำแล้วหรือไม่");
             return new ModelAndView("redirect:/OwnerHome");
-        } // คำนวณวันที่ออกบิลและวันครบกำหนด
-        Date today = new Date();
-        java.util.Calendar cal = java.util.Calendar.getInstance();
-        cal.setTime(today);
-        cal.add(java.util.Calendar.DAY_OF_MONTH, 7);
-        Date dueDate = cal.getTime();
+        }
+    // คำนวณวันที่ออกบิลและวันครบกำหนด
+    Date today = new Date();
+    java.util.Calendar cal = java.util.Calendar.getInstance();
+    cal.setTime(today);
+    cal.add(java.util.Calendar.DAY_OF_MONTH, 7);
+    Date dueDate = cal.getTime();
 
-        // ดึงเลขมิเตอร์จากบิลก่อนหน้า
-        java.util.Map<String, Integer> prevReadings = tm.getPreviousMeterReadings(roomID);
+    // ดึงเลขมิเตอร์จากบิลก่อนหน้า (use previous invoice before today)
+    java.util.Map<String, Integer> prevReadings = tm.getPreviousMeterReadings(roomID);
 
         // ดึงข้อมูลหน่วยค่าน้ำ-ค่าไฟที่ใช้งานอยู่
         UtilityRate activeRate = tm.getActiveUtilityRate();
@@ -130,11 +121,6 @@ public class InvoiceController {
         mav.addObject("waterRate", waterRatePerUnit);
         mav.addObject("electricRate", electricRatePerUnit);
         mav.addObject("internetPrice", internetPrice);
-
-        System.out.println("=== Add Invoice Form ===");
-        System.out.println("Room: " + roomID);
-        System.out.println("Previous Water Meter: " + prevReadings.get("prevWater"));
-        System.out.println("Previous Electric Meter: " + prevReadings.get("prevElectric"));
 
         return mav;
     }
@@ -200,6 +186,7 @@ public class InvoiceController {
                 String amountParam = "item_" + i + "_amount";
                 String priceParam = "item_" + i + "_rate";
                 String currMeterParam = "item_" + i + "_currMeter";
+                String prevMeterParam = "item_" + i + "_prevMeter";
                 String remarkParam = "item_" + i + "_remark";
 
                 String type = request.getParameter(typeParam);
@@ -214,8 +201,9 @@ public class InvoiceController {
 
                 double amount = Double.parseDouble(amountStr);
 
-                if (amount <= 0 && !"room".equals(type)) {
-                    System.out.println("Skipping item " + i + " - zero amount");
+                // ✅ สำหรับน้ำ/ไฟ ไม่ต้องเช็ค amount > 0 (อนุญาตให้เป็น 0 ได้)
+                if (amount < 0) {
+                    System.out.println("Skipping item " + i + " - negative amount");
                     continue;
                 }
 
@@ -227,21 +215,45 @@ public class InvoiceController {
 
                 // จัดการตามประเภท
                 if ("water".equals(type) || "electricity".equals(type)) {
-                    // น้ำหรือไฟ - มีข้อมูลมิเตอร์
+                    // ✅ น้ำหรือไฟ - มีข้อมูลมิเตอร์
                     String currMeterStr = request.getParameter(currMeterParam);
+                    String prevMeterStr = request.getParameter(prevMeterParam);
                     String rateStr = request.getParameter(priceParam);
 
-                    if (currMeterStr != null && rateStr != null) {
+                    if (currMeterStr != null && prevMeterStr != null && rateStr != null) {
                         int currMeter = Integer.parseInt(currMeterStr);
+                        int prevMeter = Integer.parseInt(prevMeterStr);
                         double rate = Double.parseDouble(rateStr);
+
+                        // ✅ ตรวจสอบว่ามิเตอร์ปัจจุบัน >= มิเตอร์เดือนก่อน (อนุญาตให้เท่ากันได้)
+                        if (currMeter < prevMeter) {
+                            System.out.println("❌ ERROR: Current meter (" + currMeter +
+                                    ") is less than previous meter (" + prevMeter + ")");
+                            redirectAttributes.addFlashAttribute("error",
+                                    name + ": มิเตอร์ปัจจุบัน (" + currMeter +
+                                            ") ต้องมากกว่าหรือเท่ากับมิเตอร์เดือนก่อน (" + prevMeter + ")");
+                            return "redirect:/ManagerAddInvoice?roomID=" + rent.getRoom().getRoomID();
+                        }
 
                         detail.setType(tm.getInvoiceTypeByName(name));
                         detail.setPrice(rate);
-                        detail.setQuantity(currMeter); // บันทึกเลขมิเตอร์ปัจจุบัน
+                        detail.setQuantity(currMeter); // ⭐ บันทึกเลขมิเตอร์ปัจจุบัน
 
-                        System.out.println("  - " + name + ": currMeter=" + currMeter + ", rate=" + rate);
+                        int usage = currMeter - prevMeter;
+
+                        // แสดง log
+                        if (usage == 0) {
+                            System.out.println("  ⚠️ " + name + ": No usage (currMeter = prevMeter = " + currMeter
+                                    + ") - Amount: ฿0.00");
+                        } else {
+                            System.out.println("  ✅ " + name + ": currMeter=" + currMeter +
+                                    ", prevMeter=" + prevMeter +
+                                    ", usage=" + usage +
+                                    ", rate=" + rate +
+                                    ", amount=" + amount);
+                        }
                     } else {
-                        System.out.println("  - Warning: Missing meter data for " + type);
+                        System.out.println("  ⚠️ Warning: Missing meter data for " + type);
                         continue;
                     }
                 } else if ("room".equals(type)) {
@@ -285,26 +297,26 @@ public class InvoiceController {
             boolean success = tm.saveInvoice(invoice);
 
             if (success) {
-                System.out.println("Invoice saved successfully! ID: " + invoice.getInvoiceId());
+                System.out.println("✅ Invoice saved successfully! ID: " + invoice.getInvoiceId());
                 redirectAttributes.addFlashAttribute("message",
                         "สร้างบิล INV-" + invoice.getInvoiceId() + " สำเร็จ " +
                                 "ยอดรวม ฿" + String.format("%,.2f", totalPrice));
                 return "redirect:/EditInvoice?roomID=" + rent.getRoom().getRoomID();
             } else {
-                System.out.println("Failed to save invoice");
+                System.out.println("❌ Failed to save invoice");
                 redirectAttributes.addFlashAttribute("error",
                         "ไม่สามารถบันทึกบิลได้ กรุณาลองใหม่อีกครั้ง");
                 return "redirect:/ManagerAddInvoice?roomID=" + rent.getRoom().getRoomID();
             }
 
         } catch (NumberFormatException e) {
-            System.out.println("Number format error: " + e.getMessage());
+            System.out.println("❌ Number format error: " + e.getMessage());
             e.printStackTrace();
             redirectAttributes.addFlashAttribute("error",
                     "ข้อมูลที่กรอกไม่ถูกต้อง กรุณาตรวจสอบตัวเลขที่กรอก");
             return "redirect:/OwnerHome";
         } catch (Exception e) {
-            System.out.println("General error: " + e.getMessage());
+            System.out.println("❌ General error: " + e.getMessage());
             e.printStackTrace();
             redirectAttributes.addFlashAttribute("error",
                     "เกิดข้อผิดพลาด: " + e.getMessage());
@@ -362,27 +374,120 @@ public class InvoiceController {
         return mav;
     }
 
-    // แสดงฟอร์มแก้ไขใบแจ้งหนี้เฉพาะห้องที่เลือก
-    @RequestMapping(value = "/EditInvoiceForm", method = RequestMethod.GET)
-    public ModelAndView showEditInvoiceForm(@RequestParam("invoiceId") int invoiceId, HttpSession session) {
+    @RequestMapping(value = "/EditInvoiceFormFull", method = RequestMethod.GET)
+    public ModelAndView showEditInvoiceFormFull(@RequestParam("invoiceId") int invoiceId,
+            HttpSession session,
+            RedirectAttributes redirectAttributes) {
         Manager manager = (Manager) session.getAttribute("loginManager");
         if (manager == null) {
             return new ModelAndView("redirect:/Login");
         }
 
         ThanachokManager tm = new ThanachokManager();
+
         Invoice invoice = tm.getInvoiceWithDetails(invoiceId);
+
         if (invoice == null) {
-            ModelAndView mav = new ModelAndView("EditInvoice");
-            mav.addObject("error", "ไม่พบใบแจ้งหนี้ที่ต้องการแก้ไข");
-            return mav;
+            redirectAttributes.addFlashAttribute("error", "ไม่พบใบแจ้งหนี้ที่ต้องการแก้ไข");
+            return new ModelAndView("redirect:/OwnerHome");
         }
 
-        ModelAndView mav = new ModelAndView("EditInvoiceForm");
+        ModelAndView mav = new ModelAndView("EditInvoiceFormFull");
         mav.addObject("invoice", invoice);
-        mav.addObject("invoiceDetails", invoice.getDetails());
+
+        // แยกข้อมูลจาก InvoiceDetails
+        double roomPrice = 0;
+        double internetPrice = 0;
+        double penalty = 0;
+        String penaltyRemark = "";
+        int prevWater = 0;
+        int currWater = 0;
+        double waterRate = 18;
+        int prevElectric = 0;
+        int currElectric = 0;
+        double electricRate = 7;
+
+        int waterDetailId = 0;
+        int electricDetailId = 0;
+        int internetDetailId = 0;
+        int penaltyDetailId = 0;
+        int roomDetailId = 0;
+
+        int roomID = invoice.getRent().getRoom().getRoomID();
+
+        Invoice previousInvoice = tm.getInvoiceBeforeDate(roomID, invoice.getIssueDate());
+
+        if (previousInvoice != null && previousInvoice.getDetails() != null) {
+            for (InvoiceDetail detail : previousInvoice.getDetails()) {
+                String typeName = detail.getType().getTypeName();
+
+                if ("ค่าน้ำ".equals(typeName)) {
+                    prevWater = detail.getQuantity();
+                    waterRate = detail.getPrice();
+                } else if ("ค่าไฟฟ้า".equals(typeName)) {
+                    prevElectric = detail.getQuantity();
+                    electricRate = detail.getPrice();
+                }
+            }
+        }
+
+        if (invoice.getDetails() != null) {
+            for (InvoiceDetail detail : invoice.getDetails()) {
+                String typeName = detail.getType().getTypeName();
+
+                switch (typeName) {
+                    case "ค่าห้อง":
+                        roomPrice = detail.getPrice();
+                        roomDetailId = detail.getId();
+                        break;
+                    case "ค่าอินเทอร์เน็ต":
+                        internetPrice = detail.getPrice();
+                        internetDetailId = detail.getId();
+                        break;
+                    case "ค่าปรับ":
+                        penalty = detail.getAmount();
+                        penaltyDetailId = detail.getId();
+                        penaltyRemark = detail.getRemark() != null ? detail.getRemark() : "";
+                        break;
+                    case "ค่าน้ำ":
+                        currWater = detail.getQuantity();
+                        waterRate = detail.getPrice();
+                        waterDetailId = detail.getId();
+                        break;
+                    case "ค่าไฟฟ้า":
+                        currElectric = detail.getQuantity();
+                        electricRate = detail.getPrice();
+                        electricDetailId = detail.getId();
+                        break;
+                }
+            }
+        }
+
+        mav.addObject("roomPrice", roomPrice);
+        mav.addObject("internetPrice", internetPrice);
+        mav.addObject("penalty", penalty);
+        mav.addObject("penaltyRemark", penaltyRemark);
+        mav.addObject("prevWater", prevWater);
+        mav.addObject("currWater", currWater);
+        mav.addObject("waterRate", waterRate);
+        mav.addObject("prevElectric", prevElectric);
+        mav.addObject("currElectric", currElectric);
+        mav.addObject("electricRate", electricRate);
+
+        mav.addObject("waterDetailId", waterDetailId);
+        mav.addObject("electricDetailId", electricDetailId);
+        mav.addObject("internetDetailId", internetDetailId);
+        mav.addObject("penaltyDetailId", penaltyDetailId);
+        mav.addObject("roomDetailId", roomDetailId);
+
+        System.out.println("=== Edit Invoice Form ===");
+        System.out.println("Invoice ID: " + invoiceId);
+        System.out.println("Previous Water: " + prevWater + " -> Current: " + currWater);
+        System.out.println("Previous Electric: " + prevElectric + " -> Current: " + currElectric);
+
         return mav;
     }
+    
 
     // บันทึกการแก้ไขใบแจ้งหนี้
     @RequestMapping(value = "/UpdateInvoice", method = RequestMethod.POST)
@@ -476,129 +581,6 @@ public class InvoiceController {
         }
 
         return "redirect:/EditInvoice?roomID=" + roomID;
-    }
-
-    // แทนที่ methods เดิมใน InvoiceController.java ด้วยเวอร์ชันที่แก้ไขแล้ว
-
-    @RequestMapping(value = "/EditInvoiceFormFull", method = RequestMethod.GET)
-    public ModelAndView showEditInvoiceFormFull(@RequestParam("invoiceId") int invoiceId,
-            HttpSession session,
-            RedirectAttributes redirectAttributes) {
-        Manager manager = (Manager) session.getAttribute("loginManager");
-        if (manager == null) {
-            return new ModelAndView("redirect:/Login");
-        }
-
-        ThanachokManager tm = new ThanachokManager();
-
-        // ดึงข้อมูล Invoice พร้อม Details
-        Invoice invoice = tm.getInvoiceWithDetails(invoiceId);
-
-        if (invoice == null) {
-            redirectAttributes.addFlashAttribute("error", "ไม่พบใบแจ้งหนี้ที่ต้องการแก้ไข");
-            return new ModelAndView("redirect:/OwnerHome");
-        }
-
-        ModelAndView mav = new ModelAndView("EditInvoiceFormFull");
-        mav.addObject("invoice", invoice);
-
-        // แยกข้อมูลจาก InvoiceDetails
-        double roomPrice = 0;
-        double internetPrice = 0;
-        double penalty = 0;
-        String penaltyRemark = "";
-        int prevWater = 0;
-        int currWater = 0;
-        double waterRate = 18;
-        int prevElectric = 0;
-        int currElectric = 0;
-        double electricRate = 7;
-
-        // เก็บ detail IDs สำหรับแก้ไข
-        int waterDetailId = 0;
-        int electricDetailId = 0;
-        int internetDetailId = 0;
-        int penaltyDetailId = 0;
-        int roomDetailId = 0;
-
-        // ดึงเลขมิเตอร์จากบิลก่อนหน้า (บิลที่เก่ากว่าบิลปัจจุบัน)
-        int roomID = invoice.getRent().getRoom().getRoomID();
-
-        // หาบิลก่อนหน้าบิลที่กำลังแก้ไข
-        Invoice previousInvoice = tm.getInvoiceBeforeDate(roomID, invoice.getIssueDate());
-
-        if (previousInvoice != null && previousInvoice.getDetails() != null) {
-            for (InvoiceDetail detail : previousInvoice.getDetails()) {
-                String typeName = detail.getType().getTypeName();
-
-                if ("ค่าน้ำ".equals(typeName)) {
-                    prevWater = detail.getQuantity(); // เลขมิเตอร์ครั้งก่อน
-                    waterRate = detail.getPrice();
-                } else if ("ค่าไฟฟ้า".equals(typeName)) {
-                    prevElectric = detail.getQuantity();
-                    electricRate = detail.getPrice();
-                }
-            }
-        }
-
-        // ดึงข้อมูลจากบิลปัจจุบันที่กำลังแก้ไข
-        if (invoice.getDetails() != null) {
-            for (InvoiceDetail detail : invoice.getDetails()) {
-                String typeName = detail.getType().getTypeName();
-
-                switch (typeName) {
-                    case "ค่าห้อง":
-                        roomPrice = detail.getPrice();
-                        roomDetailId = detail.getId();
-                        break;
-                    case "ค่าอินเทอร์เน็ต":
-                        internetPrice = detail.getPrice();
-                        internetDetailId = detail.getId();
-                        break;
-                    case "ค่าปรับ":
-                        penalty = detail.getAmount();
-                        penaltyDetailId = detail.getId();
-                        penaltyRemark = detail.getRemark() != null ? detail.getRemark() : "";
-                        break;
-                    case "ค่าน้ำ":
-                        // เลขปัจจุบัน = quantity ที่บันทึกไว้
-                        currWater = detail.getQuantity();
-                        waterRate = detail.getPrice();
-                        waterDetailId = detail.getId();
-                        break;
-                    case "ค่าไฟฟ้า":
-                        currElectric = detail.getQuantity();
-                        electricRate = detail.getPrice();
-                        electricDetailId = detail.getId();
-                        break;
-                }
-            }
-        }
-
-        mav.addObject("roomPrice", roomPrice);
-        mav.addObject("internetPrice", internetPrice);
-        mav.addObject("penalty", penalty);
-        mav.addObject("penaltyRemark", penaltyRemark);
-        mav.addObject("prevWater", prevWater);
-        mav.addObject("currWater", currWater);
-        mav.addObject("waterRate", waterRate);
-        mav.addObject("prevElectric", prevElectric);
-        mav.addObject("currElectric", currElectric);
-        mav.addObject("electricRate", electricRate);
-
-        // ส่ง detail IDs ไปด้วย
-        mav.addObject("waterDetailId", waterDetailId);
-        mav.addObject("electricDetailId", electricDetailId);
-        mav.addObject("internetDetailId", internetDetailId);
-        mav.addObject("penaltyDetailId", penaltyDetailId);
-        mav.addObject("roomDetailId", roomDetailId);
-
-        System.out.println("=== Edit Invoice Form ===");
-        System.out.println("Invoice ID: " + invoiceId);
-        System.out.println("Previous Water: " + prevWater + " -> Current: " + currWater);
-        System.out.println("Previous Electric: " + prevElectric + " -> Current: " + currElectric);
-
-        return mav;
     }
 
     // บันทึกการแก้ไขบิลแบบเต็ม (แบบใหม่ - รองรับ dynamic items)

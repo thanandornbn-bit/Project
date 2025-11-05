@@ -1924,41 +1924,49 @@ public class ThanachokManager {
     }
 
     public java.util.Map<String, Integer> getPreviousMeterReadings(int roomID) {
-        java.util.Map<String, Integer> readings = new java.util.HashMap<>();
-        readings.put("prevWater", 0);
-        readings.put("prevElectric", 0);
-        readings.put("waterRate", 18);
-        readings.put("electricRate", 7);
+    java.util.Map<String, Integer> readings = new java.util.HashMap<>();
+    readings.put("prevWater", 0);
+    readings.put("prevElectric", 0);
+    readings.put("waterRate", 18);
+    readings.put("electricRate", 7);
 
-        try {
-            Invoice latestInvoice = getLatestInvoiceByRoomID(roomID);
+    try {
+        Invoice latestInvoice = getLatestInvoiceByRoomID(roomID);
 
-            if (latestInvoice != null && latestInvoice.getDetails() != null) {
-                for (InvoiceDetail detail : latestInvoice.getDetails()) {
-                    String typeName = detail.getType().getTypeName();
+        if (latestInvoice != null && latestInvoice.getDetails() != null) {
+            System.out.println("=== Getting Previous Meter Readings ===");
+            System.out.println("Room ID: " + roomID);
+            System.out.println("Latest Invoice ID: " + latestInvoice.getInvoiceId());
 
-                    if ("ค่าน้ำ".equals(typeName)) {
-                        // เลขครั้งก่อน = เลขครั้งนี้จากบิลก่อนหน้า
-                        readings.put("prevWater", detail.getQuantity());
-                        readings.put("waterRate", (int) detail.getPrice());
-                        System.out.println("Previous water meter: " + detail.getQuantity() +
-                                " @ " + detail.getPrice() + " baht/unit");
-                    } else if ("ค่าไฟฟ้า".equals(typeName)) {
-                        readings.put("prevElectric", detail.getQuantity());
-                        readings.put("electricRate", (int) detail.getPrice());
-                        System.out.println("Previous electric meter: " + detail.getQuantity() +
-                                " @ " + detail.getPrice() + " baht/unit");
-                    }
+            for (InvoiceDetail detail : latestInvoice.getDetails()) {
+                String typeName = detail.getType().getTypeName();
+
+                if ("ค่าน้ำ".equals(typeName)) {
+                    // ⭐ เลขครั้งก่อน = เลขปัจจุบันจากบิลก่อนหน้า
+                    int previousWater = detail.getQuantity();
+                    readings.put("prevWater", previousWater);
+                    readings.put("waterRate", (int) detail.getPrice());
+                    System.out.println("✅ Previous water meter: " + previousWater +
+                            " @ " + detail.getPrice() + " baht/unit");
+                } else if ("ค่าไฟฟ้า".equals(typeName)) {
+                    int previousElectric = detail.getQuantity();
+                    readings.put("prevElectric", previousElectric);
+                    readings.put("electricRate", (int) detail.getPrice());
+                    System.out.println("✅ Previous electric meter: " + previousElectric +
+                            " @ " + detail.getPrice() + " baht/unit");
                 }
             }
-
-        } catch (Exception e) {
-            System.out.println("Error getting previous meter readings: " + e.getMessage());
-            e.printStackTrace();
+        } else {
+            System.out.println("⚠️ No previous invoice found for room " + roomID + " - using defaults (0)");
         }
 
-        return readings;
+    } catch (Exception e) {
+        System.out.println("❌ Error getting previous meter readings: " + e.getMessage());
+        e.printStackTrace();
     }
+
+    return readings;
+}
 
     public java.util.Map<String, Integer> calculateCurrentMeterFromUsage(Invoice invoice) {
         java.util.Map<String, Integer> meters = new java.util.HashMap<>();
@@ -2076,13 +2084,14 @@ public class ThanachokManager {
                 deposit.setStatus("คืนห้องแล้ว");
                 session.update(deposit);
 
-                // อัปเดตสถานะ Reserve ที่เกี่ยวข้องด้วย
-                String reserveHql = "UPDATE Reserve SET status = 'คืนห้องแล้ว' WHERE rent.rentID = :rentId AND status = 'เช่าอยู่'";
+                // อัปเดตสถานะ Reserve ทุกตัวที่เกี่ยวข้องกับห้องนี้และสมาชิกนี้
+                String reserveHql = "UPDATE Reserve SET status = 'คืนห้องแล้ว' WHERE room.roomID = :roomId AND member.memberID = :memberId AND status IN ('เช่าอยู่', 'ชำระแล้ว', 'รออนุมัติ', 'อนุมัติแล้ว')";
                 Query reserveQuery = session.createQuery(reserveHql);
-                reserveQuery.setParameter("rentId", rentId);
+                reserveQuery.setParameter("roomId", room.getRoomID());
+                reserveQuery.setParameter("memberId", deposit.getMember().getMemberID());
                 int updatedReserves = reserveQuery.executeUpdate();
-                System.out
-                        .println("✅ Updated " + updatedReserves + " reserve(s) to 'คืนห้องแล้ว' for rentId: " + rentId);
+                System.out.println("✅ Updated " + updatedReserves + " reserve(s) to 'คืนห้องแล้ว' for roomId: "
+                        + room.getRoomID() + ", memberId: " + deposit.getMember().getMemberID());
             }
             tx.commit();
             return true;
@@ -2741,5 +2750,51 @@ public class ThanachokManager {
                 session.close();
         }
     }
+
+    // อัปเดตข้อมูล Manager
+    public boolean updateManager(Manager manager) {
+        Session session = null;
+        Transaction tx = null;
+        try {
+            SessionFactory sessionFactory = HibernateConnection.doHibernateConnection();
+            session = sessionFactory.openSession();
+            tx = session.beginTransaction();
+            session.update(manager);
+            tx.commit();
+            return true;
+        } catch (Exception e) {
+            if (tx != null)
+                tx.rollback();
+            e.printStackTrace();
+            return false;
+        } finally {
+            if (session != null)
+                session.close();
+        }
+    }
+
+
+    // เพิ่ม method นี้ใน ThanachokManager.java
+public Manager getManager() {
+    Session session = null;
+    try {
+        SessionFactory sessionFactory = HibernateConnection.doHibernateConnection();
+        session = sessionFactory.openSession();
+        
+        // ดึง Manager คนแรก (สมมติว่ามี Manager เพียงคนเดียวในระบบ)
+        String hql = "FROM Manager";
+        Query<Manager> query = session.createQuery(hql, Manager.class);
+        query.setMaxResults(1);
+        
+        return query.uniqueResult();
+    } catch (Exception e) {
+        e.printStackTrace();
+        return null;
+    } finally {
+        if (session != null) {
+            session.close();
+        }
+    }
+}
 
 }

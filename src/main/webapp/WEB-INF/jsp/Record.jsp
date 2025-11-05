@@ -958,7 +958,6 @@ response.sendRedirect("Login"); return; } %>
             <thead>
               <tr>
                 <th><i class="fas fa-door-open"></i> หมายเลขห้อง</th>
-                <th><i class="fas fa-info-circle"></i> รายละเอียด</th>
                 <th><i class="fas fa-money-bill-wave"></i> ค่ามัดจำ</th>
                 <th><i class="fas fa-calendar"></i> วันที่ชำระ</th>
                 <th><i class="fas fa-tags"></i> สถานะ</th>
@@ -970,11 +969,6 @@ response.sendRedirect("Login"); return; } %>
                   <td class="room-number">
                     <i class="fas fa-door-closed"></i>
                     ${rent.room.roomNumber}
-                  </td>
-                  <td>
-                    <div class="room-description">
-                      ${rent.room.description}
-                    </div>
                   </td>
                   <td class="price">
                     <i class="fas fa-coins"></i>
@@ -1033,7 +1027,6 @@ response.sendRedirect("Login"); return; } %>
                 <thead>
                   <tr>
                     <th><i class="fas fa-door-open"></i> หมายเลขห้อง</th>
-                    <th><i class="fas fa-info-circle"></i> รายละเอียด</th>
                     <th><i class="fas fa-tag"></i> ประเภทห้อง</th>
                     <th><i class="fas fa-money-bill-wave"></i> ค่ามัดจำ</th>
                     <th><i class="fas fa-calendar"></i> วันที่จอง</th>
@@ -1046,11 +1039,6 @@ response.sendRedirect("Login"); return; } %>
                       <td class="room-number">
                         <i class="fas fa-door-closed"></i>
                         ${rent.room.roomNumber}
-                      </td>
-                      <td>
-                        <div class="room-description">
-                          ${rent.room.description}
-                        </div>
                       </td>
                       <td>
                         <span style="color: #9b59b6; font-weight: 500">
@@ -1114,7 +1102,6 @@ response.sendRedirect("Login"); return; } %>
                 <thead>
                   <tr>
                     <th><i class="fas fa-door-open"></i> หมายเลขห้อง</th>
-                    <th><i class="fas fa-info-circle"></i> รายละเอียด</th>
                     <th><i class="fas fa-tag"></i> ประเภทห้อง</th>
                     <th><i class="fas fa-money-bill-wave"></i> ค่ามัดจำ</th>
                     <th><i class="fas fa-calendar-plus"></i> วันที่เช่า</th>
@@ -1128,11 +1115,6 @@ response.sendRedirect("Login"); return; } %>
                       <td class="room-number">
                         <i class="fas fa-door-closed"></i>
                         ${rent.room.roomNumber}
-                      </td>
-                      <td>
-                        <div class="room-description">
-                          ${rent.room.description}
-                        </div>
                       </td>
                       <td>
                         <span style="color: #9b59b6; font-weight: 500">

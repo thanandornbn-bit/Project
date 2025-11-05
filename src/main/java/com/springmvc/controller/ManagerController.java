@@ -522,6 +522,23 @@ public class ManagerController {
 		ThanachokManager tm = new ThanachokManager();
 		boolean success = tm.approveReturnRoom(rentId);
 
+		// อัปเดตสถานะใน Reserve เป็น "คืนห้องแล้ว"
+		try {
+			com.springmvc.model.Rent rent = tm.getRentById(rentId);
+			if (rent != null) {
+				// หา Reserve ที่ตรงกับ member และ room ของ Rent นี้ ที่ยังไม่คืนห้อง
+				java.util.List<com.springmvc.model.Reserve> reserves = tm.findReservesByRoomAndMember(
+						rent.getRoom().getRoomID(), rent.getMember().getMemberID());
+				for (com.springmvc.model.Reserve reserve : reserves) {
+					if (!"คืนห้องแล้ว".equals(reserve.getStatus())) {
+						tm.updateReserveStatus(reserve.getReserveId(), "คืนห้องแล้ว");
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
 		if (success) {
 			redirectAttributes.addFlashAttribute("message",
 					"✅ อนุมัติการคืนห้อง " + roomNumber + " เรียบร้อยแล้ว\nห้องพร้อมให้เช่าใหม่");
@@ -574,25 +591,79 @@ public class ManagerController {
 		return "redirect:/OwnerHome";
 	}
 
-	// แสดงรายการจองที่รอการอนุมัติ
 	@RequestMapping(value = "/ListReservations", method = RequestMethod.GET)
-	public ModelAndView listReservations(HttpSession session) {
-		Manager manager = (Manager) session.getAttribute("loginManager");
-		if (manager == null) {
-			return new ModelAndView("redirect:/Login");
-		}
+public ModelAndView listReservations(HttpSession session) {
+    Manager manager = (Manager) session.getAttribute("loginManager");
+    if (manager == null) {
+        return new ModelAndView("redirect:/Login");
+    }
 
-		ThanachokManager tm = new ThanachokManager();
+    ThanachokManager tm = new ThanachokManager();
 
-		// ปฏิเสธการจองที่หมดเวลาชำระเงิน (เกิน 24 ชั่วโมง) อัตโนมัติ
-		tm.autoRejectExpiredReservations();
+    // ปฏิเสธการจองที่หมดเวลาชำระเงิน (เกิน 24 ชั่วโมง) อัตโนมัติ
+    tm.autoRejectExpiredReservations();
 
-		List<com.springmvc.model.Reserve> reserveList = tm.findAllReserves();
+    List<com.springmvc.model.Reserve> reserveList = tm.findAllReserves();
+    
+    // สร้าง Map<reserveId, rentStatus>
+    Map<Integer, String> rentStatusMap = new HashMap<>();
+    
+    for (com.springmvc.model.Reserve reserve : reserveList) {
+        String status = "";
+        
+        System.out.println("=== Reserve ID: " + reserve.getReserveId() + " ===");
+        System.out.println("Reserve Status: '" + reserve.getStatus() + "'");
+        System.out.println("Member ID: " + reserve.getMember().getMemberID());
+        System.out.println("Room ID: " + reserve.getRoom().getRoomID());
+        
+        // เช็ค Rent สำหรับทุกสถานะยกเว้น "รอการอนุมัติ" และ "อนุมัติแล้ว"
+        if (!"รอการอนุมัติ".equals(reserve.getStatus()) && 
+            !"อนุมัติแล้ว".equals(reserve.getStatus())) {
+            
+            // หา Rent ทั้งหมดของ member และ room นี้
+            List<com.springmvc.model.Rent> rents = tm.findRentsByMemberAndRoom(
+                reserve.getMember(), 
+                reserve.getRoom()
+            );
+            
+            if (rents != null && !rents.isEmpty()) {
+                System.out.println("Found " + rents.size() + " Rent(s)");
+                
+                // เช็คแต่ละ Rent
+                for (com.springmvc.model.Rent rent : rents) {
+                    System.out.println("  Rent ID: " + rent.getRentID() + 
+                                     ", Status: '" + rent.getStatus() + "'");
+                    
+                    // เช็คทั้ง "คืนห้องแล้ว" และ "ต้นห้องแล้ว" (กรณี encoding ผิด)
+                    if ("คืนห้องแล้ว".equals(rent.getStatus()) || 
+                        "ต้นห้องแล้ว".equals(rent.getStatus())) {
+                        status = "คืนห้องแล้ว";
+                        System.out.println("  → Set status to: คืนห้องแล้ว");
+                        break;
+                    } else if ("ชำระแล้ว".equals(rent.getStatus()) || 
+                               "เสร็จสมบูรณ์".equals(rent.getStatus())) {
+                        status = "เช่าอยู่";
+                        System.out.println("  → Set status to: เช่าอยู่");
+                        break;
+                    }
+                }
+            } else {
+                System.out.println("No Rent found");
+            }
+        } else {
+            System.out.println("Skip checking Rent (status is รอการอนุมัติ or อนุมัติแล้ว)");
+        }
+        
+        rentStatusMap.put(reserve.getReserveId(), status);
+        System.out.println("Final rentStatusMap[" + reserve.getReserveId() + "] = '" + status + "'");
+        System.out.println();
+    }
 
-		ModelAndView mav = new ModelAndView("ListReservations");
-		mav.addObject("reserveList", reserveList);
-		return mav;
-	}
+    ModelAndView mav = new ModelAndView("ListReservations");
+    mav.addObject("reserveList", reserveList);
+    mav.addObject("rentStatusMap", rentStatusMap);
+    return mav;
+}
 
 	// Manager อนุมัติการจอง
 	@RequestMapping(value = "/ApproveReservation", method = RequestMethod.POST)
@@ -752,6 +823,54 @@ public class ManagerController {
 					"❌ ไม่สามารถยกเลิกการคืนห้องได้");
 			return "redirect:/OwnerHome";
 		}
+	}
+
+	// GET: หน้าแก้ไขข้อมูล Manager
+	@RequestMapping(value = "/EditManager", method = RequestMethod.GET)
+	public ModelAndView editManagerPage(HttpSession session) {
+		Manager manager = (Manager) session.getAttribute("loginManager");
+		if (manager == null) {
+			return new ModelAndView("redirect:/Login");
+		}
+		ModelAndView mav = new ModelAndView("EditManager");
+		mav.addObject("manager", manager);
+		return mav;
+	}
+
+	// POST: บันทึกข้อมูล Manager
+	@RequestMapping(value = "/EditManager", method = RequestMethod.POST)
+	public ModelAndView saveManagerEdit(HttpSession session, @RequestParam("email") String email,
+			@RequestParam(value = "password", required = false) String password,
+			@RequestParam(value = "promptPayNumber", required = false) String promptPayNumber,
+			@RequestParam(value = "accountName", required = false) String accountName) {
+		Manager manager = (Manager) session.getAttribute("loginManager");
+		if (manager == null) {
+			return new ModelAndView("redirect:/Login");
+		}
+		ThanachokManager tm = new ThanachokManager();
+		manager.setEmail(email);
+		manager.setPromptPayNumber(promptPayNumber);
+		manager.setAccountName(accountName);
+		if (password != null && !password.trim().isEmpty()) {
+			try {
+				String encoded = PasswordUtil.getInstance().createPassword(password, "Project");
+				manager.setPassword(encoded);
+			} catch (Exception e) {
+				ModelAndView mav = new ModelAndView("EditManager");
+				mav.addObject("manager", manager);
+				mav.addObject("error", "เกิดข้อผิดพลาดในการเข้ารหัสรหัสผ่าน");
+				return mav;
+			}
+		}
+		boolean success = tm.updateManager(manager);
+		ModelAndView mav = new ModelAndView("EditManager");
+		mav.addObject("manager", manager);
+		if (success) {
+			mav.addObject("message", "บันทึกข้อมูลเรียบร้อยแล้ว");
+		} else {
+			mav.addObject("error", "เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+		}
+		return mav;
 	}
 
 }

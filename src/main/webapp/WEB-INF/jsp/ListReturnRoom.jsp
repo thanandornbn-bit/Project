@@ -449,6 +449,9 @@
                                         <a href="ListReturnRoom" class="nav-link active">
                                             <i class="fas fa-clipboard-check"></i> คำขอคืนห้อง
                                         </a>
+                                        <a href="ManageUtilityRates" class="nav-link">
+                                                <i class="fas fa-cogs"></i> ตั้งค่าหน่วย
+                                            </a>
                                         <a href="AddRoom" class="nav-link">
                                             <i class="fas fa-plus"></i> เพิ่มห้อง
                                         </a>
@@ -456,8 +459,11 @@
                                     <div class="user-section">
                                         <div class="user-info">
                                             <i class="fas fa-user-circle"></i>
-                                            <span>Manager@gmail.com</span>
+                                            <span>${loginManager.email}</span>
                                         </div>
+                                        <a href="EditManager" class="action-btn btn-edit" style="margin-left:10px;">
+                                                <i class="fas fa-user-edit"></i> แก้ไขข้อมูล
+                                            </a>
                                         <form action="Logout" method="post" style="display: inline;">
                                             <button type="submit" class="logout-btn">
                                                 <i class="fas fa-sign-out-alt"></i> ออกจากระบบ

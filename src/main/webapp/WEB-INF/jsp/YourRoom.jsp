@@ -869,13 +869,6 @@
                                                             <div class="room-info">
                                                                 <div class="info-row">
                                                                     <span class="info-label">
-                                                                        <i class="fas fa-info-circle"></i> รายละเอียด
-                                                                    </span>
-                                                                    <span
-                                                                        class="info-value">${rental.room.description}</span>
-                                                                </div>
-                                                                <div class="info-row">
-                                                                    <span class="info-label">
                                                                         <i class="fas fa-tag"></i> ประเภทห้อง
                                                                     </span>
                                                                     <span
@@ -1051,12 +1044,12 @@
 
                                         
 
-                                        if (monthsDiff < 6) {
-                                            const remainingMonths = 6 - monthsDiff;
-                                            alert('ไม่สามารถส่งคำขอคืนห้องได้!\n\n' +
-                                                  'เนื่องจากคุณต้องอยู่ครบ 6 เดือนก่อนจึงจะสามารถคืนห้องได้\n\n');
-                                            return;
-                                        }
+                                        //if (monthsDiff < 6) {
+                                        //    const remainingMonths = 6 - monthsDiff;
+                                        //    alert('ไม่สามารถส่งคำขอคืนห้องได้!\n\n' +
+                                        //        'เนื่องจากคุณต้องอยู่ครบ 6 เดือนก่อนจึงจะสามารถคืนห้องได้\n\n');
+                                        //  return;
+                                        //}
 
                                         // ไม่มีบิลค้างชำระและอยู่ครบ 6 เดือนแล้ว - ถามยืนยันการคืนห้อง
                                         const confirmMessage = 'คุณต้องการคืนห้อง ' + roomNumber + ' ใช่หรือไม่?\n\n';

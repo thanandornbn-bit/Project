@@ -496,6 +496,9 @@ response.sendRedirect("Login"); return; } %>
           <a href="ListReturnRoom" class="nav-link">
             <i class="fas fa-clipboard-check"></i> คำขอคืนห้อง
           </a>
+          <a href="ManageUtilityRates" class="nav-link">
+                                                <i class="fas fa-cogs"></i> ตั้งค่าหน่วย
+                                            </a>
           <a href="AddRoom" class="nav-link">
             <i class="fas fa-plus"></i> เพิ่มห้อง
           </a>
@@ -504,8 +507,11 @@ response.sendRedirect("Login"); return; } %>
         <div class="user-section">
           <div class="user-info">
             <i class="fas fa-user-circle"></i>
-            <span>Manager@gmail.com</span>
+            <span>${loginManager.email}</span>
           </div>
+          <a href="EditManager" class="action-btn btn-edit" style="margin-left:10px;">
+                                                <i class="fas fa-user-edit"></i> แก้ไขข้อมูล
+                                            </a>
           <form action="Logout" method="post" style="display: inline">
             <button type="submit" class="logout-btn">
               <i class="fas fa-sign-out-alt"></i>
@@ -592,30 +598,50 @@ response.sendRedirect("Login"); return; } %>
                         <span class="info-label">สถานะ:</span>
                         <span class="info-value">
                           <c:choose>
-                            <c:when test="${reserve.status == 'รอการอนุมัติ'}">
-                              <span class="status-badge status-pending">
-                                <i class="fas fa-clock"></i> รอการอนุมัติ
+                            <c:when
+                              test="${rentStatusMap[reserve.reserveId] == 'คืนห้องแล้ว'}"
+                            >
+                              <span class="status-badge status-rejected">
+                                <i class="fas fa-undo"></i> คืนห้องแล้ว
                               </span>
                             </c:when>
-                            <c:when test="${reserve.status == 'อนุมัติแล้ว'}">
-                              <span class="status-badge status-approved">
-                                <i class="fas fa-check-circle"></i> อนุมัติแล้ว
-                              </span>
-                            </c:when>
-                            <c:when test="${reserve.status == 'ชำระแล้ว'}">
-                              <span class="status-badge status-approved">
-                                <i class="fas fa-money-check-alt"></i> ชำระแล้ว
-                              </span>
-                            </c:when>
-                            <c:when test="${reserve.status == 'เช่าอยู่'}">
+                            <c:when
+                              test="${rentStatusMap[reserve.reserveId] == 'เช่าอยู่'}"
+                            >
                               <span class="status-badge status-approved">
                                 <i class="fas fa-home"></i> เช่าอยู่
                               </span>
                             </c:when>
                             <c:otherwise>
-                              <span class="status-badge status-rejected">
-                                <i class="fas fa-times-circle"></i> ปฏิเสธ
-                              </span>
+                              <!-- แสดงสถานะเดิม -->
+                              <c:choose>
+                                <c:when
+                                  test="${reserve.status == 'รอการอนุมัติ'}"
+                                >
+                                  <span class="status-badge status-pending">
+                                    <i class="fas fa-clock"></i> รอการอนุมัติ
+                                  </span>
+                                </c:when>
+                                <c:when
+                                  test="${reserve.status == 'อนุมัติแล้ว'}"
+                                >
+                                  <span class="status-badge status-approved">
+                                    <i class="fas fa-check-circle"></i>
+                                    อนุมัติแล้ว
+                                  </span>
+                                </c:when>
+                                <c:when test="${reserve.status == 'ชำระแล้ว'}">
+                                  <span class="status-badge status-approved">
+                                    <i class="fas fa-money-check-alt"></i>
+                                    ชำระแล้ว
+                                  </span>
+                                </c:when>
+                                <c:otherwise>
+                                  <span class="status-badge status-rejected">
+                                    <i class="fas fa-times-circle"></i> ปฏิเสธ
+                                  </span>
+                                </c:otherwise>
+                              </c:choose>
                             </c:otherwise>
                           </c:choose>
                         </span>

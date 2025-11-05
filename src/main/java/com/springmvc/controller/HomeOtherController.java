@@ -1,4 +1,4 @@
-	
+
 package com.springmvc.controller;
 
 import java.util.ArrayList;
@@ -225,10 +225,12 @@ public class HomeOtherController {
 			boolean hasSameRoomReserve = false;
 
 			for (com.springmvc.model.Reserve res : existingReserves) {
-				// ถ้าจองห้องเดียวกัน และสถานะไม่ใช่ "ปฏิเสธ" หรือ "ยกเลิก" = ห้ามจองซ้ำ
+				// ถ้าจองห้องเดียวกัน และสถานะไม่ใช่ "ปฏิเสธ" หรือ "ยกเลิก" หรือ "คืนห้องแล้ว" =
+				// ห้ามจองซ้ำ
 				if (res.getRoom().getRoomID() == roomID
 						&& !"ปฏิเสธ".equals(res.getStatus())
-						&& !"ยกเลิก".equals(res.getStatus())) {
+						&& !"ยกเลิก".equals(res.getStatus())
+						&& !"คืนห้องแล้ว".equals(res.getStatus())) {
 					hasSameRoomReserve = true;
 					break;
 				}
