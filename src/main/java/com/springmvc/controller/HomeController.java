@@ -56,31 +56,27 @@ public class HomeController {
         // ดึงข้อมูลการจองทุกสถานะที่ยังใช้งานอยู่
         List<Reserve> memberReserves = manager.findReservesByMember(member);
         int approvedReservesCount = 0;
-        int totalActiveReservesCount = 0; // นับทุกสถานะที่ยังใช้งาน
+        int totalActiveReservesCount = 0;
 
         for (Reserve reserve : memberReserves) {
             String reserveStatus = reserve.getStatus();
-            // นับการจองที่ยังใช้งานอยู่ (ยกเว้นปฏิเสธและยกเลิก)
             if ("รอการอนุมัติ".equals(reserveStatus) ||
                     "อนุมัติแล้ว".equals(reserveStatus) ||
                     "ชำระค่ามัดจำแล้ว".equals(reserveStatus)) {
                 totalActiveReservesCount++;
             }
-
-            // นับเฉพาะที่อนุมัติแล้วเพื่อแสดง badge
             if ("อนุมัติแล้ว".equals(reserveStatus)) {
                 approvedReservesCount++;
             }
         }
 
-        // รวมจำนวนการเช่าและการจอง active
         int totalActiveCount = activeRentalCount + totalActiveReservesCount;
 
         ModelAndView mav = new ModelAndView("Homesucess");
         mav.addObject("roomList", roomList);
         mav.addObject("floor", floor);
         mav.addObject("status", status);
-        mav.addObject("activeRentalCount", totalActiveCount); // ส่งจำนวนรวม
+        mav.addObject("activeRentalCount", totalActiveCount);
         mav.addObject("activeRentals", activeRentals);
         mav.addObject("approvedReservesCount", approvedReservesCount);
         return mav;
@@ -96,12 +92,12 @@ public ModelAndView showPaymentForm(@RequestParam("id") int roomID, HttpSession 
     ThanachokManager thanachokManager = new ThanachokManager();
     Room room = thanachokManager.findRoomById(roomID);
     
-    // ✅ เพิ่มส่วนนี้ - ดึงข้อมูล Manager
+    // เพิ่มส่วนนี้ - ดึงข้อมูล Manager
     Manager manager = thanachokManager.getManager();
 
     ModelAndView mav = new ModelAndView("Payment");
     mav.addObject("room", room);
-    mav.addObject("manager", manager);  // ✅ ส่ง manager ไปที่ JSP
+    mav.addObject("manager", manager);
     
     return mav;
 }
@@ -122,15 +118,11 @@ public ModelAndView showPaymentForm(@RequestParam("id") int roomID, HttpSession 
 
         try {
             ThanachokManager thanachokManager = new ThanachokManager();
-
-            // ตรวจสอบสถานะห้องอีกครั้ง
             Room room = thanachokManager.findRoomById(roomID);
             if (room == null) {
                 redirectAttributes.addFlashAttribute("errorMessage", "ไม่พบห้องที่ต้องการจอง");
                 return "redirect:/Homesucess";
             }
-
-            // ค้นหา Reserve ของ Member และ Room นี้ (รอการอนุมัติหรืออนุมัติแล้ว)
             List<Reserve> memberReserves = thanachokManager.findReservesByMember(loginMember);
             Reserve targetReserve = null;
             for (Reserve reserve : memberReserves) {
@@ -140,15 +132,11 @@ public ModelAndView showPaymentForm(@RequestParam("id") int roomID, HttpSession 
                     break;
                 }
             }
-
-            // ตรวจสอบว่าพบการจองของ Member หรือไม่
             if (targetReserve == null) {
                 redirectAttributes.addFlashAttribute("errorMessage",
                         "ไม่พบการจองสำหรับห้องนี้ กรุณาทำการจองห้องก่อน");
                 return "redirect:/Homesucess";
             }
-
-            // ตรวจสอบว่าห้องไม่ได้ถูกจองโดยคนอื่นในระหว่างนี้
             if (!"ว่าง".equals(room.getRoomStatus()) && !"ไม่ว่าง".equals(room.getRoomStatus())) {
                 redirectAttributes.addFlashAttribute("errorMessage",
                         "ห้อง " + room.getRoomNumber() + " ไม่สามารถจองได้ในขณะนี้");
@@ -166,7 +154,7 @@ public ModelAndView showPaymentForm(@RequestParam("id") int roomID, HttpSession 
             }
 
             String uploadDir = "slipet";
-            String realPath = "/usr/local/tomcat/webapps/thanachok/slipet";// เปลี่ยน Path File
+            String realPath = "/usr/local/tomcat/webapps/thanachok/slipet";
 
             File uploadPath = new File(realPath);
             if (!uploadPath.exists())
@@ -183,7 +171,6 @@ public ModelAndView showPaymentForm(@RequestParam("id") int roomID, HttpSession 
             // ตรวจสอบว่าได้จ่ายค่ามัดจำสำหรับห้องนี้ไปแล้วหรือยัง
             List<Rent> existingRents = thanachokManager.findRentsByMemberAndRoom(loginMember, room);
             for (Rent existingRent : existingRents) {
-                // เฉพาะกรณีที่ยังไม่ได้คืนห้องเท่านั้นที่ไม่ให้จองซ้ำ
                 if (("ชำระแล้ว".equals(existingRent.getStatus()) ||
                         "เสร็จสมบูรณ์".equals(existingRent.getStatus()) ||
                         "รอคืนห้อง".equals(existingRent.getStatus())) &&
@@ -222,7 +209,6 @@ public ModelAndView showPaymentForm(@RequestParam("id") int roomID, HttpSession 
             }
 
             // ไม่ต้องอัปเดตสถานะห้องตอนนี้ รอ Manager อนุมัติก่อน
-
             redirectAttributes.addFlashAttribute("message",
                     "ชำระเงินสำเร็จ! กรุณารอ Manager อนุมัติค่ามัดจำของห้อง " + room.getRoomNumber());
             return "redirect:/Record";
@@ -252,11 +238,6 @@ public ModelAndView showPaymentForm(@RequestParam("id") int roomID, HttpSession 
         // ดึงข้อมูลการจองทั้งหมดที่ยังไม่ได้คืนห้อง
         List<Rent> activeRentals = manager.findActiveDepositsByMember(loginMember);
 
-        for (Rent rd : activeRentals) {
-            System.out.println("Room: " + rd.getRoom().getRoomNumber() +
-                    ", Status: " + rd.getStatus());
-        }
-
         boolean hasActiveRental = !activeRentals.isEmpty();
         int activeCount = activeRentals.size();
 
@@ -274,8 +255,6 @@ public ModelAndView showPaymentForm(@RequestParam("id") int roomID, HttpSession 
         } else {
             response.put("message", "คุณสามารถจองห้องใหม่ได้");
         }
-
-        System.out.println("Response: " + response);
 
         return response;
     }
@@ -345,7 +324,6 @@ public ModelAndView showPaymentForm(@RequestParam("id") int roomID, HttpSession 
                 }
 
                 if (imagePath != null && !imagePath.isEmpty()) {
-                    // อ่านจาก /tmp/ ที่ ManagerController บันทึกไว้
                     String basePath = "/tmp/";
                     String fullPath = basePath + imagePath;
 
@@ -531,7 +509,6 @@ public ModelAndView showPaymentForm(@RequestParam("id") int roomID, HttpSession 
 
         for (Rent deposit : allDeposits) {
             String status = deposit.getStatus();
-            System.out.println("DEBUG Record - Rent ID: " + deposit.getRentID() + ", Status: '" + status + "'");
 
             if ("รออนุมัติ".equals(status)) {
                 pendingApproval.add(deposit);
@@ -539,18 +516,11 @@ public ModelAndView showPaymentForm(@RequestParam("id") int roomID, HttpSession 
                 paidRents.add(deposit);
             } else if ("คืนห้องแล้ว".equals(status)) {
                 completed.add(deposit);
-                System.out.println("✓ Added to completed (returned): Rent ID " + deposit.getRentID());
             } else if ("รอคืนห้อง".equals(status)) {
                 // ถ้ามีสถานะ "รอคืนห้อง" ให้เพิ่มเข้าไปใน completed ด้วย
                 completed.add(deposit);
-                System.out.println("✓ Added to completed (pending return): Rent ID " + deposit.getRentID());
             }
         }
-
-        System.out.println("=== Record Summary ===");
-        System.out.println("Pending Approval: " + pendingApproval.size());
-        System.out.println("Paid Rents: " + paidRents.size());
-        System.out.println("Completed (Returned): " + completed.size());
 
         // ดึงข้อมูลการจอง (Reserve) ของ Member
         List<Reserve> memberReserves = manager.findReservesByMember(loginMember);
@@ -573,12 +543,12 @@ public ModelAndView showPaymentForm(@RequestParam("id") int roomID, HttpSession 
 
         ModelAndView mav = new ModelAndView("Record");
         mav.addObject("pendingApproval", pendingApproval);
-        mav.addObject("paidRents", paidRents); // เพิ่มรายการ Rent ที่ชำระแล้ว
+        mav.addObject("paidRents", paidRents); 
         mav.addObject("returnedRentals", completed);
         mav.addObject("loginMember", loginMember);
 
         mav.addObject("pendingApprovalCount", pendingApproval.size());
-        mav.addObject("paidReservesCount", paidRents.size()); // นับจำนวน Rent ที่ชำระแล้ว
+        mav.addObject("paidReservesCount", paidRents.size()); 
         mav.addObject("returnedCount", completed.size());
 
         // กรอง approvedReserves: เอาเฉพาะที่ยังไม่มี Rent (ยังไม่ได้จ่ายเงิน)
@@ -609,10 +579,10 @@ public ModelAndView showPaymentForm(@RequestParam("id") int roomID, HttpSession 
 
         // เพิ่มข้อมูลการจอง (Reserve จบที่ "อนุมัติแล้ว")
         mav.addObject("pendingReserves", pendingReserves);
-        mav.addObject("approvedReserves", filteredApprovedReserves); // ใช้ list ที่กรองแล้ว
+        mav.addObject("approvedReserves", filteredApprovedReserves); 
         mav.addObject("rejectedReserves", rejectedReserves);
         mav.addObject("pendingReservesCount", pendingReserves.size());
-        mav.addObject("approvedReservesCount", filteredApprovedReserves.size()); // นับจากที่กรองแล้ว
+        mav.addObject("approvedReservesCount", filteredApprovedReserves.size()); 
         mav.addObject("rejectedReservesCount", rejectedReserves.size());
 
         return mav;
@@ -709,14 +679,9 @@ public ModelAndView showPaymentForm(@RequestParam("id") int roomID, HttpSession 
 
         ThanachokManager manager = new ThanachokManager();
 
-        // ดึงข้อมูล Invoice ล่าสุด (getInvoiceWithDetails จะ clear cache อัตโนมัติ)
+        // ดึงข้อมูล Invoice ล่าสุด 
         Invoice invoice = manager.getInvoiceWithDetails(invoiceId);
 
-        System.out.println("=== InvoiceDetail: Loading Invoice #" + invoiceId + " ===");
-        if (invoice != null && invoice.getDetails() != null) {
-            System.out.println("Invoice found with " + invoice.getDetails().size() + " details");
-            System.out.println("Total amount: " + invoice.getTotalAmount());
-        }
 
         // ตรวจสอบว่าใบแจ้งหนี้นี้เป็นของสมาชิกคนนี้หรือไม่
         if (invoice == null || invoice.getRent().getMember().getMemberID() != member.getMemberID()) {

@@ -129,6 +129,30 @@
                                     font-size: 1.2rem;
                                 }
 
+                                .btn-edit-profile {
+                                    background: linear-gradient(135deg, #5CA9E9, #4A90E2);
+                                    color: white;
+                                    border: none;
+                                    padding: 10px 20px;
+                                    border-radius: 10px;
+                                    font-weight: 600;
+                                    cursor: pointer;
+                                    display: inline-flex;
+                                    align-items: center;
+                                    gap: 8px;
+                                    transition: all 0.3s ease;
+                                    font-family: "Sarabun", sans-serif;
+                                    font-size: 0.95rem;
+                                    text-decoration: none;
+                                    box-shadow: 0 2px 8px rgba(92, 169, 233, 0.3);
+                                }
+
+                                .btn-edit-profile:hover {
+                                    transform: translateY(-2px);
+                                    box-shadow: 0 4px 12px rgba(92, 169, 233, 0.4);
+                                    background: linear-gradient(135deg, #4A90E2, #357ABD);
+                                }
+
                                 .logout-btn {
                                     background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
                                     color: white;
@@ -430,7 +454,6 @@
 
                         <body>
                             <div class="page-container">
-                                <!-- Header -->
                                 <div class="header">
                                     <h1>
                                         <i class="fas fa-building"></i>
@@ -450,8 +473,8 @@
                                             <i class="fas fa-clipboard-check"></i> คำขอคืนห้อง
                                         </a>
                                         <a href="ManageUtilityRates" class="nav-link">
-                                                <i class="fas fa-cogs"></i> ตั้งค่าหน่วย
-                                            </a>
+                                            <i class="fas fa-cogs"></i> ตั้งค่าหน่วย
+                                        </a>
                                         <a href="AddRoom" class="nav-link">
                                             <i class="fas fa-plus"></i> เพิ่มห้อง
                                         </a>
@@ -461,9 +484,9 @@
                                             <i class="fas fa-user-circle"></i>
                                             <span>${loginManager.email}</span>
                                         </div>
-                                        <a href="EditManager" class="action-btn btn-edit" style="margin-left:10px;">
-                                                <i class="fas fa-user-edit"></i> แก้ไขข้อมูล
-                                            </a>
+                                        <a href="EditManager" class="btn-edit-profile" style="margin-left:10px;">
+                                            <i class="fas fa-user-edit"></i> แก้ไขข้อมูล
+                                        </a>
                                         <form action="Logout" method="post" style="display: inline;">
                                             <button type="submit" class="logout-btn">
                                                 <i class="fas fa-sign-out-alt"></i> ออกจากระบบ

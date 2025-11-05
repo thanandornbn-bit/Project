@@ -14,15 +14,12 @@ public class HibernateConnection {
 	static String pwd;
 
 	static {
-		// Check if running in Docker environment
 		String dockerProfile = System.getProperty("spring.profiles.active");
 		if ("docker".equals(dockerProfile)) {
-			// Docker environment - connect to mysql container
 			url = "jdbc:mysql://mysql:3306/thanachok03?characterEncoding=UTF-8";
 			uname = "root";
 			pwd = "1234";
 		} else {
-			// Local development environment
 			url = "jdbc:mysql://localhost:3306/thanachok03?characterEncoding=UTF-8";
 			uname = "root";
 			pwd = "1234";
@@ -30,25 +27,19 @@ public class HibernateConnection {
 	}
 
 	public static SessionFactory doHibernateConnection() {
-		// Return existing SessionFactory if already created
 		if (sessionFactory != null && !sessionFactory.isClosed()) {
 			return sessionFactory;
 		}
 
-		// Create SessionFactory once (thread-safe lazy init)
 		synchronized (HibernateConnection.class) {
 			if (sessionFactory == null || sessionFactory.isClosed()) {
 				Properties database = new Properties();
-				// After initial schema creation remove or change in production
 				database.setProperty("hibernate.hbm2ddl.auto", "update");
-				// Use modern MySQL driver class
 				database.setProperty("hibernate.connection.driver_class", "com.mysql.cj.jdbc.Driver");
 				database.setProperty("hibernate.connection.username", uname);
 				database.setProperty("hibernate.connection.password", pwd);
 				database.setProperty("hibernate.connection.url", url);
 
-				// Basic connection pool limit (legacy built-in pool). For production, use
-				// HikariCP or a DataSource.
 				database.setProperty("hibernate.connection.pool_size", "10");
 
 				database.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQL5InnoDBDialect");

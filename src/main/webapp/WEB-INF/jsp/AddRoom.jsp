@@ -125,6 +125,31 @@ pageEncoding="UTF-8" %> <%@ taglib prefix="c" uri="jakarta.tags.core" %>
         font-size: 1.2rem;
       }
 
+      .btn-edit-profile {
+    background: linear-gradient(135deg, #5CA9E9, #4A90E2);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    font-family: "Sarabun", sans-serif;
+    font-size: 0.95rem;
+    text-decoration: none;
+    box-shadow: 0 2px 8px rgba(92, 169, 233, 0.3);
+}
+
+.btn-edit-profile:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(92, 169, 233, 0.4);
+    background: linear-gradient(135deg, #4A90E2, #357ABD);
+}
+
+
       .logout-btn {
         background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
         color: white;
@@ -543,9 +568,9 @@ pageEncoding="UTF-8" %> <%@ taglib prefix="c" uri="jakarta.tags.core" %>
             <i class="fas fa-user-circle"></i>
             <span>${loginManager.email}</span>
           </div>
-          <a href="EditManager" class="action-btn btn-edit" style="margin-left:10px;">
-                                                <i class="fas fa-user-edit"></i> แก้ไขข้อมูล
-                                            </a>
+          <a href="EditManager" class="btn-edit-profile" style="margin-left:10px;">
+            <i class="fas fa-user-edit"></i> แก้ไขข้อมูล
+          </a>
           <form action="Logout" method="post" style="display: inline">
             <button type="submit" class="logout-btn">
               <i class="fas fa-sign-out-alt"></i> ออกจากระบบ
@@ -569,7 +594,6 @@ pageEncoding="UTF-8" %> <%@ taglib prefix="c" uri="jakarta.tags.core" %>
           </div>
 
           <div class="card-body">
-            <!-- Success Message -->
             <c:if test="${not empty message}">
               <div class="alert alert-success">
                 <i class="fas fa-check-circle"></i>
@@ -577,7 +601,6 @@ pageEncoding="UTF-8" %> <%@ taglib prefix="c" uri="jakarta.tags.core" %>
               </div>
             </c:if>
 
-            <!-- Error Message -->
             <c:if test="${not empty errorMessage}">
               <div class="alert alert-error">
                 <i class="fas fa-exclamation-circle"></i>
@@ -585,14 +608,12 @@ pageEncoding="UTF-8" %> <%@ taglib prefix="c" uri="jakarta.tags.core" %>
               </div>
             </c:if>
 
-            <!-- Add Room Form -->
             <form
               action="AddRoom"
               method="post"
               id="addRoomForm"
               enctype="multipart/form-data"
             >
-              <!-- Room Info -->
               <div class="form-section">
                 <div class="section-title">
                   <i class="fas fa-info-circle"></i>
@@ -634,7 +655,6 @@ pageEncoding="UTF-8" %> <%@ taglib prefix="c" uri="jakarta.tags.core" %>
                 </div>
               </div>
 
-              <!-- Room Details -->
               <div class="form-section">
                 <div class="section-title">
                   <i class="fas fa-align-left"></i>
@@ -655,7 +675,6 @@ pageEncoding="UTF-8" %> <%@ taglib prefix="c" uri="jakarta.tags.core" %>
                 </div>
               </div>
 
-              <!-- Price and Status -->
               <div class="form-section">
                 <div class="section-title">
                   <i class="fas fa-dollar-sign"></i>
@@ -715,7 +734,6 @@ pageEncoding="UTF-8" %> <%@ taglib prefix="c" uri="jakarta.tags.core" %>
                 />
               </div>
 
-              <!-- Room Images -->
               <div class="form-section">
                 <div class="section-title">
                   <i class="fas fa-images"></i>
@@ -807,7 +825,6 @@ pageEncoding="UTF-8" %> <%@ taglib prefix="c" uri="jakarta.tags.core" %>
                 </div>
               </div>
 
-              <!-- Buttons -->
               <div class="btn-group">
                 <button type="submit" class="btn btn-primary" id="submitBtn">
                   <i class="fas fa-save"></i>
@@ -826,7 +843,6 @@ pageEncoding="UTF-8" %> <%@ taglib prefix="c" uri="jakarta.tags.core" %>
     </div>
 
     <script>
-      // Form validation and submission
       document.addEventListener("DOMContentLoaded", function () {
         const form = document.getElementById("addRoomForm");
         const submitBtn = document.getElementById("submitBtn");
@@ -869,10 +885,8 @@ pageEncoding="UTF-8" %> <%@ taglib prefix="c" uri="jakarta.tags.core" %>
           document.getElementById("loadingOverlay").style.display = "flex";
         });
 
-        // Focus first input
         document.getElementById("roomNumber").focus();
 
-        // Input formatting - room number (only numbers, max 3 digits)
         document
           .getElementById("roomNumber")
           .addEventListener("input", function (e) {
@@ -882,7 +896,6 @@ pageEncoding="UTF-8" %> <%@ taglib prefix="c" uri="jakarta.tags.core" %>
           });
       });
 
-      // Image preview function
       function previewImage(input, previewId) {
         const preview = document.getElementById(previewId);
         preview.innerHTML = "";
@@ -914,7 +927,6 @@ pageEncoding="UTF-8" %> <%@ taglib prefix="c" uri="jakarta.tags.core" %>
         }
       }
 
-      // Page load animation
       window.addEventListener("load", function () {
         document.body.style.opacity = "0";
         document.body.style.transition = "opacity 0.5s ease-in-out";

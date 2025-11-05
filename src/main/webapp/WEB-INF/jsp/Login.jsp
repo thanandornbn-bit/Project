@@ -612,7 +612,6 @@
         </head>
 
         <body>
-          <!-- Animated Background -->
           <div class="bg-animation">
             <div class="floating-shapes"></div>
             <div class="floating-shapes"></div>
@@ -622,7 +621,6 @@
           </div>
 
           <div class="login-container">
-            <!-- Header -->
             <div class="login-header">
               <div class="app-logo">
                 <i class="fas fa-building"></i>
@@ -631,7 +629,6 @@
               <div class="app-subtitle">ระบบจัดการหอพัก</div>
             </div>
 
-            <!-- Role Selection -->
             <div class="role-selection" id="roleSelection">
               <button class="back-btn" onclick="window.location.href='./'">
                 <i class="fas fa-arrow-left"></i>
@@ -649,7 +646,6 @@
               </div>
             </div>
 
-            <!-- Login Form -->
             <div class="login-form-container" id="loginForm">
               <button class="back-btn" onclick="hideLogin()">
                 <i class="fas fa-arrow-left"></i>
@@ -660,7 +656,6 @@
                 <h3 class="form-title" id="loginTitle">เข้าสู่ระบบ</h3>
               </div>
 
-              <!-- Messages -->
               <c:if test="${not empty error_message}">
                 <div class="message error-message">
                   <i class="fas fa-exclamation-circle"></i>
@@ -675,7 +670,6 @@
                 </div>
               </c:if>
 
-              <!-- Form -->
               <form action="Login" method="post" id="loginFormElement">
                 <input type="hidden" id="roleInput" name="role" value="" />
 
@@ -706,7 +700,6 @@
                 </button>
               </form>
 
-              <!-- Register Link -->
               <div class="register-section">
                 <p class="register-text">ยังไม่มีบัญชี?</p>
                 <a href="Register" class="register-btn">
@@ -718,7 +711,6 @@
           </div>
 
           <script>
-            // Show login form
             function showLogin(role) {
               const roleSelection = document.getElementById("roleSelection");
               const loginForm = document.getElementById("loginForm");
@@ -735,7 +727,6 @@
                 "เข้าสู่ระบบ " + (role === "Manager" ? "ผู้จัดการ" : "สมาชิก");
             }
 
-            // Hide login form
             function hideLogin() {
               const roleSelection = document.getElementById("roleSelection");
               const loginForm = document.getElementById("loginForm");
@@ -746,7 +737,6 @@
               }, 300);
             }
 
-            // Toggle password visibility
             function togglePassword() {
               const passwordInput = document.getElementById("password");
               const toggleIcon = document.getElementById("toggleIcon");
@@ -760,7 +750,6 @@
               }
             }
 
-            // Form submission with loading
             document
               .getElementById("loginFormElement")
               .addEventListener("submit", function () {
@@ -773,7 +762,6 @@
                 submitBtn.style.pointerEvents = "none";
               });
 
-            // Create particle effect
             function createParticles() {
               const particles = document.getElementById("particles");
               const particleCount = 50;
@@ -788,10 +776,7 @@
               }
             }
 
-            // Initialize particles on load
             window.addEventListener("load", createParticles);
-
-            // Input animations
             document
               .querySelectorAll('input[type="email"], input[type="password"]')
               .forEach((input) => {
@@ -805,7 +790,6 @@
                 });
               });
 
-            // Page load animation
             window.addEventListener("load", function () {
               document.body.style.opacity = "0";
               document.body.style.transition = "opacity 0.5s ease-in-out";

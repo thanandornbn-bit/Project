@@ -35,7 +35,6 @@ public class Invoice {
     @OneToMany(mappedBy = "invoice", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<InvoiceDetail> details = new ArrayList<>();
 
-    // Default constructor
     public Invoice() {
     }
 
@@ -47,8 +46,7 @@ public class Invoice {
         this.totalAmount = totalAmount;
         this.rent = rent;
     }
-
-    // Getter & Setter
+    
     public int getInvoiceId() {
         return invoiceId;
     }

@@ -962,14 +962,11 @@
                                     }
                                 </style>
                             </head>
-
                             <body>
-                                <!-- Loading Animation -->
                                 <div class="loading" id="loading">
                                     <div class="spinner"></div>
                                 </div>
 
-                                <!-- Modal Alert -->
                                 <div id="alertModal" class="modal">
                                     <div class="modal-content">
                                         <div class="modal-header">
@@ -987,14 +984,11 @@
                                     </div>
                                 </div>
 
-                                <!-- Toast Notification -->
                                 <div id="toast" class="toast">
                                     <div id="toast-message"></div>
                                 </div>
 
-                                <!-- Main Content -->
                                 <div class="page-container">
-                                    <!-- Header -->
                                     <div class="header">
                                         <h1>
                                             <i class="fas fa-building"></i>
@@ -1038,7 +1032,6 @@
 
                                     </div>
 
-                                    <!-- Search Section -->
                                     <div class="search-section">
                                         <form method="get" action="Homesucess" class="search-form">
                                             <h3>
@@ -1076,7 +1069,6 @@
                                         </form>
                                     </div>
 
-                                    <!-- Rooms Container -->
                                     <div class="table-container">
                                         <div class="table-header">
                                             <h2>
@@ -1094,7 +1086,6 @@
                                                 </div>
                                             </c:when>
                                             <c:otherwise>
-                                                <!-- Hidden fields for authentication -->
                                                 <input type="hidden" id="isLoggedIn" value="${not empty loginMember}">
 
                                                 <div class="rooms-grid">
@@ -1196,89 +1187,80 @@
                                 </div>
 
                                 <script>
-                                    // ข้อมูลจาก server (ส่งมาจาก JSP)
                                     const serverActiveRentalCount = ${ not empty activeRentalCount ?activeRentalCount: 0};
                                     const hasActiveRental = serverActiveRentalCount > 0;
 
-                                    // ฟังก์ชันสำหรับจองห้องพัก
                                     function handleReserveRoom(button) {
                                         const roomID = button.getAttribute('data-room-id');
                                         const roomNumber = button.getAttribute('data-room-number');
 
-                                        // ตรวจสอบการล็อกอิน
                                         const isLoggedIn = document.getElementById('isLoggedIn').value === 'true';
                                         if (!isLoggedIn) {
                                             showToast("กรุณาเข้าสู่ระบบก่อนทำการจองห้องพัก", "error");
                                             window.location.href = "Login";
                                             return;
                                         }
-
-                                        // อนุญาตให้จองได้หลายห้อง - ไม่ตรวจสอบการจองอื่นๆ
-                                        // Backend จะตรวจสอบว่าจองห้องเดียวกันซ้ำหรือไม่เท่านั้น
                                         showReservationModal(roomID, roomNumber);
                                     }
 
-                                    // ฟังก์ชันแสดง modal ยืนยันการจองพร้อมเลือกวันที่เข้าพัก
                                     function showReservationModal(roomID, roomNumber) {
                                         const today = new Date();
                                         const minDate = new Date(today);
-                                        minDate.setDate(today.getDate() + 5); // เพิ่ม 5 วัน
+                                        minDate.setDate(today.getDate() + 5); 
 
                                         const todayStr = today.toISOString().split('T')[0];
                                         const minDateStr = minDate.toISOString().split('T')[0];
 
                                         const modalContent = `
-            <div style="text-align: center;">
-                <i class="fas fa-calendar-check" style="font-size: 3rem; color: #22C55E; margin-bottom: 20px;"></i>
-                <h3 style="color: #4A90E2; margin-bottom: 15px; font-size: 1.5rem;">ยืนยันการจองห้องพัก</h3>
-                <div style="margin: 20px 0; padding: 20px; background: rgba(74, 144, 226, 0.1); border-radius: 12px; border: 2px solid #4A90E2;">
-                    <p style="font-size: 0.9rem; color: #666; margin-bottom: 8px;">หมายเลขห้อง</p>
-                    <p style="font-size: 2rem; font-weight: 700; color: #4A90E2; margin: 0;">` + roomNumber + `</p>
-                </div>
-                <form id="reserveForm" style="margin-top: 20px;">
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: block; color: #4A90E2; margin-bottom: 8px; font-weight: 600; font-size: 1rem;">
-                            <i class="fas fa-calendar"></i> วันที่ต้องการเข้าพัก:
-                        </label>
-                        <input type="date" id="checkInDate" name="checkInDate" 
-                               min="` + minDateStr + `" required
-                               style="padding: 14px; border-radius: 12px; border: 2px solid #4A90E2; 
-                                      background: #F0F7FF; color: #333; font-size: 1rem; width: 100%; max-width: 400px;
-                                      font-family: 'Sarabun', sans-serif; font-weight: 500;">
-                        <p style="font-size: 0.85rem; color: #EF4444; margin-top: 8px; margin-bottom: 0;">
-                            <i class="fas fa-exclamation-circle"></i> ต้องจองล่วงหน้าอย่างน้อย 5 วัน (เลือกได้ตั้งแต่วันที่ ` + minDateStr + `)
-                        </p>
-                    </div>
-                    <div style="margin-bottom: 15px;">
-                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; 
-                                      padding: 12px; background: rgba(74, 144, 226, 0.05); border-radius: 8px; 
-                                      border: 2px solid #4A90E2; transition: all 0.3s ease;">
-                            <input type="checkbox" id="internetOption" name="internetOption" 
-                                   style="width: 20px; height: 20px; cursor: pointer; accent-color: #4A90E2;">
-                            <span style="font-weight: 600; color: #4A90E2; font-size: 1rem;">
-                                <i class="fas fa-wifi"></i> ต้องการอินเทอร์เน็ต (+200 บาท/เดือน)
-                            </span>
-                        </label>
-                    </div>
-                    <input type="hidden" name="roomID" value="${roomID}">
-                    <button type="submit" style="background: linear-gradient(135deg, #22C55E, #16A34A); 
-                                                  color: white; border: none; padding: 14px 40px; 
-                                                  border-radius: 25px; font-size: 1.1rem; font-weight: 600; 
-                                                  cursor: pointer; margin-top: 15px; box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
-                                                  transition: all 0.3s ease; font-family: 'Sarabun', sans-serif;">
-                        <i class="fas fa-check"></i> ยืนยันการจอง
-                    </button>
-                </form>
-                <p style="margin-top: 20px; color: #666; font-size: 0.9rem;">
-                    <i class="fas fa-info-circle"></i> หลังจากส่งคำขอ ผู้จัดการจะตรวจสอบและอนุมัติภายใน 24 ชั่วโมง
-                </p>
-            </div>
-        `;
+                                            <div style="text-align: center;">
+                                                <i class="fas fa-calendar-check" style="font-size: 3rem; color: #22C55E; margin-bottom: 20px;"></i>
+                                                <h3 style="color: #4A90E2; margin-bottom: 15px; font-size: 1.5rem;">ยืนยันการจองห้องพัก</h3>
+                                                <div style="margin: 20px 0; padding: 20px; background: rgba(74, 144, 226, 0.1); border-radius: 12px; border: 2px solid #4A90E2;">
+                                                    <p style="font-size: 0.9rem; color: #666; margin-bottom: 8px;">หมายเลขห้อง</p>
+                                                    <p style="font-size: 2rem; font-weight: 700; color: #4A90E2; margin: 0;">` + roomNumber + `</p>
+                                                </div>
+                                                <form id="reserveForm" style="margin-top: 20px;">
+                                                    <div style="margin-bottom: 15px;">
+                                                        <label style="display: block; color: #4A90E2; margin-bottom: 8px; font-weight: 600; font-size: 1rem;">
+                                                        <i class="fas fa-calendar"></i> วันที่ต้องการเข้าพัก:
+                                                        </label>
+                                                        <input type="date" id="checkInDate" name="checkInDate" 
+                                                            min="` + minDateStr + `" required
+                                                            style="padding: 14px; border-radius: 12px; border: 2px solid #4A90E2; 
+                                                                    background: #F0F7FF; color: #333; font-size: 1rem; width: 100%; max-width: 400px;
+                                                                    font-family: 'Sarabun', sans-serif; font-weight: 500;">
+                                                        <p style="font-size: 0.85rem; color: #EF4444; margin-top: 8px; margin-bottom: 0;">
+                                                               <i class="fas fa-exclamation-circle"></i> ต้องจองล่วงหน้าอย่างน้อย 5 วัน (เลือกได้ตั้งแต่วันที่ ` + minDateStr + `)
+                                                        </p>
+                                                    </div>
+                                                    <div style="margin-bottom: 15px;">
+                                                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; 
+                                                                    padding: 12px; background: rgba(74, 144, 226, 0.05); border-radius: 8px; 
+                                                                    border: 2px solid #4A90E2; transition: all 0.3s ease;">
+                                                            <input type="checkbox" id="internetOption" name="internetOption" 
+                                                                style="width: 20px; height: 20px; cursor: pointer; accent-color: #4A90E2;">
+                                                            <span style="font-weight: 600; color: #4A90E2; font-size: 1rem;">
+                                                                <i class="fas fa-wifi"></i> ต้องการอินเทอร์เน็ต (+200 บาท/เดือน)
+                                                            </span>
+                                                        </label>
+                                                    </div>
+                                                    <input type="hidden" name="roomID" value="${roomID}">
+                                                    <button type="submit" style="background: linear-gradient(135deg, #22C55E, #16A34A); 
+                                                                        color: white; border: none; padding: 14px 40px; 
+                                                                        border-radius: 25px; font-size: 1.1rem; font-weight: 600; 
+                                                                        cursor: pointer; margin-top: 15px; box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+                                                                        transition: all 0.3s ease; font-family: 'Sarabun', sans-serif;">
+                                                        <i class="fas fa-check"></i> ยืนยันการจอง
+                                                    </button>
+                                                </form>
+                                                <p style="margin-top: 20px; color: #666; font-size: 0.9rem;">
+                                                    <i class="fas fa-info-circle"></i> หลังจากส่งคำขอ ผู้จัดการจะตรวจสอบและอนุมัติภายใน 24 ชั่วโมง
+                                                </p>
+                                            </div>
+                                            `;
 
                                         document.getElementById('modalMessage').innerHTML = modalContent;
                                         document.getElementById('alertModal').style.display = 'block';
-
-                                        // จัดการการส่งฟอร์ม
                                         document.getElementById('reserveForm').addEventListener('submit', function (e) {
                                             e.preventDefault();
                                             const checkInDate = document.getElementById('checkInDate').value;
@@ -1301,7 +1283,6 @@
                                                 return;
                                             }
 
-                                            // แสดง loading
                                             document.getElementById('loading').style.display = 'flex';
                                             closeModal();
 
@@ -1320,11 +1301,10 @@
                                             dateInput.name = 'checkInDate';
                                             dateInput.value = checkInDate;
 
-                                            // ส่งเวลาจองปัจจุบัน (milliseconds) จากฝั่ง client - รักษาเวลาท้องถิ่น
                                             const timestampInput = document.createElement('input');
                                             timestampInput.type = 'hidden';
                                             timestampInput.name = 'reserveTimestamp';
-                                            timestampInput.value = new Date().toISOString(); // ส่งเป็น ISO UTC
+                                            timestampInput.value = new Date().toISOString(); 
 
                                             // ส่งค่าอินเทอร์เน็ต
                                             const internetInput = document.createElement('input');
@@ -1341,7 +1321,6 @@
                                         });
                                     }
 
-                                    // ฟังก์ชันแสดง Toast
                                     function showToast(message, type = 'success') {
                                         const toast = document.getElementById('toast');
                                         const toastMessage = document.getElementById('toast-message');
@@ -1355,7 +1334,6 @@
                                         }, 5000);
                                     }
 
-                                    // Modal functions
                                     function showModal(message) {
                                         document.getElementById('modalMessage').innerHTML = message;
                                         document.getElementById('alertModal').style.display = 'flex';
@@ -1367,7 +1345,6 @@
                                         document.body.style.overflow = 'auto';
                                     }
 
-                                    // ฟังก์ชันจัดการคลิกปุ่มดูห้อง
                                     function handleViewRoom(button) {
                                         const roomID = button.getAttribute('data-room-id');
 
@@ -1376,79 +1353,72 @@
                                             return;
                                         }
 
-                                        // อนุญาตให้ดูรายละเอียดห้องได้เสมอ
-                                        // แสดง loading
                                         const loadingElement = document.getElementById('loading');
                                         if (loadingElement) {
                                             loadingElement.style.display = 'flex';
                                         }
-
-                                        // Redirect ไปหน้ารายละเอียดห้อง
                                         window.location.href = 'roomDetail?id=' + roomID;
                                     }
 
-                                    // เมื่อโหลดหน้า
                                     window.addEventListener('load', function () {
-        <c:if test="${not empty message}">
-            showToast("${message}", "success");
-        </c:if>
+                                <c:if test="${not empty message}">
+                                    showToast("${message}", "success");
+                                </c:if>
 
-        <c:if test="${not empty errorMessage}">
-            showToast("${errorMessage}", "error");
-        </c:if>
+                                <c:if test="${not empty errorMessage}">
+                                    showToast("${errorMessage}", "error");
+                                </c:if>
         
-        // Check for reservation success/error
-        <c:if test="${param.reserveSuccess eq 'true'}">
-            showToast("✅ จองห้องพักสำเร็จ! รอการอนุมัติจากเจ้าของหอพัก", "success");
-            // Remove parameter from URL
-            setTimeout(() => {
-                const url = new URL(window.location);
-                url.searchParams.delete('reserveSuccess');
-                window.history.replaceState({}, '', url);
-            }, 100);
-        </c:if>
+                                <c:if test="${param.reserveSuccess eq 'true'}">
+                                    showToast("✅ จองห้องพักสำเร็จ! รอการอนุมัติจากเจ้าของหอพัก", "success");
+                                    // Remove parameter from URL
+                                    setTimeout(() => {
+                                        const url = new URL(window.location);
+                                        url.searchParams.delete('reserveSuccess');
+                                        window.history.replaceState({}, '', url);
+                                    }, 100);
+                                </c:if>
+                                
+                                <c:if test="${param.reserveError eq 'true'}">
+                                    showToast("❌ จองห้องพักไม่สำเร็จ กรุณาลองใหม่อีกครั้ง", "error");
+                                    // Remove parameter from URL
+                                    setTimeout(() => {
+                                        const url = new URL(window.location);
+                                        url.searchParams.delete('reserveError');
+                                        window.history.replaceState({}, '', url);
+                                    }, 100);
+                                </c:if>
+                                
+                                <c:if test="${param.reserveError eq 'roomNotAvailable'}">
+                                    showToast("❌ ห้องนี้ไม่ว่างแล้ว กรุณาเลือกห้องอื่น", "error");
+                                    // Remove parameter from URL
+                                    setTimeout(() => {
+                                        const url = new URL(window.location);
+                                        url.searchParams.delete('reserveError');
+                                        window.history.replaceState({}, '', url);
+                                        // Reload to refresh room status
+                                        setTimeout(() => location.reload(), 2000);
+                                    }, 100);
+                                </c:if>
         
-        <c:if test="${param.reserveError eq 'true'}">
-            showToast("❌ จองห้องพักไม่สำเร็จ กรุณาลองใหม่อีกครั้ง", "error");
-            // Remove parameter from URL
-            setTimeout(() => {
-                const url = new URL(window.location);
-                url.searchParams.delete('reserveError');
-                window.history.replaceState({}, '', url);
-            }, 100);
-        </c:if>
+                                        <c:if test="${param.reserveError eq 'hasActiveReserve'}">
+                                            showToast("❌ คุณมีการจองห้องอยู่แล้ว ไม่สามารถจองห้องอื่นได้อีก", "error");
+                                            // Remove parameter from URL
+                                            setTimeout(() => {
+                                                const url = new URL(window.location);
+                                                url.searchParams.delete('reserveError');
+                                                window.history.replaceState({}, '', url);
+                                            }, 100);
+                                        </c:if>
         
-        <c:if test="${param.reserveError eq 'roomNotAvailable'}">
-            showToast("❌ ห้องนี้ไม่ว่างแล้ว กรุณาเลือกห้องอื่น", "error");
-            // Remove parameter from URL
-            setTimeout(() => {
-                const url = new URL(window.location);
-                url.searchParams.delete('reserveError');
-                window.history.replaceState({}, '', url);
-                // Reload to refresh room status
-                setTimeout(() => location.reload(), 2000);
-            }, 100);
-        </c:if>
-        
-        <c:if test="${param.reserveError eq 'hasActiveReserve'}">
-            showToast("❌ คุณมีการจองห้องอยู่แล้ว ไม่สามารถจองห้องอื่นได้อีก", "error");
-            // Remove parameter from URL
-            setTimeout(() => {
-                const url = new URL(window.location);
-                url.searchParams.delete('reserveError');
-                window.history.replaceState({}, '', url);
-            }, 100);
-        </c:if>
-        
-        <c:if test="${param.reserveError eq 'alreadyReservedThisRoom'}">
-            showToast("❌ คุณได้จองห้องนี้ไว้แล้ว ไม่สามารถจองซ้ำได้", "error");
-            // Remove parameter from URL
-            setTimeout(() => {
-                const url = new URL(window.location);
-                url.searchParams.delete('reserveError');
-                window.history.replaceState({}, '', url);
-            }, 100);
-        </c:if>
+                                        <c:if test="${param.reserveError eq 'alreadyReservedThisRoom'}">
+                                            showToast("คุณได้จองห้องนี้ไว้แล้ว ไม่สามารถจองซ้ำได้", "error");
+                                            setTimeout(() => {
+                                            const url = new URL(window.location);
+                                            url.searchParams.delete('reserveError');
+                                            window.history.replaceState({}, '', url);
+                                            }, 100);
+                                        </c:if>
 
                                         document.body.style.opacity = '0';
                                         document.body.style.transition = 'opacity 0.5s ease-in-out';

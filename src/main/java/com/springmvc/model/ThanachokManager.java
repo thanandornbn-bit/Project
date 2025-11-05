@@ -126,13 +126,8 @@ public class ThanachokManager {
             session = factory.openSession();
             tx = session.beginTransaction();
 
-            // อนุญาตให้หลายคนจองห้องเดียวกันได้
-            // ไม่ต้องเช็คว่ามีการจองอื่นอยู่หรือไม่
-            // เช็คเฉพาะว่าห้องมีสถานะ "ไม่ว่าง" (มีคนเช่าแล้วและชำระเงินสำเร็จ)
-
             Room room = session.get(Room.class, reserve.getRoom().getRoomID());
             if (room != null && "ไม่ว่าง".equals(room.getRoomStatus())) {
-                // ห้องถูกเช่าไปแล้ว (มีคนชำระเงินและ Manager อนุมัติแล้ว)
                 tx.rollback();
                 return false;
             }
@@ -248,7 +243,6 @@ public class ThanachokManager {
 
                 // อนุญาตให้อนุมัติได้หลายคน ไม่ปฏิเสธคนอื่น
                 // การปฏิเสธจะเกิดขึ้นอัตโนมัติเมื่อมีคนชำระเงินค่ามัดจำสำเร็จ
-
                 // ถ้าปฏิเสธการจอง → เปลี่ยนสถานะห้องกลับเป็น "ว่าง"
                 // (ถ้าไม่มีการจองอื่นรออนุมัติ)
                 if ("ปฏิเสธ".equals(status)) {
@@ -325,7 +319,7 @@ public class ThanachokManager {
 
             // หาการจองที่สถานะ "อนุมัติแล้ว" และเกินเวลาอนุมัติมา 24 ชั่วโมงแล้ว
             java.util.Date now = new java.util.Date();
-            long oneDayInMillis = 24 * 60 * 60 * 1000; // 24 ชั่วโมง
+            long oneDayInMillis = 24 * 60 * 60 * 1000;
 
             String hql = "FROM Reserve WHERE status = 'อนุมัติแล้ว' AND approvedDate IS NOT NULL";
             List<Reserve> approvedReserves = session.createQuery(hql, Reserve.class).list();
@@ -392,7 +386,6 @@ public class ThanachokManager {
     }
 
     // ค้นหาห้องจาก floor และ status
-    // ค้นหาห้องจาก floor และ status
     public List<Room> findRoomsByFloorAndStatus(String floor, String status) {
         Session session = null;
         try {
@@ -414,7 +407,7 @@ public class ThanachokManager {
                 hql += " AND roomStatus = :status";
             }
 
-            hql += " ORDER BY roomNumber"; // เพิ่มการเรียงลำดับ
+            hql += " ORDER BY roomNumber";
 
             var query = session.createQuery(hql, Room.class);
 
@@ -506,16 +499,7 @@ public class ThanachokManager {
             SessionFactory factory = HibernateConnection.doHibernateConnection();
             session = factory.openSession();
             tx = session.beginTransaction();
-
             Rent rent = session.get(Rent.class, RentId);
-            System.out.println("=== confirmRent Debug ===");
-            System.out.println("RentId: " + RentId);
-            System.out.println("Rent found: " + (rent != null));
-            if (rent != null) {
-                System.out.println("Current status: " + rent.getStatus());
-                System.out.println("Room: " + (rent.getRoom() != null ? rent.getRoom().getRoomNumber() : "null"));
-                System.out.println("Member: " + (rent.getMember() != null ? rent.getMember().getFirstName() : "null"));
-            }
 
             if (rent != null && "รออนุมัติ".equals(rent.getStatus())) {
                 // เปลี่ยนสถานะจาก "รออนุมัติ" เป็น "ชำระแล้ว" (ได้ห้องแล้ว)
@@ -529,25 +513,11 @@ public class ThanachokManager {
                     room.setRoomStatus("ไม่ว่าง");
                     session.update(room);
 
-                    System.out.println("=== Start Processing Payment Approval ===");
-                    System.out.println("Paid Member ID: " + paidMember.getMemberID());
-                    System.out
-                            .println("Paid Member Name: " + paidMember.getFirstName() + " " + paidMember.getLastName());
-                    System.out.println("Room ID: " + room.getRoomID());
-
                     // หาการจองทั้งหมดของห้องนี้
                     String findAllReservesHql = "FROM Reserve r WHERE r.room.roomID = :roomId ORDER BY r.reserveDate ASC";
                     List<Reserve> allReserves = session.createQuery(findAllReservesHql, Reserve.class)
                             .setParameter("roomId", room.getRoomID())
                             .list();
-
-                    System.out.println("=== All Reserves for Room " + room.getRoomNumber() + " ===");
-                    for (Reserve r : allReserves) {
-                        System.out.println("  Reserve ID: " + r.getReserveId() +
-                                ", Member ID: " + r.getMember().getMemberID() +
-                                ", Member: " + r.getMember().getFirstName() + " " + r.getMember().getLastName() +
-                                ", Status: " + r.getStatus());
-                    }
 
                     // หาการจองที่ได้รับอนุมัติแล้วหรือชำระแล้วของห้องนี้
                     String findApprovedReservesHql = "FROM Reserve r " +
@@ -557,36 +527,22 @@ public class ThanachokManager {
                     List<Reserve> approvedReserves = session.createQuery(findApprovedReservesHql, Reserve.class)
                             .setParameter("roomId", room.getRoomID())
                             .list();
-
-                    System.out.println("Found " + approvedReserves.size() + " approved/paid reserves for this room");
-
                     Reserve paidReserve = null;
 
-                    // หาการจองของคนที่จ่ายเงิน (ตรวจสอบ member ID)
                     for (Reserve reserve : approvedReserves) {
-                        System.out.println("Checking reserve ID " + reserve.getReserveId() +
-                                " for member " + reserve.getMember().getMemberID() +
-                                " (firstName: " + reserve.getMember().getFirstName() + ")");
                         if (reserve.getMember().getMemberID() == paidMember.getMemberID()) {
                             paidReserve = reserve;
-                            System.out.println("Match found! This is the paid member's reserve.");
                             break;
                         }
                     }
 
                     if (paidReserve != null) {
-                        // อัปเดตการจองของคนที่จ่ายเงินเป็น "เช่าอยู่" ผ่าน HQL เพื่อ commit ทันที
                         String updatePaidReserveHql = "UPDATE Reserve r SET r.status = 'เช่าอยู่' " +
                                 "WHERE r.reserveId = :paidReserveId";
                         int updated = session.createQuery(updatePaidReserveHql)
                                 .setParameter("paidReserveId", paidReserve.getReserveId())
                                 .executeUpdate();
-                        System.out.println("Updated reserve ID " + paidReserve.getReserveId()
-                                + " to 'เช่าอยู่' (rows affected: " + updated + ")");
-
-                        // Flush เพื่อให้ update commit ทันที
                         session.flush();
-                        System.out.println("Flushed session to commit changes");
 
                         // ปฏิเสธการจองอื่นๆ ทั้งหมดของห้องนี้ (รอการอนุมัติ + อนุมัติแล้ว + ชำระแล้ว
                         // ยกเว้นที่เปลี่ยนเป็น "เช่าอยู่" แล้ว)
@@ -598,24 +554,16 @@ public class ThanachokManager {
                                 .setParameter("roomId", room.getRoomID())
                                 .setParameter("paidReserveId", paidReserve.getReserveId())
                                 .executeUpdate();
-                        System.out.println("Rejected " + rejected + " other reserves");
-                    } else {
-                        System.out.println(
-                                "ERROR: No approved reserve found for paid member ID " + paidMember.getMemberID());
                     }
                 }
-
                 tx.commit();
-                System.out.println("=== Rent confirmed successfully ===");
                 return true;
             }
-            System.out.println("=== Cannot confirm: rent is null or status is not 'รออนุมัติ' ===");
             return false;
 
         } catch (Exception e) {
             if (tx != null)
                 tx.rollback();
-            System.out.println("=== Error in confirmRent: " + e.getMessage() + " ===");
             e.printStackTrace();
             return false;
         } finally {
@@ -651,7 +599,6 @@ public class ThanachokManager {
         }
     }
 
-    // Get room rental history ordered by newest first
     public List<Rent> getRoomRentalHistory(int roomId) {
         Session session = null;
         try {
@@ -674,7 +621,6 @@ public class ThanachokManager {
         }
     }
 
-    // Get rent by ID
     public Rent getRentById(int rentId) {
         Session session = null;
         try {
@@ -690,7 +636,6 @@ public class ThanachokManager {
         }
     }
 
-    // Update rent information
     public boolean updateRent(Rent rent) {
         Session session = null;
         Transaction tx = null;
@@ -724,17 +669,12 @@ public class ThanachokManager {
 
             Room room = session.get(Room.class, roomID);
             if (room == null) {
-                System.out.println("ไม่พบห้อง ID: " + roomID);
                 return false;
             }
 
-            // ตรวจสอบว่าห้องว่างหรือไม่เท่านั้น
             if (!"ว่าง".equals(room.getRoomStatus())) {
-                System.out.println("ไม่สามารถลบห้องที่ไม่ว่างได้");
                 return false;
             }
-
-            // ลบห้องที่ว่าง
             session.delete(room);
             tx.commit();
             return true;
@@ -870,8 +810,6 @@ public class ThanachokManager {
         try {
             SessionFactory sessionFactory = HibernateConnection.doHibernateConnection();
             session = sessionFactory.openSession();
-
-            // ลองหาข้อมูลที่มีอยู่
             InvoiceType type = session.createQuery("FROM InvoiceType WHERE typeName = :name", InvoiceType.class)
                     .setParameter("name", name)
                     .uniqueResult();
@@ -925,7 +863,7 @@ public class ThanachokManager {
         }
     }
 
-    // คืนค่า Rent ที่ยังไม่ได้คืนห้อง (active) สำหรับห้องนั้นๆ
+    // คืนค่า Rent ที่ยังไม่ได้คืนห้อง (active)
     public Rent getRentByRoomID(int roomID) {
         Session session = null;
         try {
@@ -1031,16 +969,13 @@ public class ThanachokManager {
             session = sessionFactory.openSession();
             tx = session.beginTransaction();
 
-            // หา Rent และ Room ที่เกี่ยวข้อง
             Rent rent = session.get(Rent.class, rentId);
             if (rent == null) {
-                System.out.println("Error: Rent not found for rentId: " + rentId);
                 return false;
             }
 
             Room room = rent.getRoom();
             if (room == null) {
-                System.out.println("Error: Room not found for rent: " + rentId);
                 return false;
             }
 
@@ -1051,7 +986,6 @@ public class ThanachokManager {
             Long unpaidCount = checkQuery.uniqueResult();
 
             if (unpaidCount != null && unpaidCount > 0) {
-                System.out.println("Error: Found unpaid invoices: " + unpaidCount);
                 return false;
             }
 
@@ -1343,8 +1277,6 @@ public class ThanachokManager {
         try {
             SessionFactory sessionFactory = HibernateConnection.doHibernateConnection();
             session = sessionFactory.openSession();
-
-            // ปิด cache เพื่อให้ดึงข้อมูลล่าสุดจาก database
             session.setCacheMode(org.hibernate.CacheMode.IGNORE);
 
             String hql = "SELECT DISTINCT i FROM Invoice i " +
@@ -1357,14 +1289,10 @@ public class ThanachokManager {
 
             Query<Invoice> query = session.createQuery(hql, Invoice.class);
             query.setParameter("invoiceId", invoiceId);
-            query.setCacheable(false); // ปิด query cache
-
+            query.setCacheable(false);
             Invoice invoice = query.uniqueResult();
-
-            // บังคับให้โหลด details ทั้งหมด (ป้องกัน lazy loading)
             if (invoice != null && invoice.getDetails() != null) {
-                invoice.getDetails().size(); // initialize collection
-                System.out.println("Loaded invoice " + invoiceId + " with " + invoice.getDetails().size() + " details");
+                invoice.getDetails().size();
             }
 
             return invoice;
@@ -1391,11 +1319,9 @@ public class ThanachokManager {
                     .setParameter("invoiceId", invoiceId)
                     .uniqueResult();
 
-            System.out.println("Invoice " + invoiceId + " exists check: " + count);
             return count != null && count > 0;
 
         } catch (Exception e) {
-            System.out.println("Error checking invoice existence: " + e.getMessage());
             e.printStackTrace();
             return false;
         } finally {
@@ -1414,7 +1340,6 @@ public class ThanachokManager {
             tx = session.beginTransaction();
             Invoice invoice = session.get(Invoice.class, invoiceId);
             if (invoice == null) {
-                System.out.println("Invoice " + invoiceId + " not found");
                 return false;
             }
 
@@ -1440,7 +1365,6 @@ public class ThanachokManager {
             if (tx != null) {
                 tx.rollback();
             }
-            System.out.println("Error deleting invoice " + invoiceId + ": " + e.getMessage());
             e.printStackTrace();
             return false;
         } finally {
@@ -1464,13 +1388,10 @@ public class ThanachokManager {
 
             // ตรวจสอบสถานะ: 0 = ยังไม่ชำระ, 1 = ชำระแล้ว
             boolean canDelete = invoice.getStatus() == 0;
-            System.out.println(
-                    "Invoice " + invoiceId + " can delete: " + canDelete + " (status: " + invoice.getStatus() + ")");
 
             return canDelete;
 
         } catch (Exception e) {
-            System.out.println("Error checking invoice delete permission: " + e.getMessage());
             e.printStackTrace();
             return false;
         } finally {
@@ -1486,15 +1407,10 @@ public class ThanachokManager {
         try {
             SessionFactory sessionFactory = HibernateConnection.doHibernateConnection();
             session = sessionFactory.openSession();
-
             Invoice invoice = session.get(Invoice.class, invoiceId);
-            System.out.println("Retrieved invoice " + invoiceId + " with status: " +
-                    (invoice != null ? invoice.getStatus() : "null"));
-
             return invoice;
 
         } catch (Exception e) {
-            System.out.println("Error retrieving invoice: " + e.getMessage());
             e.printStackTrace();
             return null;
         } finally {
@@ -1597,25 +1513,18 @@ public class ThanachokManager {
                     "AND (r.status = 'ชำระแล้ว' OR r.status = 'เสร็จสมบูรณ์' OR r.status = 'รอคืนห้อง') " +
                     "ORDER BY r.rentDate DESC";
 
-            System.out.println("=== getActiveRentByRoomID Debug ===");
-            System.out.println("Query: " + hql);
-            System.out.println("RoomID parameter: " + roomID);
-
             Query<Rent> query = session.createQuery(hql, Rent.class);
             query.setParameter("roomID", roomID);
             query.setMaxResults(1);
 
             List<Rent> results = query.list();
-            System.out.println("Results found: " + results.size());
             if (!results.isEmpty()) {
                 Rent r = results.get(0);
-                System.out.println("Rent ID: " + r.getRentID() + ", Status: " + r.getStatus());
             }
 
             return results.isEmpty() ? null : results.get(0);
 
         } catch (Exception e) {
-            System.out.println("Error in getActiveRentByRoomID: " + e.getMessage());
             e.printStackTrace();
             return null;
         } finally {
@@ -1644,12 +1553,9 @@ public class ThanachokManager {
 
             List<Invoice> invoices = query.list();
 
-            System.out.println("Retrieved " + invoices.size() + " invoices for memberID: " + memberID);
-
             return invoices;
 
         } catch (Exception e) {
-            System.out.println("Error getting invoices for memberID " + memberID + ": " + e.getMessage());
             e.printStackTrace();
             return Collections.emptyList();
         } finally {
@@ -1719,17 +1625,10 @@ public class ThanachokManager {
             session = sessionFactory.openSession();
             tx = session.beginTransaction();
 
-            System.out.println("=== Starting Invoice Update ===");
-            System.out.println("Invoice ID: " + invoice.getInvoiceId());
-            System.out.println("Old details count: " + (oldDetails != null ? oldDetails.size() : 0));
-            System.out
-                    .println("New details count: " + (invoice.getDetails() != null ? invoice.getDetails().size() : 0));
-
-            // ดึง Invoice จากฐานข้อมูลใน session
+            // ดึง Invoice จากฐานข้อมูล
             Invoice dbInvoice = session.get(Invoice.class, invoice.getInvoiceId());
 
             if (dbInvoice == null) {
-                System.out.println("ERROR: Invoice not found in database");
                 return false;
             }
 
@@ -1739,37 +1638,21 @@ public class ThanachokManager {
             dbInvoice.setTotalAmount(invoice.getTotalAmount());
             dbInvoice.setStatus(invoice.getStatus());
 
-            System.out.println("Updated basic invoice info");
-
-            // อัปเดต InvoiceDetails โดยใช้ ID เดิม (ถ้ามี) หรือสร้างใหม่
-            System.out.println("Processing details...");
-
-            // เคลียร์ collection เพื่อเตรียมอัปเดต
             dbInvoice.getDetails().clear();
             session.flush();
 
-            System.out.println("Cleared collection, now processing new details");
-
-            // ประมวลผล InvoiceDetails ใหม่
             if (invoice.getDetails() != null && !invoice.getDetails().isEmpty()) {
                 for (InvoiceDetail newDetail : invoice.getDetails()) {
                     InvoiceDetail detail = null;
 
-                    // ถ้ามี ID และ > 0 แสดงว่าเป็น detail เดิม → ค้นหาและอัปเดต
                     if (newDetail.getId() > 0) {
-                        // ค้นหา detail เดิมจาก session
                         detail = session.get(InvoiceDetail.class, newDetail.getId());
-                        if (detail != null) {
-                            System.out.println("Found existing detail ID: " + detail.getId() + " - updating");
-                        } else {
-                            System.out.println("Detail ID " + newDetail.getId() + " not found, creating new");
-                        }
                     }
 
                     // ถ้าไม่เจอ detail เดิม → สร้างใหม่
                     if (detail == null) {
                         detail = new InvoiceDetail();
-                        System.out.println("Creating new detail for: " + newDetail.getType().getTypeName());
+
                     }
 
                     // อัปเดตข้อมูล
@@ -1778,33 +1661,19 @@ public class ThanachokManager {
                     detail.setPrice(newDetail.getPrice());
                     detail.setQuantity(newDetail.getQuantity());
                     detail.setAmount(newDetail.getAmount());
-                    detail.setRemark(newDetail.getRemark()); // บันทึก remark สำหรับค่าปรับ
-
+                    detail.setRemark(newDetail.getRemark());
                     dbInvoice.getDetails().add(detail);
-                    System.out.println("Saved detail: " + newDetail.getType().getTypeName() +
-                            " (ID: " + (detail.getId() > 0 ? detail.getId() : "NEW") + ") = ฿" + newDetail.getAmount() +
-                            (newDetail.getRemark() != null && !newDetail.getRemark().isEmpty()
-                                    ? " [Remark: " + newDetail.getRemark() + "]"
-                                    : ""));
                 }
             }
-
-            System.out.println("Total details after update: " + dbInvoice.getDetails().size());
-
             // บันทึกการเปลี่ยนแปลง
             session.update(dbInvoice);
-
             tx.commit();
-            System.out.println("=== Invoice Update SUCCESS ===");
             return true;
 
         } catch (Exception e) {
             if (tx != null && tx.isActive()) {
                 tx.rollback();
-                System.out.println("Transaction rolled back");
             }
-            System.out.println("=== Invoice Update FAILED ===");
-            System.out.println("Error: " + e.getMessage());
             e.printStackTrace();
             return false;
         } finally {
@@ -1835,14 +1704,11 @@ public class ThanachokManager {
 
             if (invoice != null) {
                 invoice.getDetails().size();
-                System.out.println("Retrieved invoice " + invoiceId + " with " +
-                        invoice.getDetails().size() + " details");
             }
 
             return invoice;
 
         } catch (Exception e) {
-            System.out.println("Error retrieving invoice for edit: " + e.getMessage());
             e.printStackTrace();
             return null;
         } finally {
@@ -1866,14 +1732,12 @@ public class ThanachokManager {
                     .executeUpdate();
 
             tx.commit();
-            System.out.println("Deleted " + deletedCount + " invoice details for invoice " + invoiceId);
             return true;
 
         } catch (Exception e) {
             if (tx != null && tx.isActive()) {
                 tx.rollback();
             }
-            System.out.println("Error deleting invoice details: " + e.getMessage());
             e.printStackTrace();
             return false;
         } finally {
@@ -1904,16 +1768,12 @@ public class ThanachokManager {
 
             if (!results.isEmpty()) {
                 Invoice invoice = results.get(0);
-                System.out.println("Found latest invoice ID: " + invoice.getInvoiceId() +
-                        " for room " + roomID);
                 return invoice;
             }
 
-            System.out.println("No previous invoice found for room " + roomID);
             return null;
 
         } catch (Exception e) {
-            System.out.println("Error getting latest invoice: " + e.getMessage());
             e.printStackTrace();
             return null;
         } finally {
@@ -1924,49 +1784,37 @@ public class ThanachokManager {
     }
 
     public java.util.Map<String, Integer> getPreviousMeterReadings(int roomID) {
-    java.util.Map<String, Integer> readings = new java.util.HashMap<>();
-    readings.put("prevWater", 0);
-    readings.put("prevElectric", 0);
-    readings.put("waterRate", 18);
-    readings.put("electricRate", 7);
+        java.util.Map<String, Integer> readings = new java.util.HashMap<>();
+        readings.put("prevWater", 0);
+        readings.put("prevElectric", 0);
+        readings.put("waterRate", 18);
+        readings.put("electricRate", 7);
 
-    try {
-        Invoice latestInvoice = getLatestInvoiceByRoomID(roomID);
+        try {
+            Invoice latestInvoice = getLatestInvoiceByRoomID(roomID);
 
-        if (latestInvoice != null && latestInvoice.getDetails() != null) {
-            System.out.println("=== Getting Previous Meter Readings ===");
-            System.out.println("Room ID: " + roomID);
-            System.out.println("Latest Invoice ID: " + latestInvoice.getInvoiceId());
+            if (latestInvoice != null && latestInvoice.getDetails() != null) {
 
-            for (InvoiceDetail detail : latestInvoice.getDetails()) {
-                String typeName = detail.getType().getTypeName();
+                for (InvoiceDetail detail : latestInvoice.getDetails()) {
+                    String typeName = detail.getType().getTypeName();
 
-                if ("ค่าน้ำ".equals(typeName)) {
-                    // ⭐ เลขครั้งก่อน = เลขปัจจุบันจากบิลก่อนหน้า
-                    int previousWater = detail.getQuantity();
-                    readings.put("prevWater", previousWater);
-                    readings.put("waterRate", (int) detail.getPrice());
-                    System.out.println("✅ Previous water meter: " + previousWater +
-                            " @ " + detail.getPrice() + " baht/unit");
-                } else if ("ค่าไฟฟ้า".equals(typeName)) {
-                    int previousElectric = detail.getQuantity();
-                    readings.put("prevElectric", previousElectric);
-                    readings.put("electricRate", (int) detail.getPrice());
-                    System.out.println("✅ Previous electric meter: " + previousElectric +
-                            " @ " + detail.getPrice() + " baht/unit");
+                    if ("ค่าน้ำ".equals(typeName)) {
+                        int previousWater = detail.getQuantity();
+                        readings.put("prevWater", previousWater);
+                        readings.put("waterRate", (int) detail.getPrice());
+                    } else if ("ค่าไฟฟ้า".equals(typeName)) {
+                        int previousElectric = detail.getQuantity();
+                        readings.put("prevElectric", previousElectric);
+                        readings.put("electricRate", (int) detail.getPrice());
+                    }
                 }
             }
-        } else {
-            System.out.println("⚠️ No previous invoice found for room " + roomID + " - using defaults (0)");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-    } catch (Exception e) {
-        System.out.println("❌ Error getting previous meter readings: " + e.getMessage());
-        e.printStackTrace();
+        return readings;
     }
-
-    return readings;
-}
 
     public java.util.Map<String, Integer> calculateCurrentMeterFromUsage(Invoice invoice) {
         java.util.Map<String, Integer> meters = new java.util.HashMap<>();
@@ -1986,20 +1834,15 @@ public class ThanachokManager {
                         int prevWater = prevReadings.get("prevWater");
                         int waterUsage = detail.getQuantity();
                         meters.put("currWater", prevWater + waterUsage);
-                        System.out.println("Calculated current water: " + (prevWater + waterUsage) +
-                                " (prev: " + prevWater + " + usage: " + waterUsage + ")");
                     } else if ("ค่าไฟฟ้า".equals(typeName)) {
                         int prevElectric = prevReadings.get("prevElectric");
                         int electricUsage = detail.getQuantity();
                         meters.put("currElectric", prevElectric + electricUsage);
-                        System.out.println("Calculated current electric: " + (prevElectric + electricUsage) +
-                                " (prev: " + prevElectric + " + usage: " + electricUsage + ")");
                     }
                 }
             }
 
         } catch (Exception e) {
-            System.out.println("Error calculating current meter: " + e.getMessage());
             e.printStackTrace();
         }
 
@@ -2029,16 +1872,12 @@ public class ThanachokManager {
 
             if (!results.isEmpty()) {
                 Invoice invoice = results.get(0);
-                System.out.println("Found previous invoice ID: " + invoice.getInvoiceId() +
-                        " (date: " + invoice.getIssueDate() + ") for room " + roomID);
                 return invoice;
             }
 
-            System.out.println("No invoice before " + currentInvoiceDate + " found for room " + roomID);
             return null;
 
         } catch (Exception e) {
-            System.out.println("Error getting invoice before date: " + e.getMessage());
             e.printStackTrace();
             return null;
         } finally {
@@ -2048,7 +1887,7 @@ public class ThanachokManager {
         }
     }
 
-    // คืนห้อง - Manager สามารถคืนห้องได้เลยโดยไม่มีเงื่อนไข
+    // คืนห้อง - Manager สามารถคืนห้องได้เลย
     public boolean managerreturnRoom(int rentId) {
         Session session = null;
         Transaction tx = null;
@@ -2060,13 +1899,11 @@ public class ThanachokManager {
             // หา Rent และ Room ที่เกี่ยวข้อง
             Rent rent = session.get(Rent.class, rentId);
             if (rent == null) {
-                System.out.println("❌ Error: Rent not found for rentId: " + rentId);
                 return false;
             }
 
             Room room = rent.getRoom();
             if (room == null) {
-                System.out.println("❌ Error: Room not found for rent: " + rentId);
                 return false;
             }
 
@@ -2090,8 +1927,6 @@ public class ThanachokManager {
                 reserveQuery.setParameter("roomId", room.getRoomID());
                 reserveQuery.setParameter("memberId", deposit.getMember().getMemberID());
                 int updatedReserves = reserveQuery.executeUpdate();
-                System.out.println("✅ Updated " + updatedReserves + " reserve(s) to 'คืนห้องแล้ว' for roomId: "
-                        + room.getRoomID() + ", memberId: " + deposit.getMember().getMemberID());
             }
             tx.commit();
             return true;
@@ -2115,7 +1950,7 @@ public class ThanachokManager {
             SessionFactory sessionFactory = HibernateConnection.doHibernateConnection();
             session = sessionFactory.openSession();
 
-            // ดึงทั้งสถานะ "ชำระแล้ว", "เสร็จสมบูรณ์" และ "รอคืนห้อง" พร้อม fetch room
+            // ดึงทั้งสถานะ "ชำระแล้ว", "เสร็จสมบูรณ์" และ "รอคืนห้อง"
             String hql = "FROM Rent r " +
                     "LEFT JOIN FETCH r.room " +
                     "LEFT JOIN FETCH r.member " +
@@ -2214,7 +2049,6 @@ public class ThanachokManager {
             Long unpaidCount = checkQuery.uniqueResult();
 
             if (unpaidCount != null && unpaidCount > 0) {
-                System.out.println("Error: Found unpaid invoices: " + unpaidCount);
                 return false;
             }
 
@@ -2230,7 +2064,7 @@ public class ThanachokManager {
                 // บันทึกวันที่และเวลาที่ส่งคำขอคืนห้อง (เวลาไทย GMT+7)
                 java.util.Calendar cal = java.util.Calendar.getInstance();
                 cal.setTimeZone(java.util.TimeZone.getTimeZone("Asia/Bangkok"));
-                cal.add(java.util.Calendar.HOUR_OF_DAY, 7); // บวกเวลาเพิ่ม 7 ชั่วโมง
+                cal.add(java.util.Calendar.HOUR_OF_DAY, 7);
                 deposit.setReturnDate(cal.getTime());
 
                 session.update(deposit);
@@ -2376,7 +2210,6 @@ public class ThanachokManager {
             session = sessionFactory.openSession();
             tx = session.beginTransaction();
 
-            // หา Rent
             Rent rent = session.get(Rent.class, rentId);
             if (rent == null) {
                 return false;
@@ -2428,51 +2261,37 @@ public class ThanachokManager {
             session = sessionFactory.openSession();
             tx = session.beginTransaction();
 
-            System.out.println("=== Undo Room Return ===");
-            System.out.println("Rent ID: " + rentId);
-
             // หา Rent ที่ต้องการยกเลิกการคืน
             Rent rent = session.get(Rent.class, rentId);
             if (rent == null) {
-                System.out.println("ERROR: Rent not found");
+                ;
                 return false;
             }
-
-            System.out.println("Current Rent Status: " + rent.getStatus());
 
             // ตรวจสอบว่าต้องเป็นสถานะที่สามารถยกเลิกได้ (เช่น "คืนห้องแล้ว" หรือ
             // "เสร็จสมบูรณ์")
             if (!"คืนห้องแล้ว".equals(rent.getStatus()) && !"เสร็จสมบูรณ์".equals(rent.getStatus())) {
-                System.out.println("ERROR: Cannot undo - status is not 'คืนห้องแล้ว' or 'เสร็จสมบูรณ์'");
                 return false;
             }
 
             Room room = rent.getRoom();
             if (room == null) {
-                System.out.println("ERROR: Room not found");
                 return false;
             }
 
             Member member = rent.getMember();
             if (member == null) {
-                System.out.println("ERROR: Member not found");
                 return false;
             }
-
-            System.out.println("Room ID: " + room.getRoomID() + ", Room Number: " + room.getRoomNumber());
-            System.out.println("Member ID: " + member.getMemberID() + ", Name: " + member.getFirstName() + " "
-                    + member.getLastName());
 
             // 1. เปลี่ยนสถานะ Rent กลับเป็น "ชำระแล้ว"
             rent.setStatus("ชำระแล้ว");
             rent.setReturnDate(null); // ลบวันที่คืนห้อง
             session.update(rent);
-            System.out.println("Updated Rent status to 'ชำระแล้ว'");
 
             // 2. เปลี่ยนสถานะห้องกลับเป็น "ไม่ว่าง"
             room.setRoomStatus("ไม่ว่าง");
             session.update(room);
-            System.out.println("Updated Room status to 'ไม่ว่าง'");
 
             // 3. เปลี่ยนสถานะ Reserve กลับเป็น "เช่าอยู่"
             String updateReserveHql = "UPDATE Reserve r SET r.status = 'เช่าอยู่' " +
@@ -2483,18 +2302,13 @@ public class ThanachokManager {
                     .setParameter("roomId", room.getRoomID())
                     .setParameter("memberId", member.getMemberID())
                     .executeUpdate();
-
-            System.out.println("Updated " + reserveUpdated + " Reserve(s) to 'เช่าอยู่'");
-
             tx.commit();
-            System.out.println("=== Undo Room Return SUCCESS ===");
             return true;
 
         } catch (Exception e) {
             if (tx != null && tx.isActive()) {
                 tx.rollback();
             }
-            System.out.println("=== Undo Room Return FAILED ===");
             e.printStackTrace();
             return false;
         } finally {
@@ -2523,10 +2337,8 @@ public class ThanachokManager {
 
             List<Rent> rents = query.list();
 
-            // Initialize lazy properties to avoid LazyInitializationException
             for (Rent rent : rents) {
                 if (rent.getRoom() != null) {
-                    // Force initialization
                     rent.getRoom().getRoomNumber();
                     rent.getRoom().getRoomPrice();
                     rent.getRoom().getDescription();
@@ -2535,7 +2347,6 @@ public class ThanachokManager {
                 if (rent.getMember() != null) {
                     rent.getMember().getFirstName();
                 }
-                // Initialize other properties
                 rent.getStatus();
                 rent.getRentDate();
                 rent.getReturnDate();
@@ -2553,8 +2364,6 @@ public class ThanachokManager {
             }
         }
     }
-
-    // ==================== Utility Rate Management ====================
 
     // ดึงข้อมูลหน่วยค่าน้ำ-ค่าไฟที่ใช้งานอยู่
     public UtilityRate getActiveUtilityRate() {
@@ -2607,11 +2416,6 @@ public class ThanachokManager {
         Session session = null;
         Transaction tx = null;
         try {
-            System.out.println("=== Saving Utility Rate ===");
-            System.out.println("Water Rate: " + newRate.getRatePerUnitWater());
-            System.out.println("Electric Rate: " + newRate.getRatePerUnitElectric());
-            System.out.println("Notes: " + newRate.getNotes());
-
             SessionFactory factory = HibernateConnection.doHibernateConnection();
             session = factory.openSession();
             tx = session.beginTransaction();
@@ -2619,7 +2423,6 @@ public class ThanachokManager {
             // ปิดการใช้งาน rates เก่าทั้งหมด
             String updateHql = "UPDATE UtilityRate SET isActive = false WHERE isActive = true";
             int updated = session.createQuery(updateHql).executeUpdate();
-            System.out.println("Deactivated " + updated + " old rate(s)");
 
             // บันทึก rate ใหม่ (บวกเวลา +7 ชั่วโมง)
             java.util.Calendar cal = java.util.Calendar.getInstance();
@@ -2628,19 +2431,13 @@ public class ThanachokManager {
             newRate.setActive(true);
             newRate.setEffectiveDate(cal.getTime());
             session.save(newRate);
-            System.out.println("New rate saved successfully with Thai time (+7 hours)");
 
             tx.commit();
-            System.out.println("Transaction committed");
             return true;
 
         } catch (Exception e) {
-            System.err.println("=== ERROR Saving Utility Rate ===");
-            System.err.println("Error Type: " + e.getClass().getName());
-            System.err.println("Error Message: " + e.getMessage());
             if (tx != null && tx.isActive()) {
                 tx.rollback();
-                System.err.println("Transaction rolled back");
             }
             e.printStackTrace();
             return false;
@@ -2709,8 +2506,6 @@ public class ThanachokManager {
         }
     }
 
-    // ตรวจสอบชื่อ-นามสกุล-เบอร์โทร ซ้ำ (ไม่สนใจตัวพิมพ์ใหญ่-เล็กและช่องว่าง)
-    // ตรวจสอบชื่อ-นามสกุลซ้ำ (case sensitive, ตัดช่องว่าง)
     public boolean isNameDuplicate(String firstName, String lastName) {
         Session session = null;
         try {
@@ -2773,28 +2568,25 @@ public class ThanachokManager {
         }
     }
 
+    public Manager getManager() {
+        Session session = null;
+        try {
+            SessionFactory sessionFactory = HibernateConnection.doHibernateConnection();
+            session = sessionFactory.openSession();
 
-    // เพิ่ม method นี้ใน ThanachokManager.java
-public Manager getManager() {
-    Session session = null;
-    try {
-        SessionFactory sessionFactory = HibernateConnection.doHibernateConnection();
-        session = sessionFactory.openSession();
-        
-        // ดึง Manager คนแรก (สมมติว่ามี Manager เพียงคนเดียวในระบบ)
-        String hql = "FROM Manager";
-        Query<Manager> query = session.createQuery(hql, Manager.class);
-        query.setMaxResults(1);
-        
-        return query.uniqueResult();
-    } catch (Exception e) {
-        e.printStackTrace();
-        return null;
-    } finally {
-        if (session != null) {
-            session.close();
+            String hql = "FROM Manager";
+            Query<Manager> query = session.createQuery(hql, Manager.class);
+            query.setMaxResults(1);
+
+            return query.uniqueResult();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        } finally {
+            if (session != null) {
+                session.close();
+            }
         }
     }
-}
 
 }

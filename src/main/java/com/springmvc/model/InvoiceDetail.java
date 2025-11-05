@@ -31,7 +31,6 @@ public class InvoiceDetail {
     @JoinColumn(name = "type_id")
     private InvoiceType type;
 
-    // Default constructor
     public InvoiceDetail() {
     }
 
@@ -45,7 +44,6 @@ public class InvoiceDetail {
         this.remark = null;
     }
 
-    // Getter & Setter
     public int getId() {
         return id;
     }

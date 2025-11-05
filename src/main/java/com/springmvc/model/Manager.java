@@ -63,7 +63,6 @@ public class Manager {
         this.accountName = accountName;
     }
 
-    // Default constructor (required by JPA/Hibernate)
     public Manager() {
     }
 

@@ -604,7 +604,6 @@
                   <div class="card-body">
                     <c:choose>
                       <c:when test="${not empty rent && not empty room}">
-                        <!-- Room Information Card -->
                         <div class="room-info-card">
                           <h3>
                             <i class="fas fa-home"></i>
@@ -632,18 +631,17 @@
                           </div>
                         </div>
                         <div class="alert alert-warning" id="meterWarning" style="
-                  display: none;
-                  background: rgba(255, 193, 7, 0.15);
-                  border: 2px solid #ffc107;
-                  color: #ffc107;
-                  padding: 15px 20px;
-                  border-radius: 10px;
-                  margin-bottom: 25px;
-                  display: flex;
-                  align-items: center;
-                  gap: 12px;
-                  animation: slideInDown 0.5s ease;
-                ">
+                            display: none;
+                            background: rgba(255, 193, 7, 0.15);
+                            border: 2px solid #ffc107;
+                            color: #ffc107;
+                            padding: 15px 20px;
+                            border-radius: 10px;
+                            margin-bottom: 25px;
+                            display: flex;
+                            align-items: center;
+                            gap: 12px;
+                            animation: slideInDown 0.5s ease;">
                           <i class="fas fa-exclamation-circle"></i>
                           <span id="warningMessage"></span>
                         </div>
@@ -652,19 +650,9 @@
                           <input type="hidden" name="rentId" value="${rent.rentID}" />
                           <input type="hidden" name="issueDate" value="${today}" />
                           <input type="hidden" name="dueDate" value="${dueDate}" />
-
-                          <!-- ค่าห้อง -->
                           <input type="hidden" id="roomPrice" value="${room.roomPrice}" />
-
-                          <!-- พื้นที่แสดง Cards ของบิลทั้งหมด -->
-                          <div id="billsCardsContainer" style="position: relative">
-                            <!-- Cards จะแสดงที่นี่ -->
-                          </div>
-
-                          <!-- Hidden inputs สำหรับส่งข้อมูล -->
+                          <div id="billsCardsContainer" style="position: relative"></div>
                           <div id="hiddenInputsContainer" style="display: none"></div>
-
-                          <!-- Total Section -->
                           <div class="total-section">
                             <div class="total-label">ยอดรวมทั้งสิ้น</div>
                             <div class="total-amount" id="totalDisplay">
@@ -724,7 +712,6 @@
               </div>
 
               <script>
-                // ManagerAddInvoice.jsp - JavaScript Section (แทนที่ส่วน <script> เดิม)
 
                 let bills = [];
                 let billCounter = 1;
@@ -737,7 +724,6 @@
                 const initialElectricRate = ${ electricRate };
                 const internetPriceFixed = ${ internetPrice };
 
-                // รายการที่เลือกไปแล้ว (เพื่อซ่อนใน dropdown)
                 let usedTypes = [];
 
                 function showToast(message, type) {
@@ -747,7 +733,6 @@
                   toastMessage.textContent = message;
                   toast.className = "toast " + type;
 
-                  // ✅ เปลี่ยนสีขอบตาม type
                   if (type === 'warning') {
                     toast.style.borderLeft = '5px solid #ffc107';
                     toast.style.background = '#fff8e1';
@@ -765,7 +750,6 @@
                   }, 5000);
                 }
 
-                // เมื่อโหลดหน้าเว็บเสร็จ สร้าง Card แรก
                 document.addEventListener('DOMContentLoaded', function () {
                   createNewCard();
                   calculateAllBillsTotal();
@@ -812,7 +796,6 @@
                   container.appendChild(card);
                 }
 
-                // จัดการเมื่อเปลี่ยนประเภทใน dropdown
                 function handleTypeChange(cardId) {
                   const card = document.getElementById(cardId);
                   const typeSelect = card.querySelector('.billType');
@@ -887,12 +870,9 @@
 
                   inputsContainer.innerHTML = html;
                   setupCardEventListeners(cardId);
-
-                  // ✅ คำนวณยอดรวมทันทีหลังจากสร้าง input (สำหรับอินเทอร์เน็ตที่มีค่า default)
                   calculateAllBillsTotal();
                 }
 
-                // ✅ คำนวณค่ามิเตอร์ - อนุญาตให้เท่ากันได้ โดยไม่แจ้งเตือน
                 function calculateMeter(cardId) {
                   const card = document.getElementById(cardId);
                   const prevMeter = parseFloat(card.querySelector('.prevMeter').value) || 0;
@@ -901,47 +881,34 @@
                   const usageInput = card.querySelector('.usage');
                   const currMeterInput = card.querySelector('.currMeter');
 
-                  // ✅ อนุญาตให้เท่ากับหรือมากกว่าเท่านั้น
                   if (currMeter >= prevMeter) {
                     const usage = currMeter - prevMeter;
                     const total = usage * rate;
 
-                    // แสดงจำนวนหน่วยที่ใช้
                     if (usageInput) {
                       usageInput.value = usage.toFixed(2);
                     }
-
                     card.querySelector('.amount').value = total.toFixed(2);
-
-                    // ✅ เคลียร์ข้อความ error (ถ้ามี)
                     currMeterInput.style.borderColor = '';
                     currMeterInput.style.borderWidth = '';
 
-                    // ✅ ไม่แสดง warning toast เมื่อเท่ากัน (ลบส่วนนี้ออก)
-                    // if (usage === 0) {
-                    //     showToast('มิเตอร์เท่ากับเดือนก่อน (ไม่มีการใช้งาน) - สามารถเพิ่มบิลได้', 'warning');
-                    // }
                   } else {
-                    // ⚠️ น้อยกว่าเดือนก่อน - ไม่อนุญาต
                     if (usageInput) {
                       usageInput.value = '0';
                     }
                     card.querySelector('.amount').value = '';
 
-                    // แสดง error border
                     currMeterInput.style.borderColor = '#f44336';
                     currMeterInput.style.borderWidth = '2px';
 
                     showToast('มิเตอร์ปัจจุบันต้องมากกว่าหรือเท่ากับมิเตอร์เดือนก่อน (' + prevMeter + ')', 'error');
                   }
 
-                  // อัพเดตยอดรวม
                   if (bills.find(b => b.cardId === cardId)) {
                     calculateAllBillsTotal();
                   }
                 }
 
-                // ✅ เพิ่มบิลเข้าลิสต์ - ไม่บังคับต้องกด (ใช้สำหรับ lock card)
                 function addBill(cardId) {
                   const card = document.getElementById(cardId);
                   const type = card.querySelector('.billType').value;
@@ -951,7 +918,6 @@
                     return;
                   }
 
-                  // ตรวจสอบข้อมูลก่อนเพิ่ม
                   if (type === 'water' || type === 'electricity') {
                     const prevMeter = parseFloat(card.querySelector('.prevMeter').value) || 0;
                     const currMeter = parseFloat(card.querySelector('.currMeter').value) || 0;
@@ -966,8 +932,6 @@
                       showToast('มิเตอร์ปัจจุบันต้องมากกว่าหรือเท่ากับมิเตอร์เดือนก่อน (' + prevMeter + ')', 'error');
                       return;
                     }
-
-                    // ✅ ไม่ต้องเช็ค amount > 0 (อนุญาตให้เป็น 0 ได้)
 
                   } else if (type === 'penalty') {
                     const remarkInput = card.querySelector('.remark');
@@ -997,7 +961,6 @@
                       return;
                     }
                   } else if (type === 'internet') {
-                    // ไม่ต้อง validate จำนวนเงินสำหรับอินเทอร์เน็ต (readonly)
                   } else {
                     const amount = parseFloat(card.querySelector('.amount').value) || 0;
 
@@ -1007,19 +970,17 @@
                     }
                   }
 
-                  // เพิ่ม type เข้า usedTypes (เว้นแต่ type "other")
                   if (type !== 'other') {
                     usedTypes.push(type);
                   }
 
-                  // เก็บ cardId กับข้อมูล
                   bills.push({
                     id: billCounter++,
                     cardId: cardId,
                     type: type
                   });
 
-                  // ✅ ซ่อนปุ่มเพิ่มบิล และแสดงปุ่มลบ (Lock card)
+                  // ซ่อนปุ่มเพิ่มบิล และแสดงปุ่มลบ (Lock card)
                   card.querySelector('button[onclick*="addBill"]').style.display = 'none';
                   document.getElementById('removeBtn_' + cardId).style.display = 'inline-flex';
 
@@ -1040,29 +1001,24 @@
                     const currMeter = parseFloat(card.querySelector('.currMeter').value) || 0;
                     currentPrevElectric = currMeter;
                   }
-
-                  // ✅ สร้าง Card ใหม่
                   createNewCard();
-
                   showToast('เพิ่มบิลเรียบร้อย', 'success');
                 }
 
-                // ✅ คำนวณยอดรวมจากทุก Card แบบ Real-time (ไม่ต้องกดเพิ่มบิล)
+                // คำนวณยอดรวมจากทุก Card แบบ Real-time 
                 function calculateAllBillsTotal() {
-                  let total = roomPrice; // เริ่มจากค่าห้อง
+                  let total = roomPrice;
                   let billCount = 0;
 
                   const container = document.getElementById('billsCardsContainer');
                   if (container) {
                     const allCards = container.querySelectorAll('.form-section');
                     allCards.forEach(card => {
-                      // ตรวจสอบว่า card นี้เลือกประเภทแล้วหรือยัง
                       const typeSelect = card.querySelector('.billType');
                       if (typeSelect && typeSelect.value) {
                         const amountInput = card.querySelector('.amount');
                         if (amountInput && amountInput.value !== '') {
                           const amount = parseFloat(amountInput.value) || 0;
-                          // ✅ รวมทุกบิลที่มี amount >= 0 (รวมถึงกรณีไม่มีการใช้งาน)
                           if (amount >= 0) {
                             total += amount;
                             billCount++;
@@ -1072,7 +1028,6 @@
                     });
                   }
 
-                  // แสดงยอดรวม
                   const totalDisplay = document.getElementById('totalDisplay');
                   if (totalDisplay) {
                     totalDisplay.textContent = '฿' + total.toLocaleString('th-TH', {
@@ -1081,19 +1036,16 @@
                     });
                   }
 
-                  // แสดงจำนวนบิล
                   const totalBillsCount = document.getElementById('totalBillsCount');
                   if (totalBillsCount) {
                     totalBillsCount.textContent = billCount;
                   }
 
-                  // อัพเดต hidden input
                   const totalPriceInput = document.getElementById('totalPrice');
                   if (totalPriceInput) {
                     totalPriceInput.value = total.toFixed(2);
                   }
 
-                  // ✅ แสดงปุ่มบันทึกถ้ามีบิลอย่างน้อย 1 รายการ
                   const saveBtn = document.getElementById('saveAllBtn');
                   if (saveBtn) {
                     if (billCount > 0) {
@@ -1165,7 +1117,6 @@
                   }
                 }
 
-                // เพิ่ม event listener สำหรับ input ที่เปลี่ยนแปลง
                 function setupCardEventListeners(cardId) {
                   const card = document.getElementById(cardId);
                   if (!card) return;
@@ -1186,7 +1137,6 @@
                   removeBill(bill.id);
                 }
 
-                // ✅ บันทึกบิลทั้งหมด - รองรับ amount = 0
                 function saveAllBills() {
                   const container = document.getElementById('hiddenInputsContainer');
                   container.innerHTML = '';
@@ -1220,14 +1170,14 @@
                           const currMeter = parseFloat(currMeterInput.value) || 0;
                           const rate = parseFloat(rateInput.value) || 0;
 
-                          // ✅ อนุญาตให้ currMeter >= prevMeter (เท่ากันได้)
+                          // currMeter >= prevMeter (เท่ากันได้)
                           if (currMeter >= prevMeter) {
                             const usage = currMeter - prevMeter;
                             amount = usage * rate;
                             name = type === 'water' ? 'ค่าน้ำ' : 'ค่าไฟฟ้า';
                             detail = usage + ' หน่วย (' + prevMeter + ' → ' + currMeter + ') @ ฿' + rate.toFixed(2);
                             meterData = { prev: prevMeter, curr: currMeter, rate: rate, usage: usage };
-                            isValid = true; // ✅ ไม่ต้องเช็ค amount > 0
+                            isValid = true;
                           }
                         }
                       } else if (type === 'internet') {
@@ -1288,7 +1238,6 @@
                     return;
                   }
 
-                  // item_0 = ค่าห้อง
                   container.innerHTML += '<input type="hidden" name="item_0_type" value="room" />' +
                     '<input type="hidden" name="item_0_name" value="ค่าเช่าห้อง" />' +
                     '<input type="hidden" name="item_0_detail" value="-" />' +
@@ -1323,7 +1272,6 @@
                   document.querySelector('form').submit();
                 }
 
-                // Event Listeners
                 window.addEventListener("load", function () {
                   setTimeout(() => {
                     document.getElementById("loading").style.display = "none";

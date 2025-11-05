@@ -519,7 +519,6 @@
         </head>
 
         <body>
-          <!-- Loading Animation -->
           <div class="loading" id="loading">
             <div class="spinner"></div>
           </div>
@@ -664,7 +663,6 @@
           </div>
 
           <script>
-            // Toggle Password Visibility
             function togglePasswordVisibility(inputId, toggleId) {
               const input = document.getElementById(inputId);
               const toggle = document.getElementById(toggleId);
@@ -685,7 +683,6 @@
             togglePasswordVisibility("password", "togglePassword");
             togglePasswordVisibility("confirmPassword", "toggleConfirmPassword");
 
-            // Phone Number Validation
             const phoneInput = document.getElementById("phoneNumber");
             const phoneError = document.getElementById("phoneError");
             const phoneValid = document.getElementById("phoneValid");
@@ -745,11 +742,9 @@
             password.addEventListener("input", checkPasswordMatch);
             confirmPassword.addEventListener("input", checkPasswordMatch);
 
-            // Form Validation
             function validateForm() {
               let isValid = true;
 
-              // Validate First Name
               const firstName = document.getElementById("firstName");
               const firstNameError = document.getElementById("firstNameError");
               if (firstName.value.trim() === "") {
@@ -761,7 +756,6 @@
                 firstNameError.style.display = "none";
               }
 
-              // Validate Last Name
               const lastName = document.getElementById("lastName");
               const lastNameError = document.getElementById("lastNameError");
               if (lastName.value.trim() === "") {
@@ -773,15 +767,13 @@
                 lastNameError.style.display = "none";
               }
 
-              // Validate Phone Number
-              const phonePattern = /^0[0-9]{9}$/;
+              const phonePattern = /^0[689][0-9]{8}$/;
               if (!phonePattern.test(phoneInput.value)) {
                 phoneInput.classList.add("is-invalid");
                 phoneError.style.display = "block";
                 isValid = false;
               }
 
-              // Validate Password Match (if password is entered)
               if (password.value.length > 0) {
                 if (password.value.length < 6) {
                   password.classList.add("is-invalid");
@@ -801,7 +793,6 @@
               return isValid;
             }
 
-            // Smooth Page Load
             window.addEventListener("load", function () {
               document.body.style.opacity = "0";
               document.body.style.transition = "opacity 0.5s ease-in-out";
@@ -812,7 +803,6 @@
               }, 100);
             });
 
-            // Prevent form resubmission
             if (window.history.replaceState) {
               window.history.replaceState(null, null, window.location.href);
             }

@@ -571,7 +571,6 @@ pageEncoding="UTF-8" %>
           .getElementsByName("paymentDate")[0]
           .addEventListener("change", calculateDeadline);
 
-        // Page load animation
         document.body.style.opacity = "0";
         document.body.style.transition = "opacity 0.5s ease-in-out";
 
@@ -583,7 +582,6 @@ pageEncoding="UTF-8" %>
   </head>
 
   <body>
-    <!-- Header Navigation -->
     <div class="header">
       <h1>
         <i class="fas fa-building"></i>
@@ -614,7 +612,6 @@ pageEncoding="UTF-8" %>
       </div>
     </div>
 
-    <!-- Page Title Section -->
     <div class="page-title">
       <h2>
         <i class="fas fa-credit-card"></i>
@@ -623,7 +620,6 @@ pageEncoding="UTF-8" %>
       <p>กรุณาชำระเงินมัดจำและอัปโหลดสลิปเพื่อยืนยันการจองห้องพัก</p>
     </div>
 
-    <!-- Container -->
     <div class="container">
       <form
         action="confirmPayment"
@@ -632,7 +628,6 @@ pageEncoding="UTF-8" %>
         onsubmit="return validateForm()"
       >
         <div class="payment-card">
-          <!-- Room Details -->
           <div class="room-details">
             <h3>
               <i class="fas fa-door-open"></i>
@@ -654,7 +649,6 @@ pageEncoding="UTF-8" %>
             </div>
           </div>
 
-          <!-- Warning Note -->
           <div class="warning-note">
             <i class="fas fa-exclamation-triangle"></i>
             <div>
@@ -664,7 +658,6 @@ pageEncoding="UTF-8" %>
             </div>
           </div>
 
-          <!-- QR Code Section -->
           <div class="qr-section">
             <h3>
               <i class="fas fa-qrcode"></i>
@@ -689,7 +682,6 @@ pageEncoding="UTF-8" %>
             </div>
           </div>
 
-          <!-- Form Section -->
           <div class="form-section">
             <h3>
               <i class="fas fa-file-upload"></i>

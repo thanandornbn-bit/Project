@@ -515,12 +515,10 @@
         </head>
 
         <body>
-            <!-- Loading Animation -->
             <div class="loading" id="loading">
                 <div class="spinner"></div>
             </div>
 
-            <!-- Toast Notification -->
             <div id="toast" class="toast">
                 <div class="toast-content">
                     <i class="toast-icon" id="toastIcon"></i>
@@ -680,7 +678,6 @@
             </div>
 
             <script>
-                // Toast Notification Function
                 function showToast(message, type = 'success') {
                     const toast = document.getElementById('toast');
                     const toastMessage = document.getElementById('toastMessage');
@@ -700,7 +697,6 @@
                     }, 4000);
                 }
 
-                // Check Room Status
                 function checkRoomStatus(status) {
                     if (status === 'ไม่ว่าง') {
                         showToast('ห้องนี้ไม่ว่าง กรุณาเข้าสู่ระบบเพื่อดูรายละเอียด', 'error');
@@ -709,12 +705,10 @@
                     return true;
                 }
 
-                // Show loading animation on form submit
                 document.getElementById('searchForm').addEventListener('submit', function () {
                     document.getElementById('loading').style.display = 'flex';
                 });
 
-                // Handle message from server (read hidden field if present)
                 window.addEventListener('load', function () {
                     var serverMessageEl = document.getElementById('serverMessage');
                     if (serverMessageEl && serverMessageEl.value) {
@@ -722,7 +716,6 @@
                     }
                 });
 
-                // Smooth page load animation
                 window.addEventListener('load', function () {
                     document.body.style.opacity = '0';
                     document.body.style.transition = 'opacity 0.5s ease-in-out';
@@ -733,7 +726,6 @@
                     }, 100);
                 });
 
-                // Prevent form resubmission
                 if (window.history.replaceState) {
                     window.history.replaceState(null, null, window.location.href);
                 }

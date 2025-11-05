@@ -26,11 +26,9 @@ public class Member {
 	@Column(name = "phoneNumber", length = 255)
 	private String phoneNumber;
 
-	// Default constructor
 	public Member() {
 	}
 
-	// Getter & Setter
 	public int getMemberID() {
 		return memberID;
 	}

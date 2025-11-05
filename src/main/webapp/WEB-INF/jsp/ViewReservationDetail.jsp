@@ -697,7 +697,6 @@
 
                         <div class="action-section">
                           <div class="button-group">
-                            <!-- แสดงปุ่มอนุมัติ/ปฏิเสธ เฉพาะเมื่อสถานะเป็น "รออนุมัติ" -->
                             <c:if test="${rent.status == 'รออนุมัติ'}">
                               <form action="approveDeposit" method="post" style="display: inline"
                                 onsubmit="return confirmApproval()">
@@ -718,7 +717,6 @@
                               </form>
                             </c:if>
 
-                            <!-- ปุ่มกลับแสดงเสมอ -->
                             <a href="OViewReserve" class="btn btn-back">
                               <i class="fas fa-arrow-left"></i>
                               กลับไปรายการจอง
@@ -772,14 +770,11 @@
                   document.getElementById("loading").style.display = "none";
                 });
 
-                // Close modal on Escape key
                 document.addEventListener("keydown", function (e) {
                   if (e.key === "Escape") {
                     document.getElementById("imageModal").style.display = "none";
                   }
                 });
-
-                // Confirmation functions
                 function confirmApproval() {
                   return confirm(
                     "ยืนยันการอนุมัติค่ามัดจำใช่หรือไม่?"

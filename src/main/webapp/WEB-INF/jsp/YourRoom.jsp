@@ -710,17 +710,12 @@
                             </head>
 
                             <body>
-                                <!-- Loading -->
                                 <div class="loading" id="loading">
                                     <div class="spinner"></div>
                                 </div>
-
-                                <!-- Toast -->
                                 <div id="toast" class="toast">
                                     <div id="toast-message"></div>
                                 </div>
-
-                                <!-- Header -->
                                 <div class="header">
                                     <h1>
                                         <i class="fas fa-building"></i>
@@ -750,10 +745,7 @@
                                         </form>
                                     </div>
                                 </div>
-
-                                <!-- Container -->
                                 <div class="container">
-                                    <!-- Welcome Section -->
                                     <div class="welcome-section">
                                         <h3>
                                             <i class="fas fa-door-open"></i>
@@ -762,7 +754,6 @@
                                         <p>ห้องที่คุณกำลังเช่าอยู่และสถานะต่างๆ</p>
                                     </div>
 
-                                    <!-- Stats -->
                                     <div class="rental-stats">
                                         <div class="stat-card active-rooms">
                                             <div class="stat-icon"><i class="fas fa-home"></i></div>
@@ -794,7 +785,6 @@
                                         </div>
                                     </div>
 
-                                    <!-- Messages -->
                                     <c:if test="${not empty message}">
                                         <div class="alert alert-success">
                                             <i class="fas fa-check-circle"></i> ${message}
@@ -807,7 +797,6 @@
                                         </div>
                                     </c:if>
 
-                                    <!-- Info Alert -->
                                     <c:if test="${not empty currentRentals}">
                                         <c:set var="hasPending" value="false" />
                                         <c:forEach var="rental" items="${currentRentals}">
@@ -828,7 +817,6 @@
                                         </c:if>
                                     </c:if>
 
-                                    <!-- Room Cards -->
                                     <c:choose>
                                         <c:when test="${empty currentRentals}">
                                             <div class="no-room">
@@ -987,7 +975,6 @@
                                                 </c:forEach>
                                             </div>
 
-                                            <!-- Help Info -->
                                             <div class="alert alert-info" style="margin-top: 25px;">
                                                 <i class="fas fa-lightbulb"></i>
                                                 <div>
@@ -1006,7 +993,6 @@
                                 </div>
 
                                 <script>
-                                    // Toast Notification
                                     function showToast(message, type = 'success') {
                                         const toast = document.getElementById('toast');
                                         const toastMessage = document.getElementById('toast-message');
@@ -1020,9 +1006,7 @@
                                         }, 5000);
                                     }
 
-                                    // Confirm Return Room
                                     function confirmReturnRoom(rentId, roomNumber, unpaidMonths, rentDateISO) {
-                                        // ตรวจสอบว่ามีบิลค้างชำระหรือไม่
                                         if (unpaidMonths && unpaidMonths.trim() !== '') {
                                             alert('ไม่สามารถส่งคำขอคืนห้องได้!\n\n' +
                                                 'เนื่องจากมีบิลค้างชำระ: ' + unpaidMonths + '\n\n' +
@@ -1033,16 +1017,20 @@
                                         const rentDate = new Date(rentDateISO + 'T00:00:00');
                                         const today = new Date();
 
-                                        // คำนวณจำนวนเดือนที่อยู่
                                         let monthsDiff = (today.getFullYear() - rentDate.getFullYear()) * 12 +
                                             (today.getMonth() - rentDate.getMonth());
 
-                                        // ถ้าวันที่ปัจจุบันน้อยกว่าวันที่เริ่มเช่า
                                         if (today.getDate() < rentDate.getDate()) {
                                             monthsDiff--;
                                         }
 
-                                        
+                                        if (monthsDiff < 6) {
+                                            const remainingMonths = 6 - monthsDiff;
+                                            alert('ไม่สามารถส่งคำขอคืนห้องได้!\n\n' +
+                                                'เนื่องจากคุณต้องอยู่ครบ 6 เดือนก่อนจึงจะสามารถคืนห้องได้\n\n');
+                                            return;
+                                        }
+
 
                                         //if (monthsDiff < 6) {
                                         //    const remainingMonths = 6 - monthsDiff;
@@ -1061,7 +1049,6 @@
                                         }
                                     }
 
-                                    // Create Particles
                                     function createParticles() {
                                         const particles = document.getElementById('particles');
                                         if (!particles) return; 
@@ -1078,25 +1065,21 @@
                                         }
                                     }
 
-                                    // Page Load
                                     window.addEventListener('load', function () {
                                         createParticles();
 
-            // Show messages
-            <c:if test="${not empty message}">
-                setTimeout(() => showToast("${message}", "success"), 500);
-            </c:if>
-            
-            <c:if test="${not empty error}">
-                setTimeout(() => showToast("${error}", "error"), 500);
-            </c:if>
+                                        <c:if test="${not empty message}">
+                                            setTimeout(() => showToast("${message}", "success"), 500);
+                                        </c:if>
+                                        
+                                        <c:if test="${not empty error}">
+                                            setTimeout(() => showToast("${error}", "error"), 500);
+                                        </c:if>
 
-                                        // Hide loading
                                         setTimeout(() => {
                                             document.getElementById('loading').style.display = 'none';
                                         }, 1000);
 
-                                        // Fade in animation
                                         document.body.style.opacity = '0';
                                         document.body.style.transition = 'opacity 0.5s ease-in-out';
 
@@ -1105,7 +1088,6 @@
                                         }, 100);
                                     });
 
-                                    // Smooth scrolling
                                     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
                                         anchor.addEventListener('click', function (e) {
                                             e.preventDefault();
@@ -1118,7 +1100,6 @@
                                         });
                                     });
 
-                                    // Add animation to cards
                                     const observer = new IntersectionObserver((entries) => {
                                         entries.forEach(entry => {
                                             if (entry.isIntersecting) {
@@ -1135,7 +1116,6 @@
                                         observer.observe(card);
                                     });
 
-                                    // Prevent double click
                                     let isSubmitting = false;
                                     document.querySelectorAll('.btn-return').forEach(btn => {
                                         btn.addEventListener('click', function () {
@@ -1147,7 +1127,6 @@
                                         });
                                     });
 
-                                    // Auto refresh page when there are pending returns
                                     <c:if test="${not empty currentRentals}">
                                         <c:set var="hasPendingReturn" value="false" />
                                         <c:forEach var="rental" items="${currentRentals}">
@@ -1157,10 +1136,9 @@
                                         </c:forEach>
 
                                         <c:if test="${hasPendingReturn}">
-                // Refresh page every 2 minutes to check for updates
                                             setTimeout(function() {
-                                                location.reload();
-                }, 120000); // 2 minutes
+                                                location.reload()
+                                                }, 120000); 
                                         </c:if>
                                     </c:if>
                                 </script>

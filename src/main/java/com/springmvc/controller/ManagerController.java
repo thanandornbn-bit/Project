@@ -35,8 +35,6 @@ public class ManagerController {
 		}
 
 		ThanachokManager tm = new ThanachokManager();
-
-		// เรียกใช้ method ที่แก้ไขแล้ว - จะดึงทั้งหมดถ้าไม่มี parameter
 		List<Room> roomList = tm.findRoomsByFloorAndStatus(floor, status);
 
 		// เพิ่มข้อมูลสถานะการอนุมัติสำหรับแต่ละห้อง
@@ -45,7 +43,6 @@ public class ManagerController {
 		Map<Integer, Integer> roomRentId = new HashMap<>();
 
 		for (Room room : roomList) {
-			System.out.println("Room: " + room.getRoomNumber() + " - Status: " + room.getRoomStatus());
 
 			if ("ไม่ว่าง".equals(room.getRoomStatus())) {
 				boolean isApproved = tm.isRoomApproved(room.getRoomID());
@@ -74,7 +71,6 @@ public class ManagerController {
 		mav.addObject("roomRentId", roomRentId);
 		mav.addObject("floor", floor == null ? "" : floor);
 		mav.addObject("status", status == null ? "" : status);
-		System.out.println("===== END DEBUG =====");
 		return mav;
 	}
 
@@ -105,7 +101,6 @@ public class ManagerController {
 		// ตรวจสอบว่าหมายเลขห้องซ้ำหรือไม่
 		if (manager.isRoomNumberExists(roomNumber)) {
 			model.addAttribute("errorMessage", "หมายเลขห้อง " + roomNumber + " มีอยู่ในระบบแล้ว กรุณาใช้หมายเลขอื่น");
-			// ส่งค่ากลับไปให้ user ไม่ต้องกรอกใหม่
 			Room room = new Room();
 			room.setRoomNumber(roomNumber);
 			room.setDescription(description);
@@ -128,14 +123,13 @@ public class ManagerController {
 		// อัปโหลดรูปภาพ
 		try {
 			String uploadDir = "room_images";
-			// ใช้ /tmp/ เพื่อไม่ให้กระทบกับ WAR extraction
 			String realPath = "/tmp/room_images";
 			File uploadPath = new File(realPath);
 			if (!uploadPath.exists()) {
 				uploadPath.mkdirs();
 			}
 
-			// บันทึกรูปเลขห้อง (เก็บแบบ room_images/filename.jpg)
+			// บันทึกรูปเลขห้อง 
 			if (roomNumberImage != null && !roomNumberImage.isEmpty()) {
 				String fileName = saveImage(roomNumberImage, uploadPath, "room_" + roomNumber + "_number");
 				if (fileName != null) {
@@ -143,7 +137,7 @@ public class ManagerController {
 				}
 			}
 
-			// บันทึกรูปภายในห้อง 1-4 (เก็บแบบ room_images/filename.jpg)
+			// บันทึกรูปภายในห้อง 1-4 
 			if (roomImage1 != null && !roomImage1.isEmpty()) {
 				String fileName = saveImage(roomImage1, uploadPath, "room_" + roomNumber + "_img1");
 				if (fileName != null) {
@@ -230,7 +224,6 @@ public class ManagerController {
 		ModelAndView mav = new ModelAndView("ViewReservationDetail");
 		mav.addObject("rent", rent);
 
-		// เพิ่ม error handling
 		if (rent == null) {
 			mav.addObject("error", "ไม่พบข้อมูลการจองที่ต้องการ");
 		}
@@ -490,7 +483,7 @@ public class ManagerController {
 			}
 		} else {
 			redirectAttributes.addFlashAttribute("error",
-					"❌ เกิดข้อผิดพลาดในการคืนห้อง กรุณาลองใหม่อีกครั้ง");
+					"เกิดข้อผิดพลาดในการคืนห้อง กรุณาลองใหม่อีกครั้ง");
 		}
 
 		return "redirect:/OViewReserve";
@@ -522,11 +515,9 @@ public class ManagerController {
 		ThanachokManager tm = new ThanachokManager();
 		boolean success = tm.approveReturnRoom(rentId);
 
-		// อัปเดตสถานะใน Reserve เป็น "คืนห้องแล้ว"
 		try {
 			com.springmvc.model.Rent rent = tm.getRentById(rentId);
 			if (rent != null) {
-				// หา Reserve ที่ตรงกับ member และ room ของ Rent นี้ ที่ยังไม่คืนห้อง
 				java.util.List<com.springmvc.model.Reserve> reserves = tm.findReservesByRoomAndMember(
 						rent.getRoom().getRoomID(), rent.getMember().getMemberID());
 				for (com.springmvc.model.Reserve reserve : reserves) {
@@ -541,10 +532,10 @@ public class ManagerController {
 
 		if (success) {
 			redirectAttributes.addFlashAttribute("message",
-					"✅ อนุมัติการคืนห้อง " + roomNumber + " เรียบร้อยแล้ว\nห้องพร้อมให้เช่าใหม่");
+					"อนุมัติการคืนห้อง " + roomNumber + " เรียบร้อยแล้ว\nห้องพร้อมให้เช่าใหม่");
 		} else {
 			redirectAttributes.addFlashAttribute("error",
-					"❌ เกิดข้อผิดพลาดในการอนุมัติ กรุณาลองใหม่อีกครั้ง");
+					"เกิดข้อผิดพลาดในการอนุมัติ กรุณาลองใหม่อีกครั้ง");
 		}
 
 		return "redirect:/ListReturnRoom";
@@ -561,7 +552,7 @@ public class ManagerController {
 
 		if (success) {
 			redirectAttributes.addFlashAttribute("message",
-					"❌ ปฏิเสธคำขอคืนห้อง " + roomNumber + " แล้ว");
+					"ปฏิเสธคำขอคืนห้อง " + roomNumber + " แล้ว");
 		} else {
 			redirectAttributes.addFlashAttribute("error",
 					"เกิดข้อผิดพลาดในการปฏิเสธคำขอ");
@@ -582,7 +573,7 @@ public class ManagerController {
 
 		if (success) {
 			redirectAttributes.addFlashAttribute("message",
-					"✅ คืนห้อง " + roomNumber + " เรียบร้อยแล้ว");
+					"คืนห้อง " + roomNumber + " เรียบร้อยแล้ว");
 		} else {
 			redirectAttributes.addFlashAttribute("error",
 					"เกิดข้อผิดพลาดในการคืนห้อง");
@@ -599,24 +590,14 @@ public ModelAndView listReservations(HttpSession session) {
     }
 
     ThanachokManager tm = new ThanachokManager();
-
     // ปฏิเสธการจองที่หมดเวลาชำระเงิน (เกิน 24 ชั่วโมง) อัตโนมัติ
     tm.autoRejectExpiredReservations();
-
     List<com.springmvc.model.Reserve> reserveList = tm.findAllReserves();
-    
-    // สร้าง Map<reserveId, rentStatus>
     Map<Integer, String> rentStatusMap = new HashMap<>();
     
     for (com.springmvc.model.Reserve reserve : reserveList) {
         String status = "";
         
-        System.out.println("=== Reserve ID: " + reserve.getReserveId() + " ===");
-        System.out.println("Reserve Status: '" + reserve.getStatus() + "'");
-        System.out.println("Member ID: " + reserve.getMember().getMemberID());
-        System.out.println("Room ID: " + reserve.getRoom().getRoomID());
-        
-        // เช็ค Rent สำหรับทุกสถานะยกเว้น "รอการอนุมัติ" และ "อนุมัติแล้ว"
         if (!"รอการอนุมัติ".equals(reserve.getStatus()) && 
             !"อนุมัติแล้ว".equals(reserve.getStatus())) {
             
@@ -627,43 +608,31 @@ public ModelAndView listReservations(HttpSession session) {
             );
             
             if (rents != null && !rents.isEmpty()) {
-                System.out.println("Found " + rents.size() + " Rent(s)");
                 
                 // เช็คแต่ละ Rent
                 for (com.springmvc.model.Rent rent : rents) {
-                    System.out.println("  Rent ID: " + rent.getRentID() + 
-                                     ", Status: '" + rent.getStatus() + "'");
                     
                     // เช็คทั้ง "คืนห้องแล้ว" และ "ต้นห้องแล้ว" (กรณี encoding ผิด)
                     if ("คืนห้องแล้ว".equals(rent.getStatus()) || 
                         "ต้นห้องแล้ว".equals(rent.getStatus())) {
                         status = "คืนห้องแล้ว";
-                        System.out.println("  → Set status to: คืนห้องแล้ว");
                         break;
                     } else if ("ชำระแล้ว".equals(rent.getStatus()) || 
                                "เสร็จสมบูรณ์".equals(rent.getStatus())) {
                         status = "เช่าอยู่";
-                        System.out.println("  → Set status to: เช่าอยู่");
                         break;
                     }
                 }
-            } else {
-                System.out.println("No Rent found");
-            }
-        } else {
-            System.out.println("Skip checking Rent (status is รอการอนุมัติ or อนุมัติแล้ว)");
-        }
-        
+            } 
         rentStatusMap.put(reserve.getReserveId(), status);
-        System.out.println("Final rentStatusMap[" + reserve.getReserveId() + "] = '" + status + "'");
-        System.out.println();
-    }
-
+    }	
+}
     ModelAndView mav = new ModelAndView("ListReservations");
     mav.addObject("reserveList", reserveList);
     mav.addObject("rentStatusMap", rentStatusMap);
-    return mav;
-}
+    	return mav;	
+	
+	}
 
 	// Manager อนุมัติการจอง
 	@RequestMapping(value = "/ApproveReservation", method = RequestMethod.POST)
@@ -720,8 +689,6 @@ public ModelAndView listReservations(HttpSession session) {
 		return mav;
 	}
 
-	// ==================== Utility Rate Management ====================
-
 	// แสดงหน้าจัดการหน่วยค่าน้ำ-ค่าไฟ
 	@RequestMapping(value = "/ManageUtilityRates", method = RequestMethod.GET)
 	public ModelAndView showManageUtilityRates(HttpSession session) {
@@ -757,10 +724,10 @@ public ModelAndView listReservations(HttpSession session) {
 
 		if (success) {
 			redirectAttributes.addFlashAttribute("message",
-					"✅ บันทึกหน่วยค่าน้ำ-ค่าไฟใหม่เรียบร้อยแล้ว");
+					"บันทึกหน่วยค่าน้ำ-ค่าไฟใหม่เรียบร้อยแล้ว");
 		} else {
 			redirectAttributes.addFlashAttribute("error",
-					"❌ เกิดข้อผิดพลาดในการบันทึก");
+					"เกิดข้อผิดพลาดในการบันทึก");
 		}
 
 		return "redirect:/ManageUtilityRates";
@@ -779,19 +746,18 @@ public ModelAndView listReservations(HttpSession session) {
 		Rent rent = tm.getRentById(rentId);
 		if (rent != null) {
 			java.util.Calendar calReturn = java.util.Calendar.getInstance();
-			calReturn.add(java.util.Calendar.HOUR_OF_DAY, 7); // Thai time
+			calReturn.add(java.util.Calendar.HOUR_OF_DAY, 7);
 			rent.setReturnDate(calReturn.getTime());
 			rent.setStatus("เสร็จสมบูรณ์");
 
 			boolean success = tm.updateRent(rent);
 
 			if (success) {
-				// เปลี่ยนสถานะห้องเป็น "ว่าง"
 				Room room = rent.getRoom();
 				room.setRoomStatus("ว่าง");
 				tm.updateRoom(room);
 
-				redirectAttributes.addFlashAttribute("message", "✅ คืนห้องเรียบร้อยแล้ว");
+				redirectAttributes.addFlashAttribute("message", "คืนห้องเรียบร้อยแล้ว");
 				return "redirect:/ViewRoomHistory?roomId=" + room.getRoomID();
 			} else {
 				redirectAttributes.addFlashAttribute("error", "เกิดข้อผิดพลาดในการคืนห้อง");
@@ -816,11 +782,11 @@ public ModelAndView listReservations(HttpSession session) {
 		if (success) {
 			Rent rent = tm.getRentById(rentId);
 			redirectAttributes.addFlashAttribute("message",
-					"✅ ยกเลิกการคืนห้องสำเร็จ\nสถานะกลับมาเป็นปกติแล้ว");
+					"ยกเลิกการคืนห้องสำเร็จ\nสถานะกลับมาเป็นปกติแล้ว");
 			return "redirect:/ViewRoomHistory?roomId=" + rent.getRoom().getRoomID();
 		} else {
 			redirectAttributes.addFlashAttribute("error",
-					"❌ ไม่สามารถยกเลิกการคืนห้องได้");
+					"ไม่สามารถยกเลิกการคืนห้องได้");
 			return "redirect:/OwnerHome";
 		}
 	}

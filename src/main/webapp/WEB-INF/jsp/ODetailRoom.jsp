@@ -741,7 +741,6 @@ session.getAttribute("loginMember"); boolean isLoggedIn=(loginMember !=null); %>
       <div class="loading-text">กำลังโหลด...</div>
     </div>
 
-    <!-- Modal Popup -->
     <div class="modal" id="alertModal">
       <div class="modal-content">
         <div class="modal-header">
@@ -759,7 +758,6 @@ session.getAttribute("loginMember"); boolean isLoggedIn=(loginMember !=null); %>
       </div>
     </div>
 
-    <!-- Fullscreen Image Preview -->
     <div
       class="fullscreen-overlay"
       id="fullscreenOverlay"
@@ -782,7 +780,6 @@ session.getAttribute("loginMember"); boolean isLoggedIn=(loginMember !=null); %>
         รายละเอียดห้องพัก
       </div>
 
-      <!-- Messages -->
       <c:if test="${not empty message}">
         <div class="alert alert-warning">
           <i class="fas fa-exclamation-triangle"></i>
@@ -807,10 +804,8 @@ session.getAttribute("loginMember"); boolean isLoggedIn=(loginMember !=null); %>
       </div>
 
       <div class="room-detail-card">
-        <!-- Image Gallery -->
         <div class="image-gallery-container">
           <div class="image-gallery-grid">
-            <!-- Room Image 1 -->
             <c:choose>
               <c:when test="${not empty room.roomImage1}">
                 <div
@@ -852,7 +847,6 @@ session.getAttribute("loginMember"); boolean isLoggedIn=(loginMember !=null); %>
               </c:otherwise>
             </c:choose>
 
-            <!-- Room Image 2 -->
             <c:choose>
               <c:when test="${not empty room.roomImage2}">
                 <div
@@ -894,7 +888,6 @@ session.getAttribute("loginMember"); boolean isLoggedIn=(loginMember !=null); %>
               </c:otherwise>
             </c:choose>
 
-            <!-- Room Image 3 -->
             <c:choose>
               <c:when test="${not empty room.roomImage3}">
                 <div
@@ -936,7 +929,6 @@ session.getAttribute("loginMember"); boolean isLoggedIn=(loginMember !=null); %>
               </c:otherwise>
             </c:choose>
 
-            <!-- Room Image 4 -->
             <c:choose>
               <c:when test="${not empty room.roomImage4}">
                 <div
@@ -980,7 +972,6 @@ session.getAttribute("loginMember"); boolean isLoggedIn=(loginMember !=null); %>
           </div>
         </div>
 
-        <!-- Room Info -->
         <div class="room-info">
           <div class="room-header">
             <div class="room-number">
@@ -1061,7 +1052,6 @@ session.getAttribute("loginMember"); boolean isLoggedIn=(loginMember !=null); %>
             </div>
           </div>
 
-          <!-- Action Buttons -->
           <div class="action-buttons">
             <button
               class="btn btn-reserve"
@@ -1087,7 +1077,6 @@ session.getAttribute("loginMember"); boolean isLoggedIn=(loginMember !=null); %>
       let userActiveRentalData = null;
       let isCheckingRental = false;
 
-      // Fullscreen Image Functions
       function openFullscreen(imageSrc) {
         const overlay = document.getElementById("fullscreenOverlay");
         const image = document.getElementById("fullscreenImage");
@@ -1102,7 +1091,6 @@ session.getAttribute("loginMember"); boolean isLoggedIn=(loginMember !=null); %>
         document.body.style.overflow = "auto";
       }
 
-      // Check for existing rental function
       async function checkExistingRental() {
         if (isCheckingRental) return userActiveRentalData;
 
@@ -1125,7 +1113,6 @@ session.getAttribute("loginMember"); boolean isLoggedIn=(loginMember !=null); %>
         }
       }
 
-      // Update rental alert display
       function updateRentalAlert(data) {
         const alertDiv = document.getElementById("activeRentalAlert");
         const messageSpan = document.getElementById("activeRentalMessage");
@@ -1143,7 +1130,6 @@ session.getAttribute("loginMember"); boolean isLoggedIn=(loginMember !=null); %>
         }
       }
 
-      // Update reserve button based on rental status
       function updateReserveButton(data) {
         const reserveBtn = document.getElementById("reserveBtn");
         const roomStatus = document.getElementById("roomStatus").value;
@@ -1242,7 +1228,6 @@ session.getAttribute("loginMember"); boolean isLoggedIn=(loginMember !=null); %>
         document.getElementById("alertModal").style.display = "block";
         document.body.style.overflow = "hidden";
 
-        // จัดการการส่งฟอร์ม
         setTimeout(() => {
           document
             .getElementById("reserveForm")
@@ -1254,7 +1239,6 @@ session.getAttribute("loginMember"); boolean isLoggedIn=(loginMember !=null); %>
                 return;
               }
 
-              // ตรวจสอบว่าวันที่เข้าพักอยู่ในอนาคตอย่างน้อย 5 วัน
               const selectedDate = new Date(checkInDate);
               const todayDate = new Date();
               todayDate.setHours(0, 0, 0, 0);
@@ -1268,11 +1252,9 @@ session.getAttribute("loginMember"); boolean isLoggedIn=(loginMember !=null); %>
                 return;
               }
 
-              // แสดง loading
               document.getElementById("loading").classList.add("active");
               closeModal();
 
-              // สร้างฟอร์มและส่งข้อมูล
               const form = document.createElement("form");
               form.method = "POST";
               form.action = "MemberReserveRoom";
@@ -1287,7 +1269,6 @@ session.getAttribute("loginMember"); boolean isLoggedIn=(loginMember !=null); %>
               dateInput.name = "checkInDate";
               dateInput.value = checkInDate;
 
-              // ส่งเวลาจองปัจจุบัน
               const timestampInput = document.createElement("input");
               timestampInput.type = "hidden";
               timestampInput.name = "reserveTimestamp";
@@ -1371,7 +1352,6 @@ session.getAttribute("loginMember"); boolean isLoggedIn=(loginMember !=null); %>
             return;
           }
 
-          // ถ้าไม่มีการจอง แสดง popup เลือกวันที่
           showReservationModal("${room.roomID}", "${room.roomNumber}");
         } catch (error) {
           console.error("Error:", error);
@@ -1400,7 +1380,6 @@ session.getAttribute("loginMember"); boolean isLoggedIn=(loginMember !=null); %>
         }
       }
 
-      // Keyboard navigation for fullscreen and modal
       document.addEventListener("keydown", function (e) {
         const overlay = document.getElementById("fullscreenOverlay");
         const modal = document.getElementById("alertModal");
@@ -1414,7 +1393,6 @@ session.getAttribute("loginMember"); boolean isLoggedIn=(loginMember !=null); %>
         }
       });
 
-      // Close modal when clicking outside
       window.onclick = function (event) {
         const modal = document.getElementById("alertModal");
         if (event.target == modal) {
@@ -1422,7 +1400,6 @@ session.getAttribute("loginMember"); boolean isLoggedIn=(loginMember !=null); %>
         }
       };
 
-      // Initialize
       window.addEventListener("load", async function () {
         updateWifiPrice();
 
@@ -1451,7 +1428,6 @@ session.getAttribute("loginMember"); boolean isLoggedIn=(loginMember !=null); %>
         }, 100);
       });
 
-      // Periodic checks (every 30 seconds)
       setInterval(() => {
         const isLoggedIn =
           document.getElementById("isLoggedIn").value === "true";
@@ -1460,7 +1436,6 @@ session.getAttribute("loginMember"); boolean isLoggedIn=(loginMember !=null); %>
         }
       }, 30000);
 
-      // Check when page regains focus
       document.addEventListener("visibilitychange", function () {
         const isLoggedIn =
           document.getElementById("isLoggedIn").value === "true";

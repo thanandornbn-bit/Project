@@ -520,7 +520,6 @@
                                         box-shadow: 0 5px 16px var(--shadow);
                                     }
 
-                                    /* Room Cards Grid */
                                     .rooms-grid {
                                         display: grid;
                                         grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
@@ -831,23 +830,43 @@
                                             padding: 12px;
                                         }
                                     }
+
+.btn-edit-profile {
+    background: linear-gradient(135deg, #5CA9E9, #4A90E2);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    font-family: "Sarabun", sans-serif;
+    font-size: 0.95rem;
+    text-decoration: none;
+    box-shadow: 0 2px 8px rgba(92, 169, 233, 0.3);
+}
+
+.btn-edit-profile:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(92, 169, 233, 0.4);
+    background: linear-gradient(135deg, #4A90E2, #357ABD);
+}
                                 </style>
                             </head>
 
                             <body>
-                                <!-- Loading Animation -->
                                 <div class="loading" id="loading">
                                     <div class="spinner"></div>
                                 </div>
 
-                                <!-- Toast Notification -->
                                 <div id="toast" class="toast">
                                     <div id="toast-message"></div>
                                 </div>
 
-                                <!-- Main Content -->
                                 <div class="page-container">
-                                    <!-- Header -->
                                     <div class="header">
                                         <h1>
                                             <i class="fas fa-building"></i>
@@ -878,7 +897,7 @@
                                                 <i class="fas fa-user-circle"></i>
                                                 <span>${loginManager.email}</span>
                                             </div>
-                                            <a href="EditManager" class="action-btn btn-edit" style="margin-left:10px;">
+                                            <a href="EditManager" class="btn-edit-profile" style="margin-left:10px;">
                                                 <i class="fas fa-user-edit"></i> แก้ไขข้อมูล
                                             </a>
                                             <form action="Logout" method="post" style="display: inline">
@@ -887,12 +906,9 @@
                                                     ออกจากระบบ
                                                 </button>
                                             </form>
-
-                                            
                                         </div>
                                     </div>
 
-                                    <!-- Stats Container -->
                                     <div class="stats-container">
                                         <div class="stat-card stat-total">
                                             <div class="stat-icon">
@@ -972,8 +988,6 @@
                                             <div class="stat-label">รายได้ต่อเดือน</div>
                                         </div>
                                     </div>
-
-                                    <!-- Search Section -->
                                     <div class="search-section">
                                         <div class="search-form">
                                             <h3>
@@ -1013,7 +1027,6 @@
                                         </div>
                                     </div>
 
-                                    <!-- Table Container -->
                                     <div class="table-container">
                                         <div class="table-header">
                                             <h2>
@@ -1087,7 +1100,6 @@
                                                                     </span>
                                                                 </div>
 
-                                                                <!-- สถานะเพิ่มเติมสำหรับห้องไม่ว่าง -->
                                                                 <c:if test="${room.roomStatus == 'ไม่ว่าง'}">
                                                                     <c:choose>
                                                                         <c:when
@@ -1130,9 +1142,7 @@
                                                                     </c:choose>
                                                                 </c:if>
 
-                                                                <!-- ปุ่มจัดการสำหรับ Manager -->
                                                                 <div class="action-buttons">
-                                                                    <!-- แสดงปุ่มเพิ่มบิลและแก้ไขบิลเฉพาะเมื่อห้องไม่ว่าง -->
                                                                     <c:if test="${room.roomStatus == 'ไม่ว่าง'}">
                                                                         <a href="ManagerAddInvoice?roomID=${room.roomID}"
                                                                             class="view-btn"
@@ -1145,7 +1155,6 @@
                                                                             <i class="fas fa-file-invoice"></i> แก้ไขบิล
                                                                         </a>
 
-                                                                        <!-- ปุ่มเพิ่มเติมตามสถานะ -->
                                                                         <c:choose>
                                                                             <c:when
                                                                                 test="${roomDepositStatus[room.roomID] == 'รอคืนห้อง'}">
@@ -1167,7 +1176,6 @@
                                                                             </c:when>
                                                                             <c:when
                                                                                 test="${roomDepositStatus[room.roomID] == 'ชำระแล้ว'}">
-                                                                                <!-- ปุ่มคืนห้องโดย Manager -->
                                                                                 <button class="view-btn"
                                                                                     style="background:linear-gradient(135deg, #FF6B6B, #EE5A6F);"
                                                                                     onclick="showReturnRoomModal(${room.roomID}, '${room.roomNumber}', '${roomRentId[room.roomID]}')">
@@ -1178,21 +1186,18 @@
                                                                         </c:choose>
                                                                     </c:if>
 
-                                                                    <!-- ปุ่มดูประวัติการเข้าพัก -->
                                                                     <a href="ViewRoomHistory?roomId=${room.roomID}"
                                                                         class="view-btn"
                                                                         style="background:linear-gradient(135deg, #9C27B0, #BA68C8);">
                                                                         <i class="fas fa-history"></i> ดูประวัติการเข้าพัก
                                                                     </a>
 
-                                                                    <!-- ปุ่มแก้ไขข้อมูลห้อง (แสดงเสมอ) -->
                                                                     <a href="editRoom?id=${room.roomID}"
                                                                         class="view-btn"
                                                                         style="background:linear-gradient(135deg, #4A90E2, #5CA9E9);">
                                                                         <i class="fas fa-edit"></i> แก้ไขข้อมูล
                                                                     </a>
 
-                                                                    <!-- ปุ่มลบ (แสดงเฉพาะเมื่อห้องว่าง) -->
                                                                     <c:if test="${room.roomStatus == 'ว่าง'}">
                                                                         <button class="view-btn"
                                                                             style="background:linear-gradient(135deg, #EF4444, #DC2626);"
@@ -1210,7 +1215,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Modal สำหรับกรอกหมายเหตุการคืนห้อง -->
                                 <div id="returnRoomModal"
                                     style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:9999; justify-content:center; align-items:center;">
                                     <div
@@ -1258,7 +1262,7 @@
 
                                     function createParticles() {
                                         const particles = document.getElementById('particles');
-                                        if (!particles) return; // เช็คว่ามี element หรือไม่
+                                        if (!particles) return; 
                                         const particleCount = 50;
                                         for (let i = 0; i < particleCount; i++) {
                                             const particle = document.createElement('div');
@@ -1308,7 +1312,6 @@
 
                                     function confirmDelete(roomID, roomNumber) {
 
-                                        // ตรวจสอบความถูกต้องของ roomID
                                         if (!roomID || roomID === '' || roomID === 'undefined' || roomID === 'null') {
                                             showToast('ข้อผิดพลาด: ไม่พบรหัสห้อง', 'error');
                                             console.error('Invalid roomID:', roomID);
@@ -1318,7 +1321,6 @@
                                         if (confirm(`⚠️ คำเตือน!\n\nคุณต้องการลบห้อง ${roomNumber} ใช่หรือไม่?\n\nการดำเนินการนี้ไม่สามารถยกเลิกได้`)) {
                                             document.getElementById('loading').style.display = 'flex';
 
-                                            // สร้าง URL แบบชัดเจน
                                             const deleteUrl = 'deleteRoom?id=' + roomID;
                                             console.log('Navigating to:', deleteUrl);
 
@@ -1380,5 +1382,4 @@
                                     });
                                 </script>
                             </body>
-
                             </html>

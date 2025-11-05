@@ -47,7 +47,6 @@ public class Rent {
     @JoinColumn(name = "roomID")
     private Room room;
 
-    // Default constructor
     public Rent() {
     }
 
@@ -65,7 +64,6 @@ public class Rent {
         this.room = room;
     }
 
-    // Getter & Setter
     public int getRentID() {
         return rentID;
     }

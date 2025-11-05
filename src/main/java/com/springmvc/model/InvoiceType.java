@@ -14,7 +14,6 @@ public class InvoiceType {
     @Column(name = "typeName", length = 255)
     private String typeName;
 
-    // Default constructor
     public InvoiceType() {
     }
 
@@ -23,7 +22,6 @@ public class InvoiceType {
         this.typeName = typeName;
     }
 
-    // Getter & Setter
     public int getTypeId() {
         return typeId;
     }

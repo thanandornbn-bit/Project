@@ -48,7 +48,6 @@
                   overflow-x: hidden;
                 }
 
-                /* Header */
                 .header {
                   background: var(--bg);
                   padding: 18px 48px;
@@ -402,7 +401,6 @@
             </head>
 
             <body>
-              <!-- Header -->
               <div class="header">
                 <h1>
                   <i class="fas fa-building"></i>
@@ -430,9 +428,7 @@
                 </div>
               </div>
 
-              <!-- Container -->
               <div class="container">
-                <!-- Welcome Message -->
                 <div class="welcome-message">
                   <h3>
                     <i class="fas fa-file-invoice"></i>
@@ -441,15 +437,12 @@
                   <p>ใบแจ้งหนี้ค่าเช่าห้องพักและค่าใช้จ่ายต่างๆ ของคุณ</p>
                 </div>
 
-                <!-- Error Message -->
                 <c:if test="${not empty error}">
                   <div class="error-message">
                     <i class="fas fa-exclamation-circle"></i>
                     ${error}
                   </div>
                 </c:if>
-
-                <!-- Invoice List -->
                 <c:choose>
                   <c:when test="${empty invoices}">
                     <div class="table-container">
@@ -515,12 +508,9 @@
               </div>
 
               <script>
-                // Alert message
                 <c:if test="${not empty message}">alert("${message}");</c:if>;
 
-                // Initialize on load
                 window.addEventListener("load", function () {
-                  // Page load animation
                   document.body.style.opacity = "0";
                   document.body.style.transition = "opacity 0.5s ease-in-out";
 
@@ -529,7 +519,6 @@
                   }, 100);
                 });
 
-                // Add hover effect to table rows
                 document.querySelectorAll(".invoice-table tbody tr").forEach((row) => {
                   row.addEventListener("mouseenter", function () {
                     this.style.boxShadow = "0 4px 20px rgba(92, 169, 233, 0.15)";

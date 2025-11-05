@@ -547,19 +547,15 @@
                             </div>
 
                             <script>
-                                // ข้อมูลบิลทั้งหมด
                                 let bills = [];
                                 let billCounter = 1;
                                 let currentCardId = 1;
                                 const roomPrice = ${ roomPrice };
 
-                                // ข้อมูลมิเตอร์เริ่มต้น
                                 let currentPrevWater = ${ prevWater };
                                 let currentPrevElectric = ${ prevElectric };
                                 const initialWaterRate = ${ waterRate };
                                 const initialElectricRate = ${ electricRate };
-
-                                // รายการที่เลือกไปแล้ว
                                 let usedTypes = [];
 
                                 // ข้อมูลบิลเดิมที่จะโหลดมา
@@ -574,7 +570,6 @@
                                     prevElectric: ${ prevElectric },
                                     currElectric: ${ currElectric },
                                     electricRate: ${ electricRate },
-                                    // Detail IDs สำหรับแก้ไข
                                     waterDetailId: ${ waterDetailId },
                                     electricDetailId: ${ electricDetailId },
                                     internetDetailId: ${ internetDetailId },
@@ -593,7 +588,6 @@
                                     toast.style.display = 'block';
                                     setTimeout(() => { toast.style.display = 'none'; }, 5000);
                                 }
-
                                 // สร้าง Card ใหม่
                                 function createNewCard() {
                                     const container = document.getElementById('billsCardsContainer');
@@ -751,7 +745,6 @@
                                         return;
                                     }
 
-                                    // Validation
                                     if (type === 'water' || type === 'electricity') {
                                         const prevMeter = parseFloat(card.querySelector('.prevMeter').value) || 0;
                                         const currMeter = parseFloat(card.querySelector('.currMeter').value) || 0;
@@ -806,7 +799,6 @@
                                         }
                                     }
 
-                                    // เพิ่ม type ลง usedTypes
                                     if (type !== 'other') {
                                         usedTypes.push(type);
                                     }
@@ -822,7 +814,6 @@
                                     card.querySelector('button[onclick*="addBill"]').style.display = 'none';
                                     document.getElementById('removeBtn_' + cardId).style.display = 'inline-flex';
 
-                                    // เปลี่ยนสี header เป็นสีเขียวเพื่อบ่งบอกว่าเพิ่มแล้ว
                                     const sectionTitle = card.querySelector('.section-title');
                                     if (sectionTitle) {
                                         sectionTitle.style.borderBottom = '2px solid #00ff88';
@@ -839,17 +830,12 @@
                                         const currMeter = parseFloat(card.querySelector('.currMeter').value) || 0;
                                         currentPrevElectric = currMeter;
                                     }
-
-                                    // สร้าง Card ใหม่
                                     createNewCard();
-
-                                    // อัพเดตยอดรวมและแสดงปุ่มบันทึก
                                     calculateAllBillsTotal();
-
                                     showToast('เพิ่มบิลเรียบร้อย', 'success');
                                 }
 
-                                // คำนวณยอดรวมจากทุก Card (รวมทั้งที่ยังไม่ได้กดเพิ่มบิล)
+                                // คำนวณยอดรวมจากทุก Card 
                                 function calculateAllBillsTotal() {
                                     let total = roomPrice;
                                     let billCount = 0;
@@ -1012,7 +998,6 @@
                                                     }
                                                 }
                                             } else if (type === 'penalty') {
-                                                // ค่าปรับ - ต้องเก็บ remark
                                                 const amountInput = card.querySelector('.amount');
                                                 const remarkInput = card.querySelector('.remark');
                                                 
@@ -1022,7 +1007,6 @@
                                                     const remark = remarkInput.value.trim();
                                                     detail = '-';
                                                     
-                                                    // เก็บ remark ก่อนตรวจสอบ amount
                                                     meterData = { remark: remark };
                                                     console.log('DEBUG: Penalty remark collected from card:', remark);
                                                     
@@ -1031,7 +1015,6 @@
                                                     }
                                                 }
                                             } else {
-                                                // internet และอื่นๆ
                                                 const amountInput = card.querySelector('.amount');
                                                 if (amountInput) {
                                                     const typeNames = {
@@ -1079,12 +1062,10 @@
 
                                         if (bill.meterData) {
                                             if (bill.meterData.remark !== undefined) {
-                                                // สำหรับค่าปรับที่มีหมายเหตุ (ส่งไปเสมอ แม้ว่าจะว่าง)
                                                 const remarkValue = bill.meterData.remark || '';
                                                 container.innerHTML += '<input type="hidden" name="item_' + i + '_remark" value="' + remarkValue + '" />';
                                                 console.log('DEBUG: Creating hidden input item_' + i + '_remark with value:', remarkValue);
                                             } else {
-                                                // สำหรับน้ำ/ไฟ ที่มีข้อมูลมิเตอร์
                                                 container.innerHTML += '<input type="hidden" name="item_' + i + '_prevMeter" value="' + bill.meterData.prev + '" />' +
                                                     '<input type="hidden" name="item_' + i + '_currMeter" value="' + bill.meterData.curr + '" />' +
                                                     '<input type="hidden" name="item_' + i + '_rate" value="' + bill.meterData.rate + '" />' +
@@ -1103,9 +1084,6 @@
                                 // โหลดข้อมูลบิลเดิม
                                 function loadExistingInvoice() {
                                     const container = document.getElementById('billsCardsContainer');
-
-                                    // ค่าห้อง (ไม่ต้องสร้าง Card เพราะรวมในยอดรวมแล้ว)
-
                                     // ค่าน้ำ
                                     if (existingInvoiceData.currWater > 0) {
                                         createCardWithData('water', {
@@ -1115,7 +1093,6 @@
                                             rate: existingInvoiceData.waterRate
                                         });
                                     }
-
                                     // ค่าไฟ
                                     if (existingInvoiceData.currElectric > 0) {
                                         createCardWithData('electricity', {
@@ -1125,7 +1102,6 @@
                                             rate: existingInvoiceData.electricRate
                                         });
                                     }
-
                                     // ค่าอินเทอร์เน็ต
                                     if (existingInvoiceData.internetPrice > 0) {
                                         createCardWithData('internet', {
@@ -1133,7 +1109,6 @@
                                             amount: existingInvoiceData.internetPrice
                                         });
                                     }
-
                                     // ค่าปรับ
                                     if (existingInvoiceData.penalty > 0) {
                                         createCardWithData('penalty', {
@@ -1142,11 +1117,7 @@
                                             remark: existingInvoiceData.penaltyRemark
                                         });
                                     }
-
-                                    // สร้าง Card ใหม่ว่างๆสำหรับเพิ่มบิลเพิ่มเติม
                                     createNewCard();
-
-                                    // คำนวณยอดรวม
                                     calculateAllBillsTotal();
                                 }
 
@@ -1160,7 +1131,6 @@
                                     card.className = 'form-section';
                                     card.style.cssText = 'margin-bottom: 15px;';
 
-                                    // หา label
                                     const typeLabels = {
                                         water: 'ค่าน้ำ',
                                         electricity: 'ค่าไฟฟ้า',
@@ -1242,20 +1212,18 @@
 
                                     container.appendChild(card);
 
-                                    // เก็บ detailId ไว้ใน card element (ถ้ามี)
+                                    // เก็บ detailId ไว้ใน card element
                                     if (data.detailId) {
                                         card.setAttribute('data-detail-id', data.detailId);
                                     }
 
-                                    // เพิ่มเข้า bills array
                                     bills.push({
                                         id: billCounter++,
                                         cardId: cardId,
                                         type: type,
-                                        detailId: data.detailId || 0  // เก็บ detailId ด้วย (0 = รายการใหม่)
+                                        detailId: data.detailId || 0  
                                     });
 
-                                    // เพิ่มเข้า usedTypes
                                     usedTypes.push(type);
 
                                     // อัพเดตมิเตอร์
@@ -1264,12 +1232,8 @@
                                     } else if (type === 'electricity') {
                                         currentPrevElectric = data.currMeter;
                                     }
-
-                                    // เพิ่ม event listeners
                                     setupCardEventListeners(cardId);
                                 }
-
-                                // เมื่อโหลดหน้าเว็บเสร็จ
                                 document.addEventListener('DOMContentLoaded', function () {
                                     loadExistingInvoice();
                                 });

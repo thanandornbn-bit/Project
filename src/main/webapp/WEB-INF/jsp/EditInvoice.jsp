@@ -512,7 +512,6 @@ response.sendRedirect("Login"); return; } %>
         }
       }
 
-      /* Tooltip สำหรับปุ่ม disabled */
       .btn-wrapper {
         position: relative;
         display: inline-block;
@@ -607,7 +606,6 @@ response.sendRedirect("Login"); return; } %>
         กลับหน้าหลัก
       </a>
 
-      <!-- Alert Messages -->
       <c:if test="${not empty message}">
         <div class="alert alert-success">
           <i class="fas fa-check-circle"></i>
@@ -622,7 +620,6 @@ response.sendRedirect("Login"); return; } %>
         </div>
       </c:if>
 
-      <!-- Room Information -->
       <div class="room-info-card">
         <h3>
           <i class="fas fa-home"></i>
@@ -648,7 +645,6 @@ response.sendRedirect("Login"); return; } %>
         </div>
       </div>
 
-      <!-- Invoice List or Empty State -->
       <c:choose>
         <c:when test="${empty invoices}">
           <div class="table-container">
@@ -741,7 +737,6 @@ response.sendRedirect("Login"); return; } %>
                     </td>
                     <td>
                       <div class="action-buttons">
-                        <!-- ปุ่มแก้ไขข้อมูลบิล -->
                         <c:choose>
                           <c:when test="${invoice.status == 1}">
                             <div class="btn-wrapper">
@@ -763,7 +758,6 @@ response.sendRedirect("Login"); return; } %>
                           </c:otherwise>
                         </c:choose>
 
-                        <!-- ปุ่มลบ -->
                         <c:choose>
                           <c:when test="${invoice.status == 1}">
                             <div class="btn-wrapper">
@@ -792,8 +786,6 @@ response.sendRedirect("Login"); return; } %>
               </tbody>
             </table>
           </div>
-
-          <!-- Create New Invoice Section -->
           <div class="create-invoice-section">
             <a
               href="ManagerAddInvoice?roomID=${room.roomID}"
@@ -807,7 +799,6 @@ response.sendRedirect("Login"); return; } %>
       </c:choose>
     </div>
 
-    <!-- Delete Confirmation Modal -->
     <div id="deleteModal" class="modal">
       <div class="modal-content">
         <div class="modal-header">
@@ -877,7 +868,6 @@ response.sendRedirect("Login"); return; } %>
         }
       });
 
-      // Auto hide alerts after 5 seconds
       window.addEventListener("load", function () {
         const alerts = document.querySelectorAll(".alert");
         alerts.forEach(function (alert) {

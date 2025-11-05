@@ -605,7 +605,6 @@
         </head>
 
         <body>
-          <!-- Animated Background -->
           <div class="bg-animation">
             <div class="floating-shapes"></div>
             <div class="floating-shapes"></div>
@@ -616,7 +615,6 @@
           </div>
 
           <div class="register-container">
-            <!-- Header -->
             <div class="register-header">
               <div class="app-logo">
                 <i class="fas fa-building"></i>
@@ -626,14 +624,12 @@
               <div class="register-title">สมัครสมาชิกใหม่</div>
             </div>
 
-            <!-- Form Container -->
             <div class="form-container">
               <a href="Login" class="back-link">
                 <i class="fas fa-arrow-left"></i>
                 กลับไปหน้าเข้าสู่ระบบ
               </a>
 
-              <!-- Error Message -->
               <div class="error-message" id="errorMessage">
                 <c:if test="${not empty add_result}">
                   <i class="fas fa-exclamation-circle"></i>
@@ -641,10 +637,8 @@
                 </c:if>
               </div>
 
-              <!-- Registration Form -->
               <form name="formregister" action="Register" method="post" id="registerForm">
                 <div class="form-grid">
-                  <!-- Name Row -->
                   <div class="form-row">
                     <div class="form-group">
                       <label for="firstName">ชื่อ</label>
@@ -655,7 +649,6 @@
                         <i class="fas fa-times validation-icon invalid" id="firstNameInvalid"></i>
                       </div>
                     </div>
-
                     <div class="form-group">
                       <label for="lastName">นามสกุล</label>
                       <div class="input-container">
@@ -666,8 +659,6 @@
                       </div>
                     </div>
                   </div>
-
-                  <!-- Email -->
                   <div class="form-group full-width">
                     <label for="email">อีเมล</label>
                     <div class="input-container">
@@ -678,7 +669,6 @@
                     </div>
                   </div>
 
-                  <!-- Phone Number -->
                   <div class="form-group full-width">
                     <label for="phoneNumber">หมายเลขโทรศัพท์</label>
                     <div class="input-container">
@@ -690,7 +680,6 @@
                     </div>
                   </div>
 
-                  <!-- Password -->
                   <div class="form-group full-width">
                     <label for="password">รหัสผ่าน</label>
                     <div class="input-container">
@@ -710,7 +699,6 @@
                     </div>
                   </div>
 
-                  <!-- Confirm Password -->
                   <div class="form-group full-width">
                     <label for="confirmPassword">ยืนยันรหัสผ่าน</label>
                     <div class="input-container">
@@ -746,7 +734,6 @@
           </div>
 
           <script>
-            // Toggle password visibility
             function togglePassword(inputId, iconId) {
               const passwordInput = document.getElementById(inputId);
               const toggleIcon = document.getElementById(iconId);
@@ -760,7 +747,6 @@
               }
             }
 
-            // Password strength checker
             function checkPasswordStrength(password) {
               const strengthBar = document.getElementById("strengthBar");
               const strengthIndicator = document.getElementById("passwordStrength");
@@ -794,7 +780,60 @@
               return strength;
             }
 
-            // Form validation
+            //ตรวจสอบเบอร์โทรศัพท์
+            function isValidPhoneNumber(phoneNumber) {
+              // ลบช่องว่างและขีดออกก่อน
+              const cleanedPhone = phoneNumber.replace(/[\s-]/g, '');
+
+              // ตรวจสอบว่าเป็นตัวเลข 10 หลัก และเริ่มต้นด้วย 06, 08, หรือ 09
+              const phonePattern = /^0[689][0-9]{8}$/;
+
+              return phonePattern.test(cleanedPhone);
+            }
+
+            //แสดงข้อความแนะนำสำหรับเบอร์โทร
+            function showPhoneHint(phoneNumber) {
+              const cleanedPhone = phoneNumber.replace(/[\s-]/g, '');
+
+              if (cleanedPhone.length === 0) {
+                return '';
+              }
+
+              if (cleanedPhone.length < 10) {
+                return 'เบอร์โทรศัพท์ต้องมี 10 หลัก';
+              }
+
+              if (cleanedPhone.length > 10) {
+                return 'เบอร์โทรศัพท์ยาวเกินไป';
+              }
+
+              if (!cleanedPhone.startsWith('0')) {
+                return 'เบอร์โทรศัพท์ต้องขึ้นต้นด้วย 0';
+              }
+
+              const secondDigit = cleanedPhone.charAt(1);
+              if (!['6', '8', '9'].includes(secondDigit)) {
+                return 'เบอร์โทรศัพท์ต้องเริ่มด้วย 06, 08 หรือ 09';
+              }
+
+              return '';
+            }
+
+            //จัดรูปแบบเบอร์โทร (เพิ่มขีด)
+            function formatPhoneNumber(phoneNumber) {
+              const cleanedPhone = phoneNumber.replace(/[\s-]/g, '');
+
+              if (cleanedPhone.length <= 3) {
+                return cleanedPhone;
+              } else if (cleanedPhone.length <= 6) {
+                return cleanedPhone.slice(0, 3) + '-' + cleanedPhone.slice(3);
+              } else if (cleanedPhone.length <= 10) {
+                return cleanedPhone.slice(0, 3) + '-' + cleanedPhone.slice(3, 6) + '-' + cleanedPhone.slice(6);
+              }
+
+              return cleanedPhone.slice(0, 3) + '-' + cleanedPhone.slice(3, 6) + '-' + cleanedPhone.slice(6, 10);
+            }
+
             function validateField(field, validationFunc) {
               const value = field.value.trim();
               const isValid = validationFunc(value);
@@ -823,20 +862,17 @@
               return isValid;
             }
 
-            // Validation functions
             const validators = {
               firstName: (value) => value.length >= 2,
               lastName: (value) => value.length >= 2,
               email: (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value),
-              phoneNumber: (value) => /^0[0-9]{9}$/.test(value),
+              phoneNumber: (value) => isValidPhoneNumber(value), 
               password: (value) => value.length >= 6,
               confirmPassword: (value) =>
                 value === document.getElementById("password").value,
             };
 
-            // Add event listeners
             document.addEventListener("DOMContentLoaded", function () {
-              // Field validation
               Object.keys(validators).forEach((fieldId) => {
                 const field = document.getElementById(fieldId);
                 if (field) {
@@ -845,10 +881,22 @@
 
                     if (fieldId === "password") {
                       checkPasswordStrength(this.value);
-                      // Revalidate confirm password when password changes
                       const confirmField = document.getElementById("confirmPassword");
                       if (confirmField.value) {
                         validateField(confirmField, validators.confirmPassword);
+                      }
+                    }
+
+                    if (fieldId === "phoneNumber") {
+                      const phoneHintElement = document.getElementById("phoneHint");
+                      if (phoneHintElement) {
+                        const hint = showPhoneHint(this.value);
+                        if (hint) {
+                          phoneHintElement.textContent = hint;
+                          phoneHintElement.style.display = "block";
+                        } else {
+                          phoneHintElement.style.display = "none";
+                        }
                       }
                     }
                   });
@@ -856,6 +904,14 @@
                   field.addEventListener("focus", function () {
                     if (fieldId === "password") {
                       document.getElementById("passwordHint").classList.add("show");
+                    }
+
+                    // แสดงคำแนะนำสำหรับเบอร์โทร
+                    if (fieldId === "phoneNumber") {
+                      const phoneHintElement = document.getElementById("phoneHint");
+                      if (phoneHintElement) {
+                        phoneHintElement.style.display = "block";
+                      }
                     }
                   });
 
@@ -865,11 +921,18 @@
                         .getElementById("passwordHint")
                         .classList.remove("show");
                     }
+
+                    // ซ่อนคำแนะนำถ้าเบอร์ถูกต้อง
+                    if (fieldId === "phoneNumber") {
+                      const phoneHintElement = document.getElementById("phoneHint");
+                      if (phoneHintElement && isValidPhoneNumber(this.value)) {
+                        phoneHintElement.style.display = "none";
+                      }
+                    }
                   });
                 }
               });
 
-              // Form submission
               document
                 .getElementById("registerForm")
                 .addEventListener("submit", async function (e) {
@@ -878,7 +941,7 @@
                   const submitBtn = document.getElementById("submitBtn");
                   const errorMessage = document.getElementById("errorMessage");
 
-                  // Password validation: at least 1 upper, 1 lower, 6-50 chars
+                  // ตรวจสอบรหัสผ่าน
                   const password = document.getElementById("password").value;
                   if (!isPasswordValid(password)) {
                     e.preventDefault();
@@ -890,21 +953,23 @@
                     return;
                   }
 
-                  // (Optional) Duplicate check for name/phone (async placeholder)
-                  // You can implement AJAX call to backend for real-time check here
-                  // Example:
-                  // const firstName = document.getElementById("firstName").value;
-                  // const lastName = document.getElementById("lastName").value;
-                  // const phoneNumber = document.getElementById("phoneNumber").value;
-                  // let isDuplicate = await checkNamePhoneDuplicate(firstName, lastName, phoneNumber);
-                  // if (isDuplicate) { ... show error ... return; }
+                  // ตรวจสอบเบอร์โทร
+                  const phoneNumber = document.getElementById("phoneNumber").value;
+                  if (!isValidPhoneNumber(phoneNumber)) {
+                    e.preventDefault();
+                    errorMessage.innerHTML = '<i class="fas fa-exclamation-circle"></i> เบอร์โทรศัพท์ไม่ถูกต้อง กรุณากรอกเบอร์ที่เริ่มด้วย 06, 08 หรือ 09 (10 หลัก)';
+                    errorMessage.style.display = "flex";
+                    btnText.style.opacity = "1";
+                    loading.style.display = "none";
+                    submitBtn.disabled = false;
+                    return;
+                  }
 
                   btnText.style.opacity = "0";
                   loading.style.display = "block";
                   submitBtn.disabled = true;
                 });
 
-              // Password validation function (same as backend)
               function isPasswordValid(password) {
                 if (!password) return false;
                 if (password.length < 6 || password.length > 50) return false;
@@ -917,7 +982,6 @@
               }
             });
 
-            // Create particles
             function createParticles() {
               const particles = document.getElementById("particles");
               const particleCount = 50;
@@ -932,20 +996,15 @@
               }
             }
 
-            // Initialize
             window.addEventListener("load", function () {
               createParticles();
-
-              // Page load animation
               document.body.style.opacity = "0";
               document.body.style.transition = "opacity 0.5s ease-in-out";
-
               setTimeout(function () {
                 document.body.style.opacity = "1";
               }, 100);
             });
 
-            // Input animations
             document
               .querySelectorAll(
                 'input[type="email"], input[type="password"], input[type="text"], input[type="tel"]'
@@ -955,7 +1014,6 @@
                   this.parentElement.parentElement.style.transform =
                     "translateY(-2px)";
                 });
-
                 input.addEventListener("blur", function () {
                   this.parentElement.parentElement.style.transform = "translateY(0)";
                 });

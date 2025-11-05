@@ -25,10 +25,10 @@ public class Reserve {
     private Date approvedDate;
 
     @Column(name = "internetOption")
-    private Boolean internetOption; // true = เอาอินเทอร์เน็ต, false = ไม่เอา
+    private Boolean internetOption;
 
     @Column(name = "internetFee")
-    private Integer internetFee; // ค่าอินเทอร์เน็ต (200 หรือ 0)
+    private Integer internetFee; 
 
     @Column(name = "status", length = 45)
     private String status;
@@ -41,7 +41,6 @@ public class Reserve {
     @JoinColumn(name = "member_memberID")
     private Member member;
 
-    // Default constructor
     public Reserve() {
     }
 
@@ -54,7 +53,6 @@ public class Reserve {
         this.member = member;
     }
 
-    // Getter & Setter
     public int getReserveId() {
         return reserveId;
     }

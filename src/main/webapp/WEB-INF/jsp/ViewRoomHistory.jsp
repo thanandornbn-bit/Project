@@ -451,7 +451,6 @@ response.sendRedirect("Login"); return; } %>
       </c:choose>
     </div>
 
-    <!-- Modal สำหรับยกเลิกการคืนห้อง -->
     <div
       id="undoReturnModal"
       style="
@@ -574,7 +573,6 @@ response.sendRedirect("Login"); return; } %>
       </div>
     </div>
 
-    <!-- Modal สำหรับคืนห้องปกติ -->
     <div
       id="returnRoomModal"
       style="
@@ -680,7 +678,6 @@ response.sendRedirect("Login"); return; } %>
     </div>
 
     <script>
-      // ฟังก์ชันสำหรับคืนห้องปกติ
       function confirmReturn(rentId, roomNumber, memberName) {
         document.getElementById("rentIdInput").value = rentId;
         document.getElementById("returnInfo").innerHTML =
@@ -702,7 +699,6 @@ response.sendRedirect("Login"); return; } %>
           closeReturnRoomModal();
         });
 
-      // ฟังก์ชันสำหรับยกเลิกการคืนห้อง (แก้ไขผิดพลาด)
       function confirmUndoReturn(rentId, roomNumber, memberName) {
         document.getElementById("undoRentIdInput").value = rentId;
         document.getElementById("undoReturnInfo").innerHTML =
@@ -726,7 +722,6 @@ response.sendRedirect("Login"); return; } %>
           closeUndoReturnModal();
         });
 
-      // ฟังก์ชันสำหรับคืนห้องให้ Member (กรณีคืนผิดห้อง)
       function confirmReturnToMember(rentId, roomNumber, memberName) {
         document.getElementById("undoRentIdInput").value = rentId;
         document.getElementById("undoReturnInfo").innerHTML =

@@ -105,6 +105,7 @@
                     color: white;
                   }
 
+                  /* User Section - ปรับแต่งตามรูปภาพ */
                   .user-section {
                     display: flex;
                     gap: 16px;
@@ -115,36 +116,60 @@
                     display: flex;
                     align-items: center;
                     gap: 10px;
-                    background: var(--muted-bg);
-                    padding: 8px 16px;
-                    border-radius: 24px;
-                    font-weight: 500;
-                    color: var(--text);
+                    color: var(--muted-text);
+                    font-weight: 600;
+                    padding: 10px 16px;
+                    background: var(--accent);
+                    border-radius: 10px;
                   }
 
                   .user-info i {
                     color: var(--primary);
+                    font-size: 1.2rem;
                   }
 
-                  .logout-btn {
-                    background: linear-gradient(135deg, var(--danger), #d32f2f);
+                  /* ปุ่มแก้ไขข้อมูล - สีฟ้าตามรูป */
+                  .btn-edit-profile {
+                    background: linear-gradient(135deg, #5CA9E9, #4A90E2);
                     color: white;
                     border: none;
                     padding: 10px 20px;
-                    border-radius: 8px;
+                    border-radius: 25px;
                     font-weight: 600;
                     cursor: pointer;
-                    display: flex;
+                    display: inline-flex;
                     align-items: center;
                     gap: 8px;
                     transition: all 0.3s ease;
                     font-family: "Sarabun", sans-serif;
                     font-size: 0.95rem;
+                    text-decoration: none;
+                    box-shadow: 0 2px 8px rgba(92, 169, 233, 0.3);
+                  }
+
+                  .btn-edit-profile:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 12px rgba(92, 169, 233, 0.4);
+                    background: linear-gradient(135deg, #4A90E2, #357ABD);
+                  }
+
+                  /* ปุ่มออกจากระบบ - สีแดงตามรูป */
+                  .logout-btn {
+                    background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+                    color: white;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 10px;
+                    font-weight: 700;
+                    font-family: 'Sarabun', sans-serif;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
                   }
 
                   .logout-btn:hover {
+                    box-shadow: 0 6px 16px rgba(239, 68, 68, 0.4);
                     transform: translateY(-2px);
-                    box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
                   }
 
                   .container {
@@ -531,36 +556,24 @@
                     }
                   }
 
-                  .section-label {
-                    background: var(--muted-bg);
-                    padding: 12px 20px;
-                    border-left: 4px solid;
-                    font-weight: 600;
-                    font-size: 1.05rem;
-                  }
-
-                  .label-pending {
-                    border-left-color: var(--warning);
-                    color: var(--warning);
-                  }
-
-                  .label-approved {
-                    border-left-color: var(--success);
-                    color: var(--success);
-                  }
-
-                  .label-returned {
-                    border-left-color: var(--primary);
-                    color: var(--primary);
-                  }
-
                   @media (max-width: 768px) {
                     .container {
                       padding: 15px;
                     }
 
                     .header {
+                      flex-direction: column;
+                      gap: 15px;
+                      padding: 15px 20px;
+                    }
+
+                    .header h1 {
                       font-size: 2rem;
+                    }
+
+                    .nav-menu {
+                      flex-wrap: wrap;
+                      justify-content: center;
                     }
 
                     .stats-container {
@@ -585,22 +598,44 @@
                       justify-content: center;
                     }
                   }
+
+
+                  .btn-edit-profile {
+                    background: linear-gradient(135deg, #5CA9E9, #4A90E2);
+                    color: white;
+                    border: none;
+                    padding: 10px 20px;
+                    border-radius: 10px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                    transition: all 0.3s ease;
+                    font-family: "Sarabun", sans-serif;
+                    font-size: 0.95rem;
+                    text-decoration: none;
+                    box-shadow: 0 2px 8px rgba(92, 169, 233, 0.3);
+                  }
+
+                  .btn-edit-profile:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 12px rgba(92, 169, 233, 0.4);
+                    background: linear-gradient(135deg, #4A90E2, #357ABD);
+                  }
                 </style>
               </head>
 
               <body>
-                <!-- Loading Animation -->
                 <div class="loading" id="loading">
                   <div class="spinner"></div>
                 </div>
 
-                <!-- Toast Notification -->
                 <div id="toast" class="toast">
                   <div id="toast-message"></div>
                 </div>
 
                 <div class="page-container">
-                  <!-- Header -->
                   <div class="header">
                     <h1>
                       <i class="fas fa-building"></i>
@@ -620,8 +655,8 @@
                         <i class="fas fa-clipboard-check"></i> คำขอคืนห้อง
                       </a>
                       <a href="ManageUtilityRates" class="nav-link">
-                                                <i class="fas fa-cogs"></i> ตั้งค่าหน่วย
-                                            </a>
+                        <i class="fas fa-cogs"></i> ตั้งค่าหน่วย
+                      </a>
                       <a href="AddRoom" class="nav-link">
                         <i class="fas fa-plus"></i> เพิ่มห้อง
                       </a>
@@ -631,9 +666,9 @@
                         <i class="fas fa-user-circle"></i>
                         <span>${loginManager.email}</span>
                       </div>
-                      <a href="EditManager" class="action-btn btn-edit" style="margin-left:10px;">
-                                                <i class="fas fa-user-edit"></i> แก้ไขข้อมูล
-                                            </a>
+                      <a href="EditManager" class="btn-edit-profile" style="margin-left:10px;">
+                        <i class="fas fa-user-edit"></i> แก้ไขข้อมูล
+                      </a>
                       <form action="Logout" method="post" style="display: inline">
                         <button type="submit" class="logout-btn">
                           <i class="fas fa-sign-out-alt"></i>
@@ -644,7 +679,6 @@
                   </div>
 
                   <div class="container">
-                    <!-- สถิติการจอง -->
                     <div class="stats-container">
                       <div class="stat-card stat-total">
                         <div class="stat-icon">
@@ -741,7 +775,6 @@
                           </div>
                         </c:when>
                         <c:otherwise>
-                          <!-- ตรวจสอบว่ามีข้อมูลในแต่ละกลุ่มหรือไม่ -->
                           <c:set var="hasWaiting" value="false" />
                           <c:set var="hasPending" value="false" />
                           <c:set var="hasApproved" value="false" />
@@ -762,7 +795,6 @@
                             </c:if>
                           </c:forEach>
 
-                          <!-- กลุ่ม 1: รออนุมัติ -->
                           <c:if test="${hasWaiting}">
                             <div class="section-label label-pending">
                               <i class="fas fa-clock"></i>
@@ -819,7 +851,6 @@
                             </div>
                           </c:if>
 
-                          <!-- กลุ่ม 2: ชำระแล้ว -->
                           <c:if test="${hasPending}">
                             <div class="section-label" style="border-left-color: #42a5f5; color: #42a5f5">
                               <i class="fas fa-check-circle"></i>
@@ -879,8 +910,6 @@
                               </c:forEach>
                             </div>
                           </c:if>
-
-                          <!-- กลุ่ม 3: เช่าอยู่ / รอคืนห้อง -->
                           <c:if test="${hasApproved}">
                             <div class="section-label label-approved">
                               <i class="fas fa-home"></i>
@@ -973,7 +1002,6 @@
                             </div>
                           </c:if>
 
-                          <!-- กลุ่ม 4: คืนห้องแล้ว -->
                           <c:if test="${hasReturned}">
                             <div class="section-label label-returned">
                               <i class="fas fa-home"></i>
@@ -1036,7 +1064,6 @@
                 </div>
 
                 <script>
-                  // Toast notification function
                   function showToast(message, type = 'success') {
                     const toast = document.getElementById('toast');
                     const toastMessage = document.getElementById('toast-message');
@@ -1049,15 +1076,12 @@
                       toast.style.display = 'none';
                     }, 5000);
                   }
-
-                  // Confirmation for approval
                   function confirmApproval(roomNumber, memberName) {
-                    const message = `คุณต้องการอนุมัติการจองห้อง ${roomNumber}\nของคุณ ${memberName} ใช่หรือไม่?\n\nหลังจากอนุมัติแล้ว:\n✓ สามารถเพิ่มบิลให้ห้องนี้ได้\n✓ ผู้เช่าสามารถเข้าพักได้\n✓ ไม่สามารถยกเลิกได้`;
+                    const message = `คุณต้องการอนุมัติการจองห้อง ${roomNumber}\nของคุณ ${memberName} ใช่หรือไม่?`;
 
                     return confirm(message);
                   }
 
-                  // Loading animation
                   function showLoading() {
                     document.getElementById('loading').style.display = 'flex';
                   }
@@ -1066,10 +1090,8 @@
                     document.getElementById('loading').style.display = 'none';
                   }
 
-                  // Add loading to forms
                   document.querySelectorAll('form').forEach(form => {
                     form.addEventListener('submit', function (e) {
-                      // If it's a return form and confirmation is needed
                       if (form.action.includes('ManagerReturnRoom')) {
                         const roomNumber = form.querySelector('input[name="roomNumber"]').value;
                         const status = form.querySelector('input[name="status"]').value;
@@ -1082,14 +1104,12 @@
                     });
                   });
 
-                  // Page load animations
+
                   window.addEventListener('load', function () {
-                    // Hide loading after page loads
                     setTimeout(() => {
                       document.getElementById('loading').style.display = 'none';
                     }, 1000);
 
-                    // Fade in animation
                     document.body.style.opacity = '0';
                     document.body.style.transition = 'opacity 0.5s ease-in-out';
 
@@ -1098,7 +1118,6 @@
                     }, 100);
                   });
 
-                  // Set active navigation
                   const currentPath = window.location.pathname;
                   const navLinks = document.querySelectorAll('.nav a');
 
@@ -1110,9 +1129,7 @@
                     }
                   });
 
-                  // Add hover effects to table rows
                   document.querySelectorAll('tbody tr').forEach(row => {
-                    // Skip section label rows
                     if (!row.querySelector('.section-label')) {
                       row.addEventListener('mouseenter', function () {
                         this.style.transform = 'scale(1.02)';
@@ -1124,14 +1141,12 @@
                     }
                   });
 
-                  // Auto refresh every 2 minutes to check for new reservations
                   setInterval(() => {
                     if (document.visibilityState === 'visible') {
                       window.location.reload();
                     }
                   }, 120000);
 
-                  // Network status monitoring
                   window.addEventListener('online', function () {
                     showToast('เชื่อมต่อ อินเทอร์เน็ตแล้ว', 'success');
                   });
@@ -1140,39 +1155,27 @@
                     showToast('ไม่มีการเชื่อมต่ออินเทอร์เน็ต', 'error');
                   });
 
-              // Show success/error messages
-              <c:if test="${not empty message}">
-                  setTimeout(() => {
-                      showToast("${message}", "success");
-                  }, 500);
-              </c:if>
+                  <c:if test="${not empty message}">
+                      setTimeout(() => {
+                          showToast("${message}", "success");
+                      }, 500);
+                  </c:if>
 
-              <c:if test="${not empty error}">
-                  setTimeout(() => {
-                      showToast("${error}", "error");
-                  }, 500);
-              </c:if>
+                  <c:if test="${not empty error}">
+                      setTimeout(() => {
+                          showToast("${error}", "error");
+                      }, 500);
+                  </c:if>
 
-                  // Confirmation for returning room - Manager สามารถคืนห้องได้เลยโดยไม่มีเงื่อนไข
                   function confirmReturn(roomNumber, memberName, status) {
                     let message = '';
 
                     if (status === 'รอดำเนินการ') {
-                      message = `⚠️ คุณต้องการยกเลิกการจองห้อง ${roomNumber}\n` +
-                        `ของคุณ ${memberName} ใช่หรือไม่?\n\n` +
-                        `หลังจากยกเลิกแล้ว:\n` +
-                        `✓ ห้องจะกลับเป็นสถานะ "ว่าง"\n` +
-                        `✓ สามารถให้ผู้อื่นจองได้ใหม่\n` +
-                        `✓ ไม่สามารถเรียกคืนได้`;
+                      message = `คุณต้องการยกเลิกการจองห้อง ${roomNumber}\n` +
+                        `ของคุณ ${memberName} ใช่หรือไม่?`;
                     } else {
                       message = `⚠️ คุณต้องการคืนห้อง ${roomNumber}\n` +
-                        `ของคุณ ${memberName} ใช่หรือไม่?\n\n` +
-                        `หลังจากคืนห้องแล้ว:\n` +
-                        `✓ ห้องจะกลับเป็นสถานะ "ว่าง"\n` +
-                        `✓ สามารถให้ผู้อื่นจองได้ใหม่\n` +
-                        `✓ ไม่สามารถเรียกคืนได้\n\n` +
-                        `📝 หมายเหตุ: Manager สามารถคืนห้องได้ทันที\n` +
-                        `    แม้จะยังมีบิลค้างชำระ`;
+                        `ของคุณ ${memberName} ใช่หรือไม่?`;
                     }
 
                     return confirm(message);

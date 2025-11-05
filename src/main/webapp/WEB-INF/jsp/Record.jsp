@@ -49,7 +49,6 @@ response.sendRedirect("Login"); return; } %>
         overflow-x: hidden;
       }
 
-      /* Header */
       .header {
         background: var(--bg);
         padding: 18px 48px;
@@ -195,7 +194,6 @@ response.sendRedirect("Login"); return; } %>
         font-weight: 500;
       }
 
-      /* Stats Grid */
       .rental-stats {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -262,7 +260,6 @@ response.sendRedirect("Login"); return; } %>
         font-weight: 600;
       }
 
-      /* Alert */
       .alert {
         padding: 18px 25px;
         border-radius: 12px;
@@ -297,7 +294,6 @@ response.sendRedirect("Login"); return; } %>
         border: 2px solid var(--primary);
       }
 
-      /* Section */
       .section {
         margin-bottom: 40px;
       }
@@ -333,7 +329,6 @@ response.sendRedirect("Login"); return; } %>
         border: 2px solid white;
       }
 
-      /* Table */
       .table-container {
         background: white;
         border-radius: 0 0 15px 15px;
@@ -386,7 +381,6 @@ response.sendRedirect("Login"); return; } %>
         transform: scale(1.01);
       }
 
-      /* Status Badge */
       .status-badge {
         padding: 8px 16px;
         border-radius: 20px;
@@ -413,7 +407,6 @@ response.sendRedirect("Login"); return; } %>
         box-shadow: 0 4px 10px rgba(92, 169, 233, 0.2);
       }
 
-      /* No Record */
       .no-record {
         text-align: center;
         padding: 80px 20px;
@@ -466,8 +459,6 @@ response.sendRedirect("Login"); return; } %>
         line-height: 1.4;
         font-weight: 500;
       }
-
-      /* Action Button */
       .action-btn {
         display: inline-flex;
         align-items: center;
@@ -493,7 +484,6 @@ response.sendRedirect("Login"); return; } %>
         box-shadow: 0 8px 20px rgba(74, 144, 226, 0.4);
       }
 
-      /* Loading */
       .loading {
         display: none;
         position: fixed;
@@ -526,7 +516,6 @@ response.sendRedirect("Login"); return; } %>
         }
       }
 
-      /* Toast */
       .toast {
         position: fixed;
         top: 20px;
@@ -590,17 +579,14 @@ response.sendRedirect("Login"); return; } %>
     }
     </style>
   <body>
-    <!-- Loading -->
     <div class="loading" id="loading">
       <div class="spinner"></div>
     </div>
 
-    <!-- Toast -->
     <div id="toast" class="toast">
       <div id="toast-message"></div>
     </div>
 
-    <!-- Header -->
     <div class="header">
       <h1>
         <i class="fas fa-building"></i>
@@ -632,10 +618,7 @@ response.sendRedirect("Login"); return; } %>
         </form>
       </div>
     </div>
-
-    <!-- Container -->
     <div class="container">
-      <!-- Welcome Section -->
       <div class="welcome-section">
         <h3>
           <i class="fas fa-history"></i>
@@ -644,7 +627,6 @@ response.sendRedirect("Login"); return; } %>
         <p>ประวัติการจองห้องพัก การเช่า และการคืนห้องทั้งหมดของคุณ</p>
       </div>
 
-      <!-- Stats -->
       <div class="rental-stats">
         <div class="stat-card" style="border: 1px solid rgba(255, 193, 7, 0.3);">
           <div class="stat-icon" style="color: #ffc107;"><i class="fas fa-clipboard-list"></i></div>
@@ -677,7 +659,6 @@ response.sendRedirect("Login"); return; } %>
         </div>
       </div>
 
-      <!-- Messages -->
       <c:if test="${not empty message}">
         <div class="alert alert-success">
           <i class="fas fa-check-circle"></i> ${message}
@@ -689,8 +670,6 @@ response.sendRedirect("Login"); return; } %>
           <i class="fas fa-exclamation-circle"></i> ${error}
         </div>
       </c:if>
-
-      <!-- Info Alert -->
       <div class="alert alert-info">
         <i class="fas fa-info-circle"></i>
         <div>
@@ -699,7 +678,6 @@ response.sendRedirect("Login"); return; } %>
         </div>
       </div>
 
-      <!-- Alert for approved reservations -->
       <c:if test="${approvedReservesCount > 0}">
       <div class="alert alert-success">
         <i class="fas fa-check-circle"></i>
@@ -709,8 +687,6 @@ response.sendRedirect("Login"); return; } %>
         </div>
       </div>
       </c:if>
-
-      <!-- ==================== ส่วนการจอง (Reserve) ==================== -->
       
       <!-- 1. การจองรอการอนุมัติ -->
       <div class="section">
@@ -941,8 +917,6 @@ response.sendRedirect("Login"); return; } %>
       </div>
       </c:if>
 
-      <!-- ==================== ส่วนการเช่า (Rent) ==================== -->
-
       <!-- 4. การจองที่ชำระค่ามัดจำแล้ว -->
       <c:if test="${not empty paidRents}">
       <div class="section">
@@ -1165,7 +1139,6 @@ response.sendRedirect("Login"); return; } %>
         </c:choose>
       </div>
 
-      <!-- Summary Info -->
       <c:if test="${not empty returnedRentals}">
         <div class="alert alert-success" style="margin-top: 25px">
           <i class="fas fa-clipboard-check"></i>
@@ -1214,7 +1187,6 @@ response.sendRedirect("Login"); return; } %>
           }, 100);
       });
 
-      // Add animation to table rows
       const observer = new IntersectionObserver((entries) => {
           entries.forEach(entry => {
               if (entry.isIntersecting) {

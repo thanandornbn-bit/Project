@@ -589,7 +589,6 @@ response.sendRedirect("Login"); return; } %>
   </head>
 
   <body>
-    <!-- Animated Background -->
     <div class="bg-animation">
       <div class="floating-shapes"></div>
       <div class="floating-shapes"></div>
@@ -597,15 +596,12 @@ response.sendRedirect("Login"); return; } %>
       <div class="particles" id="particles"></div>
     </div>
 
-    <!-- Header -->
     <div class="page-header">
       <h1>
         <i class="fas fa-file-invoice-dollar"></i>
         รายละเอียดใบแจ้งหนี้
       </h1>
     </div>
-
-    <!-- Container -->
     <div class="container">
       <div>
         <a href="Listinvoice" class="back-btn">
@@ -618,7 +614,6 @@ response.sendRedirect("Login"); return; } %>
         </button>
       </div>
 
-      <!-- Error Message -->
       <c:if test="${not empty error}">
         <div class="error-message">
           <i class="fas fa-exclamation-circle"></i>
@@ -626,9 +621,7 @@ response.sendRedirect("Login"); return; } %>
         </div>
       </c:if>
 
-      <!-- Invoice Content -->
       <c:if test="${not empty invoice}">
-        <!-- Invoice Header -->
         <div class="invoice-header-card">
           <div class="invoice-number">
             <i class="fas fa-receipt"></i>
@@ -636,7 +629,6 @@ response.sendRedirect("Login"); return; } %>
           </div>
 
           <div class="invoice-info-grid">
-            <!-- Rental Information -->
             <div class="info-card">
               <h4>
                 <i class="fas fa-door-open"></i>
@@ -650,7 +642,6 @@ response.sendRedirect("Login"); return; } %>
               <p><strong>ประเภทห้อง:</strong> ${invoice.rent.room.roomtype}</p>
             </div>
 
-            <!-- Invoice Information -->
             <div class="info-card">
               <h4>
                 <i class="fas fa-info-circle"></i>
@@ -679,7 +670,6 @@ response.sendRedirect("Login"); return; } %>
           </div>
         </div>
 
-        <!-- Details Table -->
         <div class="table-container">
           <table class="detail-table">
             <thead>
@@ -779,7 +769,6 @@ response.sendRedirect("Login"); return; } %>
           </table>
         </div>
 
-        <!-- Total Section -->
         <div class="total-section">
           <div class="total-label">ยอดรวมทั้งสิ้น</div>
           <div class="total-amount">
@@ -796,15 +785,12 @@ response.sendRedirect("Login"); return; } %>
     </div>
 
     <script>
-      // Alert message
       <c:if test="${not empty message}">alert("${message}");</c:if>;
 
-      // Print invoice function
       function printInvoice() {
         window.print();
       }
 
-      // Create particles
       function createParticles() {
         const particles = document.getElementById("particles");
         const particleCount = 50;
@@ -819,11 +805,9 @@ response.sendRedirect("Login"); return; } %>
         }
       }
 
-      // Initialize on load
       window.addEventListener("load", function () {
         createParticles();
 
-        // Page load animation
         document.body.style.opacity = "0";
         document.body.style.transition = "opacity 0.5s ease-in-out";
 
@@ -832,7 +816,6 @@ response.sendRedirect("Login"); return; } %>
         }, 100);
       });
 
-      // Add hover effects to info cards
       document.querySelectorAll(".info-card").forEach((card) => {
         card.addEventListener("mouseenter", function () {
           this.style.borderColor = "rgba(255, 140, 0, 0.6)";

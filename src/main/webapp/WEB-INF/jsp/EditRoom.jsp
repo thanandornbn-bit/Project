@@ -589,13 +589,11 @@
     </head>
 
     <body>
-      <!-- Loading Animation -->
       <div class="loading" id="loading">
         <div class="spinner"></div>
       </div>
 
       <div class="page-container">
-        <!-- Header -->
         <div class="header">
           <h1>
             <i class="fas fa-building"></i>
@@ -643,7 +641,6 @@
               แก้ไขห้องพัก
             </div>
 
-            <!-- Alert Messages -->
             <c:if test="${not empty message}">
               <div class="alert alert-success">
                 <i class="fas fa-check-circle"></i>
@@ -661,7 +658,6 @@
             <form action="UpdateRoom" method="post" id="editRoomForm" enctype="multipart/form-data">
               <input type="hidden" name="roomID" value="${room.roomID}" />
 
-              <!-- Room Info Section -->
               <div class="form-section">
                 <div class="section-title">
                   <i class="fas fa-info-circle"></i>
@@ -688,7 +684,6 @@
                 </div>
               </div>
 
-              <!-- Room Details Section -->
               <div class="form-section">
                 <div class="section-title">
                   <i class="fas fa-align-left"></i>
@@ -701,11 +696,10 @@
                   </label>
                   <textarea id="description" name="description" class="form-control" required
                     placeholder="รายละเอียดห้อง เช่น ขนาดห้อง, สิ่งอำนวยความสะดวก, เฟอร์นิเจอร์">
-${room.description}</textarea>
+                    ${room.description}</textarea>
                 </div>
               </div>
 
-              <!-- Price and Status Section -->
               <div class="form-section">
                 <div class="section-title">
                   <i class="fas fa-dollar-sign"></i>
@@ -741,7 +735,6 @@ ${room.description}</textarea>
                   value="${room.roomDeposit}" required placeholder="กรุณากรอกค่ามัดจำห้อง" min="500" />
               </div>
 
-              <!-- Room Images Section -->
               <div class="form-section">
                 <div class="section-title">
                   <i class="fas fa-images"></i>
@@ -829,7 +822,6 @@ ${room.description}</textarea>
       </div>
 
       <script>
-        // Smooth Page Load
         window.addEventListener("load", function () {
           document.body.style.opacity = "0";
           document.body.style.transition = "opacity 0.5s ease-in-out";
@@ -840,12 +832,10 @@ ${room.description}</textarea>
           }, 100);
         });
 
-        // Prevent form resubmission
         if (window.history.replaceState) {
           window.history.replaceState(null, null, window.location.href);
         }
 
-        // Image preview function
         function previewImage(input, previewId) {
           const preview = document.getElementById(previewId);
           preview.innerHTML = "";
@@ -877,7 +867,6 @@ ${room.description}</textarea>
           }
         }
 
-        // Form submit - show loading
         document.querySelector("form").addEventListener("submit", function () {
           document.getElementById("loading").style.display = "flex";
         });

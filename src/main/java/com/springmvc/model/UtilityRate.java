@@ -28,7 +28,6 @@ public class UtilityRate {
     @Column(name = "notes")
     private String notes;
 
-    // Constructors
     public UtilityRate() {
         this.isActive = true;
         this.effectiveDate = new Date();
@@ -41,7 +40,6 @@ public class UtilityRate {
         this.effectiveDate = new Date();
     }
 
-    // Getters and Setters
     public int getRateId() {
         return rateId;
     }
